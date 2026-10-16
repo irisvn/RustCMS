@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-7f88b9dc.js";
+            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-9f4d2959.js"></script>
@@ -205,7 +205,10 @@ production. Node.js is not needed (the admin panel is built in).</li>
 <a href="https://github.com/irisvn/RustCMS/releases">releases</a>, checks it against the
 release’s <code>SHA256SUMS</code>, and installs it in <code>~/.rustcms/bin</code>. It prints the
 line to add to your shell profile, or adds it with <code>sh -s -- --modify-path</code>.
-Run it again to update.</p>
+<code>rustcms self-update</code> updates it later; <code>rustcms doctor</code> checks that this
+machine can build an application (Rust version, C compiler, access to
+RustCMS-Core) and says what to install; <code>rustcms docs</code> opens this guide for
+your version, offline.</p>
 <ul>
 <li>A given version: <code>RUSTCMS_VERSION=v0.4.0</code> (release candidates are only
 installed this way). Another directory: <code>RUSTCMS_INSTALL=/opt/rustcms</code>.</li>
@@ -246,7 +249,9 @@ sign-in and every change are only accepted from that origin (opening
 <code>http://127.0.0.1:8000/admin</code> shows the page but sign-in answers 403; list
 other origins in <code>auth.admin_origins</code>).</p>
 <p>Inside an application, <code>rustcms &lt;command&gt;</code> runs your application’s binary
-(<code>cargo run -- &lt;command&gt;</code>), so your own commands are available too. Once
+(<code>cargo run -- &lt;command&gt;</code>), so your own commands are available too. The
+command’s own names (<code>new</code>, <code>make:*</code>, <code>doctor</code>, <code>upgrade</code>, <code>self-update</code>,
+<code>docs</code>) come first; <code>rustcms -- &lt;command&gt;</code> always reaches the application. Once
 built, the binary takes the same commands: <code>./blog migrate</code>, <code>./blog serve</code>.</p>
 <h2 id="your-first-resource"><a class="header" href="#your-first-resource">Your first resource</a></h2>
 <pre><code class="language-sh">rustcms make:model Post -m                 # src/models/post.rs + a create_posts_table migration

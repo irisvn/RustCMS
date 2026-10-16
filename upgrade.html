@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-7f88b9dc.js";
+            window.path_to_searchindex_js = "searchindex-8d4216ec.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9f4d2959.js"></script>
@@ -184,25 +184,40 @@
 <h2 id="upgrading-the-command-and-an-application"><a class="header" href="#upgrading-the-command-and-an-application">Upgrading the command and an application</a></h2>
 <ol>
 <li>
-<p>The <code>rustcms</code> command: run the <a href="getting-started/installation.html#installing-the-rustcms-command">install script</a>
-again (it replaces the installed version), or set <code>RUSTCMS_VERSION</code> for a
-given one. <code>rustcms --version</code> shows what you have.</p>
+<p>The command: <code>rustcms self-update</code> replaces it with the latest release
+(<code>--version v0.4.0</code> for a given one, older included). It works when the
+<a href="getting-started/installation.html#installing-the-rustcms-command">install script</a>
+installed it; a command built with <code>cargo install</code> is updated the same way
+it was installed. <code>rustcms --version</code> shows the version and the platform.</p>
 </li>
 <li>
-<p>An application: change the tag of both <code>rustcms</code> and <code>rustcms-testing</code> in
-<code>Cargo.toml</code> (always the same tag), and <code>[package.metadata.rustcms] version</code>;
-apply the <code>sea-orm</code> pins and the steps of the section for that version
-below; then:</p>
-<pre><code class="language-sh">cargo update -p rustcms -p rustcms-testing
+<p>An application: in its directory, <code>rustcms upgrade</code> moves it to the
+command’s version:</p>
+<pre><code class="language-sh">rustcms upgrade --dry-run   # what changes in Cargo.toml
+rustcms upgrade             # writes it, then updates Cargo.lock
 rustcms migrate
 cargo test
 </code></pre>
-<p>Commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
+<p>It sets the tag of <code>rustcms</code> and <code>rustcms-testing</code> (always the same), the
+<code>sea-orm</code> pins of that version and <code>[package.metadata.rustcms] version</code>,
+keeping your comments and features. If Cargo cannot resolve the result,
+<code>Cargo.toml</code> and <code>Cargo.lock</code> are put back. It refuses to go back to an
+older version (unless <code>--force</code>), and leaves alone a dependency on a local
+<code>path</code>, inherited from a workspace, renamed, or from another repository:
+change those by hand. Then follow the section of that version below, and
+commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
+<p>To upgrade to another version than the command’s, install that command
+first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-031-to-032"><a class="header" href="#from-031-to-032">From 0.3.1 to 0.3.2</a></h2>
+<p>Only the command changed (new <code>doctor</code>, <code>upgrade</code>, <code>self-update</code>, <code>docs</code>).
+Install it again with the install script (0.3.1 has no <code>self-update</code>), then
+<code>rustcms upgrade</code> in each application.</p>
 <h2 id="applications-made-before-031"><a class="header" href="#applications-made-before-031">Applications made before 0.3.1</a></h2>
 <p>They depend on <code>rustcms = "0.3.0"</code> (not on crates.io) or on a local <code>path</code>.
-Point both dependencies at the Git tag instead, keeping your features:</p>
+<code>rustcms upgrade</code> moves a version dependency to the Git tag; a <code>path</code> is
+changed by hand, keeping your features:</p>
 <pre><code class="language-toml">[dependencies]
 rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.3.1" }
 

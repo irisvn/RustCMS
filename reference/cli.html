@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-7f88b9dc.js";
+            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-9f4d2959.js"></script>
@@ -370,6 +370,45 @@ application in the current directory (<code>cargo run -- &lt;command&gt;</code>)
 </thead>
 <tbody>
 <tr><td><code>&lt;name&gt;</code></td><td>Widget name, <code>vendor/name</code>, e.g. <code>acme/color</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="doctor"><a class="header" href="#doctor"><code>doctor</code></a></h3>
+<p>Check that this machine can build an application</p>
+<h3 id="upgrade"><a class="header" href="#upgrade"><code>upgrade</code></a></h3>
+<p>Move the application to this command’s RustCMS version (Cargo.toml and Cargo.lock)</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--dry-run</code></td><td>Show the changes without writing them</td></tr>
+<tr><td><code>--force</code></td><td>Allow going back to an older version</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="self-update"><a class="header" href="#self-update"><code>self-update</code></a></h3>
+<p>Replace this command with the latest release (installed by install.sh)</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--version</code></td><td>A given release instead of the latest, e.g. <code>v0.4.0</code> (may be older)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="docs"><a class="header" href="#docs"><code>docs</code></a></h3>
+<p>Open the guide of this version in a browser</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--print-path</code></td><td>Print where it is instead of opening it</td></tr>
 </tbody>
 </table>
 </div>
