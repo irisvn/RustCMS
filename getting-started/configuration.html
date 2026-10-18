@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "../searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9f4d2959.js"></script>
+        <script src="../toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -286,6 +286,27 @@ rate: see <a href="../digging-deeper/mail.html#configuration">Mail</a>.</p>
 <p>With a URL set, boot fails if Redis does not answer, or if RustCMS was built
 without the <code>redis</code> feature. Commands time out after 1 s; rate limits then
 fail closed (500). See <a href="../digging-deeper/instances.html">Several instances</a>.</p>
+<h3 id="realtime-configrealtimetoml"><a class="header" href="#realtime-configrealtimetoml"><code>[realtime]</code> (<code>config/realtime.toml</code>)</a></h3>
+<p><a href="../admin/realtime.html">Realtime</a> streams and sockets. Every limit is per instance; streams and sockets share
+<code>max_connections</code>, <code>max_per_user</code> and the open rates.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Default</th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>realtime.revalidate_secs</code></td><td><code>30</code></td><td>how often an open stream rechecks the session, user and permissions (at least 1; each check costs about 3 queries)</td></tr>
+<tr><td><code>realtime.max_connections</code></td><td><code>1000</code></td><td>open streams on this instance (429 beyond)</td></tr>
+<tr><td><code>realtime.max_per_user</code></td><td><code>10</code></td><td>open streams of one user on this instance</td></tr>
+<tr><td><code>realtime.opens_per_user_per_minute</code></td><td><code>60</code></td><td></td></tr>
+<tr><td><code>realtime.opens_per_ip_per_minute</code></td><td><code>300</code></td><td>shared IPs (offices, proxies) share it</td></tr>
+<tr><td><code>realtime.shutdown_grace_secs</code></td><td><code>5</code></td><td>time given to open streams and sockets when the server stops</td></tr>
+<tr><td><code>realtime.socket_revalidate_secs</code></td><td><code>10</code></td><td>how often an open WebSocket rechecks (at least 1)</td></tr>
+<tr><td><code>realtime.max_message_bytes</code></td><td><code>65536</code></td><td>largest WebSocket message, either way (1009 beyond)</td></tr>
+<tr><td><code>realtime.send_timeout_secs</code></td><td><code>10</code></td><td>longest wait of a WebSocket send for a slow client (then <code>lagging</code>)</td></tr>
+</tbody>
+</table>
+</div>
 <h2 id="your-own-sections"><a class="header" href="#your-own-sections">Your own sections</a></h2>
 <pre><code class="language-rust ignore">#[derive(serde::Deserialize)]
 struct Mail { from: String }
@@ -297,6 +318,27 @@ let mail: Mail = config.section("mail")?;   // config/mail.toml or RUSTCMS_MAIL_
 <code>RUSTCMS_AUTH__JWT__ACCESS_TTL_SECS=600</code>. Lists are written in TOML syntax:
 <code>RUSTCMS_HTTP__TRUSTED_PROXIES='["10.0.0.0/8"]'</code>. With every value in the
 environment, the <code>config/</code> directory is optional.</p>
+<h3 id="from-files-docker-and-kubernetes-secrets"><a class="header" href="#from-files-docker-and-kubernetes-secrets">From files (Docker and Kubernetes secrets)</a></h3>
+<p>Any of these variables (the well-known ones and every <code>RUSTCMS_…</code>) can be read
+from a file instead: add <code>_FILE</code> to its name and give the path.</p>
+<pre><code class="language-sh">APP_KEY_FILE=/run/secrets/app_key
+DATABASE_URL_FILE=/run/secrets/database_url
+RUSTCMS_MAIL__SMTP__PASSWORD_FILE=/run/secrets/smtp_password
+</code></pre>
+<ul>
+<li>The value takes its variable’s place in the order above: a
+<code>RUSTCMS_DATABASE__URL</code> still wins over <code>DATABASE_URL_FILE</code>.</li>
+<li>One trailing line break is removed (as <code>echo</code> and editors add it); any other
+whitespace is kept. Values are read like environment values (<code>true</code>,
+numbers), except that a value with leading or trailing spaces stays exactly
+that string.</li>
+<li>Boot fails when a variable and its <code>_FILE</code> are both set, or when the file is
+missing, unreadable, empty, not UTF-8 or larger than 64 KiB. The message
+names the variable and the path, never the content.</li>
+<li>A key whose own name ends in <code>_file</code> cannot be set from the environment
+(<code>RUSTCMS_X__LOG_FILE</code> means the file of <code>x.log</code>); put it in a TOML file.
+A key named <code>file</code> itself is fine: <code>RUSTCMS_LOG__FILE</code> is <code>log.file</code>.</li>
+</ul>
 
                     </main>
 

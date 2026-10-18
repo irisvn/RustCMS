@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-9f4d2959.js"></script>
+        <script src="toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -247,8 +247,48 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.3.0</strong> (“LMS-ready
-admin”); 0.1.0-alpha.0 was the first published one.</p>
+<p>RustCMS is in pre-release. The current version is <strong>0.4.0</strong> (“panel
+platform”); 0.1.0-alpha.0 was the first published one.</p>
+<h2 id="040"><a class="header" href="#040">0.4.0</a></h2>
+<ul>
+<li><strong>Admin routes</strong>: JSON routes for your own panel pages under
+<code>{admin}/api/x</code>, on the admin session, each with a declared
+<code>AdminAccess</code> checked before extractors (<code>AdminRoutes</code>,
+<code>AuthProvider::admin_permissions</code>); <code>assert_access</code> tests every route
+against a table of actors (<a href="#admin-routes">Admin routes</a>).</li>
+<li><strong>Server-sent events</strong>: <code>AdminRoutes::events</code> streams live data to a
+page.
+<ul>
+<li>It is rechecked while open: the session, the user, the permissions and a
+per-target check.</li>
+<li>Limits are per user and per instance, slow clients are dropped, and
+streams end cleanly on shutdown.</li>
+<li>A process-local <code>Hub</code> shares one producer between viewers, with <code>resync</code>
+when a viewer falls behind.</li>
+<li>Script pages read streams with <code>ctx.realtime.events</code>
+(<a href="#realtime">Realtime</a>).</li>
+</ul>
+</li>
+<li><strong>WebSocket</strong>: <code>AdminRoutes::socket</code> for terminals and consoles.
+<ul>
+<li>Admission: the exact <code>Origin</code> and the session’s CSRF token as a
+subprotocol.</li>
+<li>A supervised, rechecked socket with bounded queues both ways.</li>
+<li><code>AdminSocket::authorize()</code> checks a command when it runs.</li>
+<li>Script pages use <code>ctx.realtime.socket</code>
+(<a href="#websocket">Realtime</a>).</li>
+</ul>
+</li>
+<li><strong>Content Security Policy</strong>: unchanged, except that <code>connect-src</code> also
+names the panel’s own <code>ws(s)://</code> origins.</li>
+<li><strong>Secrets from files</strong>: every variable also reads <code>&lt;VAR&gt;_FILE</code> (Docker
+and Kubernetes secrets) (<a href="#configuration">Configuration</a>).</li>
+<li><strong>Testing</strong>: <code>TestApp::new</code> takes a closure, so tests can bind doubles.
+<code>RUSTCMS_TEST_BACKENDS</code> picks the databases, and <code>TestClient::socket</code>
+opens WebSocket connections (<a href="#testing">Testing</a>).</li>
+<li><strong>Tooling</strong>: the test servers run in memory (the matrix is about twice as
+fast), and <code>just test-fast</code> runs every test on SQLite only.</li>
+</ul>
 <h2 id="030"><a class="header" href="#030">0.3.0</a></h2>
 <ul>
 <li><strong>Admin panel</strong>: soft deletes with a trash; tabs and key/value inputs;
@@ -369,6 +409,23 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-032-to-040"><a class="header" href="#from-032-to-040">From 0.3.2 to 0.4.0</a></h2>
+<p><code>rustcms self-update</code>, then <code>rustcms upgrade</code> in each application. Nothing
+needs to change in your code.</p>
+<ul>
+<li>New <code>[realtime]</code> keys, all optional: <code>socket_revalidate_secs</code>,
+<code>max_message_bytes</code>, <code>send_timeout_secs</code>
+(<a href="#configuration">Configuration</a>). The other keys already
+existed.</li>
+<li>The admin page’s CSP now also lists <code>ws(s)://</code> for the panel’s origins in
+<code>connect-src</code>. A test that compares the header with
+<code>rustcms::admin::spa::CONTENT_SECURITY_POLICY</code> should use
+<code>content_security_policy(&amp;origins)</code> instead.</li>
+<li><code>{admin}/api/x</code> belongs to your <code>AdminRoutes</code>: nothing built in lives
+there.</li>
+<li>Behind a proxy, if you add WebSocket routes, see the
+<a href="#production-checklist">production checklist</a>.</li>
+</ul>
 <h2 id="from-031-to-032"><a class="header" href="#from-031-to-032">From 0.3.1 to 0.3.2</a></h2>
 <p>Only the command changed (new <code>doctor</code>, <code>upgrade</code>, <code>self-update</code>, <code>docs</code>).
 Install it again with the install script (0.3.1 has no <code>self-update</code>), then
@@ -685,6 +742,27 @@ rate: see <a href="#configuration-3">Mail</a>.</p>
 <p>With a URL set, boot fails if Redis does not answer, or if RustCMS was built
 without the <code>redis</code> feature. Commands time out after 1 s; rate limits then
 fail closed (500). See <a href="#several-instances">Several instances</a>.</p>
+<h3 id="realtime-configrealtimetoml"><a class="header" href="#realtime-configrealtimetoml"><code>[realtime]</code> (<code>config/realtime.toml</code>)</a></h3>
+<p><a href="#realtime">Realtime</a> streams and sockets. Every limit is per instance; streams and sockets share
+<code>max_connections</code>, <code>max_per_user</code> and the open rates.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Default</th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>realtime.revalidate_secs</code></td><td><code>30</code></td><td>how often an open stream rechecks the session, user and permissions (at least 1; each check costs about 3 queries)</td></tr>
+<tr><td><code>realtime.max_connections</code></td><td><code>1000</code></td><td>open streams on this instance (429 beyond)</td></tr>
+<tr><td><code>realtime.max_per_user</code></td><td><code>10</code></td><td>open streams of one user on this instance</td></tr>
+<tr><td><code>realtime.opens_per_user_per_minute</code></td><td><code>60</code></td><td></td></tr>
+<tr><td><code>realtime.opens_per_ip_per_minute</code></td><td><code>300</code></td><td>shared IPs (offices, proxies) share it</td></tr>
+<tr><td><code>realtime.shutdown_grace_secs</code></td><td><code>5</code></td><td>time given to open streams and sockets when the server stops</td></tr>
+<tr><td><code>realtime.socket_revalidate_secs</code></td><td><code>10</code></td><td>how often an open WebSocket rechecks (at least 1)</td></tr>
+<tr><td><code>realtime.max_message_bytes</code></td><td><code>65536</code></td><td>largest WebSocket message, either way (1009 beyond)</td></tr>
+<tr><td><code>realtime.send_timeout_secs</code></td><td><code>10</code></td><td>longest wait of a WebSocket send for a slow client (then <code>lagging</code>)</td></tr>
+</tbody>
+</table>
+</div>
 <h2 id="your-own-sections"><a class="header" href="#your-own-sections">Your own sections</a></h2>
 <pre><code class="language-rust ignore">#[derive(serde::Deserialize)]
 struct Mail { from: String }
@@ -696,6 +774,27 @@ let mail: Mail = config.section("mail")?;   // config/mail.toml or RUSTCMS_MAIL_
 <code>RUSTCMS_AUTH__JWT__ACCESS_TTL_SECS=600</code>. Lists are written in TOML syntax:
 <code>RUSTCMS_HTTP__TRUSTED_PROXIES='["10.0.0.0/8"]'</code>. With every value in the
 environment, the <code>config/</code> directory is optional.</p>
+<h3 id="from-files-docker-and-kubernetes-secrets"><a class="header" href="#from-files-docker-and-kubernetes-secrets">From files (Docker and Kubernetes secrets)</a></h3>
+<p>Any of these variables (the well-known ones and every <code>RUSTCMS_…</code>) can be read
+from a file instead: add <code>_FILE</code> to its name and give the path.</p>
+<pre><code class="language-sh">APP_KEY_FILE=/run/secrets/app_key
+DATABASE_URL_FILE=/run/secrets/database_url
+RUSTCMS_MAIL__SMTP__PASSWORD_FILE=/run/secrets/smtp_password
+</code></pre>
+<ul>
+<li>The value takes its variable’s place in the order above: a
+<code>RUSTCMS_DATABASE__URL</code> still wins over <code>DATABASE_URL_FILE</code>.</li>
+<li>One trailing line break is removed (as <code>echo</code> and editors add it); any other
+whitespace is kept. Values are read like environment values (<code>true</code>,
+numbers), except that a value with leading or trailing spaces stays exactly
+that string.</li>
+<li>Boot fails when a variable and its <code>_FILE</code> are both set, or when the file is
+missing, unreadable, empty, not UTF-8 or larger than 64 KiB. The message
+names the variable and the path, never the content.</li>
+<li>A key whose own name ends in <code>_file</code> cannot be set from the environment
+(<code>RUSTCMS_X__LOG_FILE</code> means the file of <code>x.log</code>); put it in a TOML file.
+A key named <code>file</code> itself is fine: <code>RUSTCMS_LOG__FILE</code> is <code>log.file</code>.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="directory-structure"><a class="header" href="#directory-structure">Directory structure</a></h1>
 <p>A rustcms application is one Cargo package laid out like a Laravel
@@ -1134,7 +1233,9 @@ inside a handler after reading the body.</p>
 <li>An invalid bearer token is 401 everywhere, public routes included.</li>
 <li><code>HEAD</code> follows <code>GET</code>; other methods of a path answer 405.</li>
 <li>No API route may match a path under <code>auth.admin_path</code>, captures included
-(<code>/{section}/report</code> is refused with the default <code>/admin</code>): registration panics.</li>
+(<code>/{section}/report</code> is refused with the default <code>/admin</code>): registration panics.
+Endpoints for the panel’s own pages, on its session, are
+<a href="#admin-routes">admin routes</a>.</li>
 </ul>
 <p><code>api_permissions</code> declares each <code>Access::can</code> permission on the API guard, in
 the group named before the first <code>.</code> (<code>posts.create</code> → <code>posts</code>). A permission
@@ -1536,6 +1637,36 @@ and <code>TestS3::configure(config)</code> points <code>[storage]</code> at it.<
 <p>Without <code>RUSTCMS_TEST_PG</code> / <code>RUSTCMS_TEST_MYSQL</code>, those variants print a skip
 notice and pass, unless <code>RUSTCMS_TEST_REQUIRE</code> lists them (<code>postgres,mysql</code>):
 then they fail. Set them in CI so every test runs on the three databases.</p>
+<p>While working, <code>just test-fast</code> in RustCMS (or <code>RUSTCMS_TEST_BACKENDS=sqlite cargo test</code> in an application) runs every test on SQLite in seconds; run every
+database before pushing. Test servers are faster in memory and without fsync
+(RustCMS’s <code>docker-compose.yml</code> does it: PostgreSQL <code>-c fsync=off -c synchronous_commit=off -c full_page_writes=off</code>, MySQL
+<code>--innodb-flush-log-at-trx-commit=0 --innodb-doublewrite=OFF --innodb-flush-method=nosync --sync-binlog=0 --skip-log-bin</code>, data dirs on
+<code>tmpfs</code>); never use these settings for data you keep.</p>
+<p>An application that runs on one database can test only that one:
+<code>RUSTCMS_TEST_BACKENDS=mysql</code> (any of <code>sqlite,postgres,mysql</code>) runs those
+variants and makes them required, so a missing server fails instead of
+skipping. An empty or unknown name fails, as does a backend that
+<code>RUSTCMS_TEST_REQUIRE</code> asks for but the selection leaves out. Unset, all
+three run as before.</p>
+<h2 id="test-doubles"><a class="header" href="#test-doubles">Test doubles</a></h2>
+<p><code>TestApp::new</code> (and <code>with_config</code>) takes any <code>FnOnce(Config) -&gt; AppBuilder</code>,
+so a closure can bind a double next to your real providers:</p>
+<pre><code class="language-rust ignore">struct Docker(Arc&lt;dyn DockerApi&gt;); // a newtype: `bind` keys services by type
+
+let fake = Arc::new(FakeDocker::default());
+let double = fake.clone();
+let app = TestApp::new(
+    move |config| {
+        let mut app = bootstrap::build(config);
+        app.bind(Docker(double));    // replaces the one bound by your provider
+        app
+    },
+    db,
+)
+.await;</code></pre>
+<p><code>bind</code> replaces a service of the <strong>same concrete type</strong>: bind a newtype
+around <code>Arc&lt;dyn Trait&gt;</code> (not the trait object itself) and resolve it with
+<code>Inject&lt;Docker&gt;</code>, so the double and the real service share one key.</p>
 <h2 id="http-helpers"><a class="header" href="#http-helpers">HTTP helpers</a></h2>
 <div class="table-wrapper">
 <table>
@@ -1569,6 +1700,17 @@ then they fail. Set them in CI so every test runs on the three databases.</p>
 request goes through the real guards, so CSRF, expiry and <code>auth_version</code>
 checks apply. Adjust with <code>.origin(None)</code>, <code>.set_csrf(..)</code>, <code>.from(peer)</code>.</p>
 <p><code>UserFactory::new().password("secret")</code> creates users that can sign in.</p>
+<h3 id="websockets"><a class="header" href="#websockets">WebSockets</a></h3>
+<p>An upgrade needs a real connection: <code>client.socket(path)</code> starts a listener
+for the app on <code>127.0.0.1</code> (once, stopped with the app) and opens the socket
+with the client’s cookies, <code>Origin</code> and CSRF subprotocol.</p>
+<pre><code class="language-rust ignore">let mut socket = app.acting_as(&amp;user).await.socket("/admin/api/x/docker/exec/web").await.unwrap();
+socket.send_text("ls\n").await;
+let output = socket.next_data(Duration::from_secs(2)).await;      // Some(Message::Text(..))
+assert_eq!(socket.closed(Duration::from_secs(15)).await, Some((4403, "forbidden".into())));</code></pre>
+<p><code>socket_with(path, protocols, headers)</code> sends other subprotocols or headers
+(refusals come back as <code>Refused { status, body }</code>), and <code>socket.inner</code> is the
+raw tokio-tungstenite stream.</p>
 <h2 id="authorization-oracles"><a class="header" href="#authorization-oracles">Authorization oracles</a></h2>
 <p>Keep a hand-written table of expected outcomes (route × actor → status), for
 example in a TOML file next to your tests, and test the application against it. Derive
@@ -1758,8 +1900,9 @@ check. If Redis does not answer, checks fail closed (500). See
 decide it per record in the admin panel, and <a href="#access">route access</a>
 per API route.</p>
 <p>Spatie-style tables, scoped by guard: <code>permissions</code>, <code>roles</code>,
-<code>role_has_permissions</code>, <code>model_has_roles</code>, <code>model_has_permissions</code>. A user may
-hold roles in both guards; they never mix.</p>
+<code>role_has_permissions</code>, <code>model_has_roles</code>, <code>model_has_permissions</code> (columns,
+keys and how they relate: <a href="#database-schema">Database schema</a>).
+A user may hold roles in both guards; they never mix.</p>
 <ul>
 <li><strong>Deny by default.</strong> Missing permission → 403.</li>
 <li><strong>Super admin.</strong> The system role <code>super_admin</code> (seeded per guard by the
@@ -1894,6 +2037,9 @@ no secrets (<a href="#queues">Queues</a>); <code>queue.manage</code> (retry, for
 operators.</li>
 <li><input disabled="" type="checkbox"> First super admin created with <code>make:user --super-admin</code>; <code>permission:sync</code> run after each deploy.</li>
 <li><input disabled="" type="checkbox"> TLS terminates before the app; HTTP redirects to HTTPS at the proxy.</li>
+<li><input disabled="" type="checkbox"> WebSocket routes (<a href="#websocket">realtime</a>): the proxy passes <code>Upgrade</code> and allows long-lived
+connections, and its access and APM logs drop the <code>Sec-WebSocket-Protocol</code> request header (it carries the
+session’s CSRF token).</li>
 <li><input disabled="" type="checkbox"> Database backups include <code>sessions</code> only if you want sessions to survive restores.</li>
 <li><input disabled="" type="checkbox"> <code>audit.retention_days</code> set to what you must keep, no longer: the <a href="#audit-log">audit log</a>
 holds personal data (IP addresses, emails typed in failed sign-ins), and so do backups that include it.
@@ -3102,6 +3248,388 @@ comments). Text computed at render (<code>t(name)</code>) is not found: add it t
 catalog yourself. Script text uses
 <code>window.rustcms.registerTranslations</code> (<a href="#custom-fields">Custom fields</a>).</p>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="admin-routes"><a class="header" href="#admin-routes">Admin routes</a></h1>
+<p>Resources cover database rows. When a panel page drives something else (a
+service, a process, a remote API), its script needs JSON endpoints of its
+own. <code>AdminRoutes</code> declares them on the panel’s session, each with the access
+it requires, checked before the handler reads anything.</p>
+<pre><code class="language-rust ignore">// src/routes/admin.rs
+use rustcms::prelude::*;
+
+pub fn routes() -&gt; AdminRoutes {
+    AdminRoutes::new("/docker")
+        .get("/containers", AdminAccess::can("docker.view"), controllers::docker::index)
+        .post("/containers/{id}/restart", AdminAccess::can("docker.manage"), controllers::docker::restart)
+        .get("/me", AdminAccess::authenticated(), controllers::docker::me)
+}
+
+// src/bootstrap/mod.rs
+let admin = crate::routes::admin::routes();
+app.provider(AuthProvider::new().admin_permissions(&amp;admin));   // docker.view, docker.manage (admin guard)
+admin.register(&amp;mut app);</code></pre>
+<p>The routes are served under <code>{admin_path}/api/x</code>: <code>/admin/api/x/docker/containers</code>.
+Nothing built in uses <code>api/x</code>, so an application route never shadows the
+panel’s own.</p>
+<h2 id="access-1"><a class="header" href="#access-1">Access</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Access</th><th>Who</th></tr>
+</thead>
+<tbody>
+<tr><td><code>AdminAccess::authenticated()</code></td><td>any signed-in, active user of the panel</td></tr>
+<tr><td><code>AdminAccess::can("docker.manage")</code></td><td>a signed-in user holding that permission in the <code>admin</code> guard (<code>super_admin</code> passes)</td></tr>
+</tbody>
+</table>
+</div>
+<p>There is no public access: an admin route always needs a signed-in user.</p>
+<ul>
+<li>Access is checked before any extractor reads the path, query or body. A
+refused request is never parsed: 401 without a session, 403 without the
+permission.</li>
+<li>The panel’s guard applies first, as for every admin request:
+<ul>
+<li><code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> need an allowed <code>Origin</code> and the
+session’s CSRF token in <code>X-CSRF-Token</code> (otherwise 403 <code>csrf_mismatch</code>);</li>
+<li>a disabled user, or a session whose credentials changed (password,
+sign-out everywhere), is signed out (401);</li>
+<li>responses are <code>private, no-store</code>.</li>
+</ul>
+</li>
+<li>API tokens and JWTs are not admin credentials (401). For token clients, use
+<a href="#routing"><code>ApiRoutes</code></a>.</li>
+<li><code>HEAD</code> follows <code>GET</code>; other undeclared methods are 405.</li>
+</ul>
+<p>The route’s access gates the route, not the target. Decisions about one
+record (this container, that site) stay in the handler, after it.</p>
+<p><code>admin_permissions</code> declares each permission in the <code>admin</code> guard (group: the
+first segment, <code>docker</code>). <code>rustcms permission:sync</code> then creates them, and
+they appear on the Roles page. <code>register</code> also lists the routes in
+<code>rustcms route:list</code>, and refuses a method and path declared twice.</p>
+<h2 id="calling-them-from-a-script-page"><a class="header" href="#calling-them-from-a-script-page">Calling them from a script page</a></h2>
+<p>A <a href="#script-pages">script page</a> runs on the panel’s origin with
+the user’s session cookie. Fetch the CSRF token once and send it on writes:</p>
+<pre><code class="language-js">const base = document.baseURI.replace(/\/$/, "");   // the panel's &lt;base&gt;, e.g. https://example.com/admin
+async function csrf() {
+  const response = await fetch(`${base}/api/auth/csrf`, { credentials: "same-origin" });
+  return (await response.json()).csrfToken;
+}
+
+window.rustcms.registerPage("docker/containers", {
+  apiVersion: 1,
+  mount(element, ctx) {
+    const restart = async (id) =&gt; {
+      const response = await fetch(`${base}/api/x/docker/containers/${encodeURIComponent(id)}/restart`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": await csrf() },
+        body: JSON.stringify({ force: false }),
+      });
+      if (response.status === 401) ctx.reload();   // signed out meanwhile
+      return response.json();
+    };
+    // … build the list from ctx.data, wire buttons to restart(id) …
+    return { update() {}, unmount: () =&gt; element.replaceChildren() };
+  },
+});
+</code></pre>
+<h2 id="testing-1"><a class="header" href="#testing-1">Testing</a></h2>
+<p><code>rustcms_testing::admin_routes::assert_access</code> sends each case as each actor
+and checks the status you expect. It also fails when a declared route has no
+case, so a new route cannot go untested.</p>
+<pre><code class="language-rust ignore">use rustcms_testing::admin_routes::{Case, assert_access};
+
+let anonymous = app.client();
+let viewer = app.acting_as(&amp;viewer).await;
+let operator = app.acting_as(&amp;operator).await;
+assert_access(&amp;app, &amp;routes(), &amp;[
+    Case::new(Method::GET, "/docker/containers")
+        .expect("anonymous", &amp;anonymous, StatusCode::UNAUTHORIZED)
+        .expect("viewer", &amp;viewer, StatusCode::OK),
+    Case::new(Method::POST, "/docker/containers/web/restart")
+        .expect("viewer", &amp;viewer, StatusCode::FORBIDDEN)
+        .expect("operator", &amp;operator, StatusCode::UNPROCESSABLE_ENTITY), // allowed; `{}` is not a valid body
+    Case::new(Method::GET, "/docker/me").expect("viewer", &amp;viewer, StatusCode::OK),
+]).await;</code></pre>
+<p>Unsafe methods are sent with an empty JSON body, so an allowed write usually
+answers 422 there. Test the real bodies separately. An anonymous client with
+a CSRF token (<code>client.fetch_csrf().await</code>) reaches the access check on writes
+(401); without one, the guard refuses first (403).</p>
+<p>For live data, declare a stream with <code>.events(…)</code>: see
+<a href="#realtime">Realtime events</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="realtime"><a class="header" href="#realtime">Realtime</a></h1>
+<p>A panel page can show live data (stats, logs, progress) through <strong>server-sent
+events</strong>, and talk both ways (terminals, consoles) through a
+<a href="#websocket"><strong>WebSocket</strong></a>, from an <a href="#admin-routes">admin route</a>. The stream runs on the
+panel’s session, is rechecked while open, and ends when the user signs out
+or loses access. Changes still go through ordinary POST admin routes.</p>
+<pre><code class="language-rust ignore">// src/routes/admin.rs
+AdminRoutes::new("/docker")
+    .events("/containers/{id}/stats", AdminAccess::can("docker.view"), controllers::docker::stats)
+    .post("/containers/{id}/restart", AdminAccess::can("docker.manage"), controllers::docker::restart)</code></pre>
+<pre><code class="language-rust ignore">// src/http/controllers/docker.rs
+use rustcms::auth::{EventStream, LiveSession};
+use rustcms::realtime::{Event, StreamExt, stream, time};
+
+pub async fn stats(live: LiveSession, Path(id): Path&lt;String&gt;, Inject(docker): Inject&lt;Docker&gt;) -&gt; AppResult&lt;EventStream&gt; {
+    let source = docker.clone();
+    let target = id.clone();
+    let events = stream::unfold((), move |()| {
+        let (source, id) = (source.clone(), id.clone());
+        async move {
+            time::sleep(std::time::Duration::from_secs(2)).await;
+            let stats = source.stats(&amp;id).await.ok()?;          // ends the stream on an error
+            Some((Event::json("stats", &amp;stats).ok()?, ()))
+        }
+    });
+    Ok(live.stream(events).target(move |principal| {
+        let (docker, id) = (docker.clone(), target.clone());
+        async move { docker.authorize(&amp;principal, &amp;id).await }   // may this user still see it?
+    }))
+}</code></pre>
+<ul>
+<li>
+<p>The route admits the request before the handler runs: the origin, the
+open limits and the stream’s place. The handler takes <code>LiveSession</code> (the
+admitted stream, with <code>live.principal()</code>); a handler without it is
+admitted all the same.</p>
+</li>
+<li>
+<p><code>live.stream(events)</code> takes any <code>Stream&lt;Item = Event&gt;</code>.
+<code>Event::json(name, &amp;value)</code> serializes a value (names <code>[a-z0-9_.-]</code>, at
+most 64 KiB of JSON).</p>
+</li>
+<li>
+<p><code>.target(check)</code> is the per-target authorization. It runs before the first
+event and at every recheck; <code>Err(Forbidden)</code> or <code>Err(NotFound)</code> ends the
+stream. The route’s <code>AdminAccess</code> gates the route, while <code>target</code> decides
+for this container, site or record.</p>
+</li>
+<li>
+<p>A check written once for several streams returns a <code>TargetFuture</code> (a
+boxed future):</p>
+<pre><code class="language-rust ignore">use rustcms::auth::TargetFuture;
+
+fn sees_container(docker: Docker, id: String) -&gt; impl Fn(Principal) -&gt; TargetFuture + Send + Sync + 'static {
+    move |principal| {
+        let (docker, id) = (docker.clone(), id.clone());
+        Box::pin(async move { docker.authorize(&amp;principal, &amp;id).await })
+    }
+}
+// live.stream(events).target(sees_container(docker, id))</code></pre>
+</li>
+<li>
+<p>A stream must not change anything. Use a POST route for that.</p>
+</li>
+<li>
+<p><code>rustcms::realtime</code> re-exports what producers need: <code>stream</code>
+(<code>unfold</code>, <code>once</code>, <code>iter</code>), <code>StreamExt</code> (<code>.chain</code>, <code>.map</code>) and <code>time</code>
+(<code>sleep</code>, <code>interval</code>).</p>
+</li>
+</ul>
+<h2 id="many-viewers-one-producer-the-hub"><a class="header" href="#many-viewers-one-producer-the-hub">Many viewers, one producer: the hub</a></h2>
+<pre><code class="language-rust ignore">// bound once, e.g. in a provider's register: app.bind(Stats(Hub::new(app.shutdown(), HubLimits::default())))
+pub struct Stats(pub Hub&lt;String&gt;);
+
+let subscription = stats.0
+    .subscribe(format!("container:{id}"), move || docker_stats_stream(id))
+    .map_err(|_| AppError::TooManyRequests { retry_after: 5 })?;
+Ok(live.stream(subscription.into_events()).target(/* … */))</code></pre>
+<ul>
+<li>The first subscriber of a key starts its producer; the others share it.
+The producer stops 5 s after the last one leaves (<code>HubLimits::idle_grace</code>).</li>
+<li><code>hub.publish(&amp;key, event)</code> sends to current subscribers, for example after
+a POST changed something.</li>
+<li>A viewer that falls behind gets <code>event: resync</code>: reload what the page
+shows. A producer whose own source lost events (an upstream broadcast
+that lagged, a reconnect to the source) yields <code>Event::resync()</code>, so pages
+handle both the same way.</li>
+<li>The hub knows no users. A key must hold everything that decides its data
+(<code>container:&lt;id&gt;</code>). Never share a key between users who should see
+different data.</li>
+<li>The hub lives in one process: each instance runs its own producers.</li>
+</ul>
+<h2 id="in-a-script-page"><a class="header" href="#in-a-script-page">In a script page</a></h2>
+<pre><code class="language-js">window.rustcms.registerPage("docker/stats", {
+  apiVersion: 1,
+  mount(element, ctx) {
+    const value = document.createElement("output");
+    element.append(value);
+    ctx.realtime.events(`/docker/containers/${encodeURIComponent(ctx.data.id)}/stats`, {
+      onEvent(name, data) {
+        if (name === "stats") value.textContent = `${data.cpu}%`;
+        if (name === "resync") ctx.reload();
+      },
+      onState(state) { /* "open", "reconnecting", or "closed" with a status or reason */ },
+    });
+    return { update() {}, unmount() {} };
+  },
+});
+</code></pre>
+<p><code>ctx.realtime.events(path, handlers)</code> opens the route under
+<code>{admin}/api/x</code> and returns <code>{ close() }</code>.</p>
+<ul>
+<li>It is closed for you when the view is unmounted or the session changes
+(sign-in, sign-out, credentials rotated in any tab).</li>
+<li>It reconnects with backoff after a dropped connection or a server restart.</li>
+<li>It stops for good on 401, 403 or 404, and when the server ends it with
+<code>signed_out</code> or <code>forbidden</code>.</li>
+<li>It is built on <code>fetch</code>. Do not use <code>EventSource</code>: it hides statuses and
+reconnects on its own after a sign-out.</li>
+</ul>
+<h2 id="what-the-server-enforces"><a class="header" href="#what-the-server-enforces">What the server enforces</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td>Origin</td><td>an <code>Origin</code>, when sent, must be the panel’s; <code>Sec-Fetch-Site</code>, when sent, <code>same-origin</code>; with neither (an old browser), a same-origin <code>Referer</code>. No CSRF token is needed</td></tr>
+<tr><td>Access</td><td>the route’s <code>AdminAccess</code> before anything runs (401, 403); <code>HEAD</code> is 405</td></tr>
+<tr><td>While open</td><td>every <code>revalidate_secs</code> (30): the session, the user and its credential version, its permissions and <code>target</code>. Delivery stops within <code>revalidate_secs + 5 s</code> of a sign-out, a password change, a disabled account or a lost permission (<code>event: closed</code>)</td></tr>
+<tr><td>Limits</td><td>per instance: <code>max_connections</code> (1000), <code>max_per_user</code> (10), 429 beyond. Opens per user (60/min) and per IP (300/min) use the rate limiter, so with Redis they count across instances</td></tr>
+<tr><td>Slow clients</td><td>a bounded queue (64 events, 1 MiB): a client that stops reading is dropped (<code>lagging</code>) and never holds the server</td></tr>
+<tr><td>Shutdown</td><td>new streams get 503; open ones end with <code>closed: shutdown</code> within <code>shutdown_grace_secs</code> (5)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Events end with <code>event: closed</code> and data <code>{"reason": …}</code>: one of
+<code>signed_out</code>, <code>forbidden</code>, <code>shutdown</code>, <code>lagging</code> or <code>error</code>.</p>
+<p>Each recheck reads the session, the user and the grants (about 3 queries),
+plus what <code>target</code> does. At 1000 streams every 30 s that is about 100
+queries per second: raise <code>revalidate_secs</code> or the database pool
+(<code>database.max_connections</code>) accordingly.</p>
+<p>Streams are not cached, carry the session’s <code>Set-Cookie</code> like any admin
+response, and never renew the session by themselves.</p>
+<h2 id="websocket"><a class="header" href="#websocket">WebSocket</a></h2>
+<pre><code class="language-rust ignore">// src/routes/admin.rs
+AdminRoutes::new("/docker")
+    .socket("/containers/{id}/exec", AdminAccess::can("docker.exec"), controllers::docker::exec)</code></pre>
+<pre><code class="language-rust ignore">// src/http/controllers/docker.rs
+use rustcms::auth::{LiveSocket, SocketMessage, SocketResponse};
+
+pub async fn exec(live: LiveSocket, Path(id): Path&lt;String&gt;, Inject(docker): Inject&lt;Docker&gt;) -&gt; SocketResponse {
+    let target = (docker.clone(), id.clone());
+    live.accept(move |mut socket| async move {
+        // Dropped when the socket ends: the process goes with it.
+        let Ok(mut shell) = docker.exec(&amp;id).kill_on_drop(true).spawn() else { return };
+        loop {
+            tokio::select! {
+                input = socket.recv() =&gt; match input {
+                    Some(SocketMessage::Text(command)) if command.starts_with("resize ") =&gt; {
+                        // A command: authorized when it runs, on a fresh principal.
+                        let Ok(principal) = socket.authorize().await else { break };
+                        if !principal.can("docker.exec") { break }
+                        shell.resize(&amp;command[7..]);
+                    }
+                    Some(SocketMessage::Binary(keys)) =&gt; shell.write(&amp;keys).await,
+                    Some(_) =&gt; {}
+                    None =&gt; break,
+                },
+                output = shell.read() =&gt; match output {
+                    Some(bytes) =&gt; if socket.send(SocketMessage::Binary(bytes)).await.is_err() { break },
+                    None =&gt; break,
+                },
+            }
+        }
+    })
+    .target(move |principal| {
+        let (docker, id) = target.clone();
+        async move { docker.authorize(&amp;principal, &amp;id).await }
+    })
+}</code></pre>
+<ul>
+<li>
+<p>The route admits the handshake before the handler runs:</p>
+<ul>
+<li>a mandatory <code>Origin</code> that is exactly the panel’s (no <code>Referer</code> fallback);</li>
+<li>the session’s CSRF token in <code>Sec-WebSocket-Protocol</code>
+(<code>rustcms.v1, rustcms.csrf.&lt;token&gt;</code>, which <code>ctx.realtime.socket</code> sends);</li>
+<li>the open limits and a place, shared with streams.</li>
+</ul>
+<p>The <code>101</code> selects <code>rustcms.v1</code> only.</p>
+</li>
+<li>
+<p><code>live.accept(session)</code> runs <code>session</code> once the connection is upgraded and
+the first check passed (the session, the user, the access, <code>target</code>).
+<code>session</code> gets an <code>AdminSocket</code>:</p>
+<ul>
+<li><code>recv()</code> gives <code>Text</code> or <code>Binary</code> messages, and <code>None</code> once the socket
+ended;</li>
+<li><code>send(message)</code> waits at most <code>send_timeout_secs</code> for a slow client (then
+the socket ends as <code>lagging</code>) and refuses a message over
+<code>max_message_bytes</code> (<code>SendError::TooLarge</code>);</li>
+<li><code>authorize()</code> checks again now and returns the fresh principal.</li>
+</ul>
+</li>
+<li>
+<p><strong>Authorize every command when it runs:</strong> call <code>authorize()</code> and check the
+command’s own permission on what it returns, never on <code>live.principal()</code>.
+A raw terminal is one capability: <code>target</code> decides who may use it. Its
+input is accepted until the next recheck notices a revocation; it cannot
+check each shell command, nor undo one that ran.</p>
+</li>
+<li>
+<p><strong>Cleanup belongs in <code>Drop</code>.</strong> When the socket ends (the client left, a
+recheck failed, a slow client, the server stopping), the session’s future
+is dropped at once, before the close frame is sent. A child process needs
+<code>kill_on_drop</code>. A remote process (<code>docker exec</code> through the API) may need
+an explicit stop: dropping its stream does not end it.</p>
+</li>
+<li>
+<p>Close codes: <code>4401 signed_out</code>, <code>4403 forbidden</code>, <code>1001 shutdown</code>,
+<code>4008 lagging</code>, <code>1009 too_big</code>, <code>1011 error</code> (also a session that panics),
+<code>1000</code> when the session returned. Delivering the code is best effort: a
+connection with unread input may be reset first.</p>
+</li>
+</ul>
+<h3 id="in-a-script-page-1"><a class="header" href="#in-a-script-page-1">In a script page</a></h3>
+<pre><code class="language-js">const socket = ctx.realtime.socket(`/docker/containers/${encodeURIComponent(ctx.data.id)}/exec`, {
+  onOpen() { /* … */ },
+  onMessage(data) { /* a string, or an ArrayBuffer for binary messages */ },
+  onState(state) { /* "open", "reconnecting", or "closed" with a code and reason */ },
+});
+socket.send(new TextEncoder().encode("ls\n"));   // false when not open, too large, or 1 MiB is already queued
+</code></pre>
+<ul>
+<li>Closed for you on unmount and on a session change.</li>
+<li><strong>No reconnect by default:</strong> a new socket is a new session on the server
+(a new shell). With <code>{ reconnect: true }</code>:
+<ul>
+<li>it retries with backoff and a fresh token;</li>
+<li>it stops on 4401 and 4403, and after 5 failed or short (under 30 s)
+connections;</li>
+<li>a refused handshake (seen as 1006) checks the session once.</li>
+</ul>
+</li>
+<li>Input is never queued for replay.</li>
+<li>xterm.js injects <code>&lt;style&gt;</code> elements, which the panel’s CSP blocks. A page
+that embeds it needs its own workaround in its script. The CSP stays as it
+is.</li>
+</ul>
+<h3 id="what-the-server-enforces-1"><a class="header" href="#what-the-server-enforces-1">What the server enforces</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td>Origin</td><td>mandatory, exactly one of the panel’s origins; <code>Sec-Fetch-Site</code>, when sent, <code>same-origin</code></td></tr>
+<tr><td>CSRF</td><td>the session’s token as the <code>rustcms.csrf.&lt;token&gt;</code> subprotocol, beside <code>rustcms.v1</code>, nothing else</td></tr>
+<tr><td>Access</td><td>the route’s <code>AdminAccess</code> before anything runs (401, 403); a handler error before <code>accept</code> is an ordinary JSON error</td></tr>
+<tr><td>While open</td><td>every <code>socket_revalidate_secs</code> (10) and at each <code>authorize()</code>: the session, the user and its version, the permissions and <code>target</code>. Work stops within <code>socket_revalidate_secs + 5 s</code> of a sign-out, an expired session, a password change, a disabled account or a lost permission</td></tr>
+<tr><td>Limits</td><td>shared with streams: <code>max_connections</code>, <code>max_per_user</code>, the open rates; messages up to <code>max_message_bytes</code> (64 KiB)</td></tr>
+<tr><td>Slow or flooding clients</td><td>64 messages or 1 MiB queued each way; a client that floods a session, or stops reading, is dropped (<code>lagging</code>)</td></tr>
+<tr><td>Keepalive</td><td>one ping at a time, 15 s after the last answer; no matching pong within 45 s ends the socket</td></tr>
+<tr><td>Shutdown</td><td>new sockets get 503; open ones end with <code>1001</code> within <code>shutdown_grace_secs</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Sockets never renew the session. Limits are per instance. Behind a proxy,
+pass <code>Upgrade</code> and drop <code>Sec-WebSocket-Protocol</code> from access logs (see the
+<a href="#production-checklist">production checklist</a>).</p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="users-roles--your-account"><a class="header" href="#users-roles--your-account">Users, roles &amp; your account</a></h1>
 <p>The panel has built-in <strong>System</strong> pages for the admin guard, shown to users
 with <code>users.view_any</code> (Users) or <code>roles.view_any</code> (Roles), and an <strong>Account</strong>
@@ -3606,6 +4134,10 @@ in the database).</p>
 limits: run one instance unless Redis is configured. Password-hashing and
 upload concurrency limits are always per instance (each bounds its own CPU
 and disk).</p>
+<p><a href="#realtime">Realtime events</a> are per instance too. Each instance
+runs its own hub producers, and the <code>[realtime]</code> connection limits apply to
+each one. A change on one instance still reaches every open stream within a
+recheck, because rechecks read the database.</p>
 <h2 id="your-own-periodic-jobs"><a class="header" href="#your-own-periodic-jobs">Your own periodic jobs</a></h2>
 <pre><code class="language-rust ignore">// In a provider's `boot`: run every minute, on one instance at a time.
 let state = state.clone();
@@ -4145,7 +4677,7 @@ asked for is used, else the one of <code>app.locale</code>.</p>
 <p>Errors are codes (<code>rustcms::mail::MailError</code>); the server’s reply, the
 addresses, the password and the body never reach a log, a job’s error or a
 response. See <a href="#mail-3">Error codes</a>.</p>
-<h2 id="testing-1"><a class="header" href="#testing-1">Testing</a></h2>
+<h2 id="testing-2"><a class="header" href="#testing-2">Testing</a></h2>
 <p>With <code>rustcms-testing</code>’s <code>mail</code> feature, tests use the <code>memory</code> driver
 (<code>test_config</code> sets it):</p>
 <pre><code class="language-rust ignore">rustcms::queue::run_until_idle(app.state(), None, 10).await?;
@@ -4923,6 +5455,195 @@ application in the current directory (<code>cargo run -- &lt;command&gt;</code>)
 </thead>
 <tbody>
 <tr><td><code>&lt;locale&gt;</code></td><td>Language, e.g. <code>vi</code></td></tr>
+</tbody>
+</table>
+</div>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="database-schema"><a class="header" href="#database-schema">Database schema</a></h1>
+<p>The framework’s migrations (<code>rustcms::migration</code>, run by <code>rustcms migrate</code>
+before your own) create the tables below. Your models live next to them in the
+same database. Column types are shown portably:</p>
+<ul>
+<li><strong>instant</strong>: <code>TIMESTAMPTZ</code> on PostgreSQL, <code>DATETIME(6)</code> in UTC on MySQL, text
+on SQLite;</li>
+<li><strong>bigint id</strong>: auto-increment <code>BIGINT</code>.</li>
+</ul>
+<p>Never write the access-control tables yourself: every change to roles,
+permissions and their assignments goes through <code>RbacService</code>
+(<a href="#roles--permissions">Roles &amp; permissions</a>), which checks the
+actor, locks, audits and invalidates the permission cache.</p>
+<h2 id="users-and-access"><a class="header" href="#users-and-access">Users and access</a></h2>
+<pre><code class="language-text">                          ┌──────────────────────────┐
+                          │ users                    │
+                          │ id, email (unique), …    │
+                          │ auth_version, is_active  │
+                          └───────────┬──────────────┘
+         (model_type = 'user', model_id = users.id as text)
+              ┌───────────────────────┼──────────────────────────────┐
+              ▼                       ▼                              ▼
+┌──────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────┐
+│ model_has_roles          │ │ model_has_permissions     │ │ sessions / tokens / JWT   │
+│ role_id, model_type,     │ │ permission_id, model_type,│ │ personal_access_tokens    │
+│ model_id                 │ │ model_id   (direct grants)│ │ jwt_families → jwt_refresh│
+└───────────┬──────────────┘ └─────────────┬─────────────┘ │ user_tokens (reset/invite)│
+            ▼                              ▼               └───────────────────────────┘
+┌──────────────────────────┐ ┌───────────────────────────┐
+│ roles                    │ │ permissions               │
+│ name + guard_name unique │ │ name + guard_name unique  │
+│ is_system, is_privileged │ │ group, orphaned           │
+└───────────┬──────────────┘ └─────────────▲─────────────┘
+            └──────► role_has_permissions ─┘
+                     (role_id, permission_id)
+</code></pre>
+<p>A user’s permissions in a guard are those of their roles in that guard, plus
+their direct grants. Orphaned permissions are left out. <code>super_admin</code> passes
+every check of its guard.</p>
+<h3 id="users"><a class="header" href="#users"><code>users</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>id</code></td><td>bigint id</td><td>primary key</td></tr>
+<tr><td><code>name</code></td><td>varchar(255)</td><td></td></tr>
+<tr><td><code>email</code></td><td>varchar(255)</td><td>unique (<code>users_email_key</code>); stored trimmed and lowercased</td></tr>
+<tr><td><code>password</code></td><td>varchar(255)</td><td>Argon2id hash, never the password</td></tr>
+<tr><td><code>is_active</code></td><td>boolean, default true</td><td>false: cannot sign in, every session and token stops at once</td></tr>
+<tr><td><code>auth_version</code></td><td>bigint, default 0</td><td>bumped by account changes (password, email, sign-out everywhere, …): sessions and JWT sign-ins issued for an older version stop working (<a href="#credential-revocation">revocation</a>). Role and permission changes do not bump it: they apply from the next request through <code>auth_generations</code></td></tr>
+<tr><td><code>email_verified_at</code></td><td>instant, null</td><td></td></tr>
+<tr><td><code>locale</code></td><td>varchar(35), null</td><td>admin language chosen by the user; null follows the browser</td></tr>
+<tr><td><code>invitation_pending</code></td><td>boolean, default false</td><td>invited, password not chosen yet: cannot sign in or reset</td></tr>
+<tr><td><code>invited_at</code></td><td>instant, null</td><td></td></tr>
+<tr><td><code>invited_by</code></td><td>bigint, null</td><td>the inviting user’s id, without a foreign key (that user may be deleted)</td></tr>
+<tr><td><code>created_at</code>, <code>updated_at</code></td><td>instant</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p>Deleting a user cascades to their tokens, JWT families and one-time tokens.
+Their role and permission assignments are removed by <code>RbacService</code> in the
+same transaction: <code>model_has_*</code> hold no foreign key to <code>users</code>.</p>
+<h3 id="roles"><a class="header" href="#roles"><code>roles</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>id</code></td><td>bigint id</td><td></td></tr>
+<tr><td><code>name</code></td><td>varchar(255)</td><td>unique together with <code>guard_name</code> (<code>roles_name_guard_key</code>)</td></tr>
+<tr><td><code>guard_name</code></td><td>varchar(64)</td><td><code>admin</code> (the panel) or <code>api</code> (tokens and JWT); the guards never mix</td></tr>
+<tr><td><code>is_system</code></td><td>boolean</td><td>made by the migrations: never renamed or deleted</td></tr>
+<tr><td><code>is_privileged</code></td><td>boolean</td><td>managed by super admins only</td></tr>
+<tr><td><code>created_at</code></td><td>instant</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p>The migrations seed <code>super_admin</code> in each guard (<code>is_system</code> and
+<code>is_privileged</code>). Other roles are yours: created in the panel (admin guard), by
+seeders, or from code (<code>RbacService::create_role</code>).</p>
+<h3 id="permissions-1"><a class="header" href="#permissions-1"><code>permissions</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>id</code></td><td>bigint id</td><td></td></tr>
+<tr><td><code>name</code></td><td>varchar(255)</td><td><code>posts.update</code>, <code>users.invite</code>, …; unique with <code>guard_name</code> (<code>permissions_name_guard_key</code>)</td></tr>
+<tr><td><code>guard_name</code></td><td>varchar(64)</td><td>as for roles</td></tr>
+<tr><td><code>group</code></td><td>varchar(255), null</td><td>for display, usually the resource slug</td></tr>
+<tr><td><code>orphaned</code></td><td>boolean, default false</td><td>no longer declared by the application: kept, grants nothing</td></tr>
+<tr><td><code>created_at</code></td><td>instant</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p>Rows come from the permissions the application declares (resources,
+<code>AuthProvider::permission</code>). <code>rustcms permission:sync</code> adds the new ones and
+marks the undeclared ones orphaned. It never renames or deletes, so a typo
+cannot silently drop a grant.</p>
+<h3 id="role_has_permissions-model_has_roles-model_has_permissions"><a class="header" href="#role_has_permissions-model_has_roles-model_has_permissions"><code>role_has_permissions</code>, <code>model_has_roles</code>, <code>model_has_permissions</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Table</th><th>Primary key</th><th>Foreign keys</th></tr>
+</thead>
+<tbody>
+<tr><td><code>role_has_permissions</code></td><td>(<code>role_id</code>, <code>permission_id</code>)</td><td>both, <code>ON DELETE CASCADE</code></td></tr>
+<tr><td><code>model_has_roles</code></td><td>(<code>role_id</code>, <code>model_type</code>, <code>model_id</code>)</td><td><code>role_id</code> → <code>roles</code>, cascade</td></tr>
+<tr><td><code>model_has_permissions</code></td><td>(<code>permission_id</code>, <code>model_type</code>, <code>model_id</code>)</td><td><code>permission_id</code> → <code>permissions</code>, cascade</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><code>model_type</code> is <code>user</code> and <code>model_id</code> is the user’s id as text: the
+Spatie-style shape leaves room for other holders.</li>
+<li><code>model_has_*</code> are indexed on (<code>model_type</code>, <code>model_id</code>) for “what does this
+user hold”.</li>
+<li>Direct grants (<code>model_has_permissions</code>) exist for exceptions; roles are the
+usual way.</li>
+</ul>
+<h3 id="auth_generations"><a class="header" href="#auth_generations"><code>auth_generations</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>name</code></td><td>varchar(32)</td><td>primary key; <code>rbac</code></td></tr>
+<tr><td><code>value</code></td><td>bigint</td><td>advanced inside every RBAC transaction</td></tr>
+</tbody>
+</table>
+</div>
+<p>Instances cache resolved permissions per generation. A change anywhere
+advances it, and every instance reloads (<a href="#several-instances">several instances</a>).</p>
+<h3 id="credentials"><a class="header" href="#credentials">Credentials</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Table</th><th>Holds</th><th>Stored secret</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>sessions</code></td><td>admin sign-ins (and anonymous CSRF sessions)</td><td><code>id</code> = SHA-256 of the cookie’s random value</td><td><code>data</code> (JSON), <code>expires_at</code> (indexed, pruned hourly), <code>lineage</code> (the first session of a re-issued chain: sign-out ends all of it)</td></tr>
+<tr><td><code>personal_access_tokens</code></td><td>API tokens (<code>rcms_…</code>)</td><td><code>token_hash</code> = SHA-256</td><td><code>user_id</code> → <code>users</code> (cascade), <code>name</code>, <code>abilities</code> (JSON list, <code>["*"]</code> = all of the user’s permissions), <code>last_used_at</code>, <code>expires_at</code>, <code>revoked_at</code></td></tr>
+<tr><td><code>jwt_families</code></td><td>one JWT sign-in and its refresh chain</td><td>none</td><td><code>id</code>, <code>user_id</code> → <code>users</code> (cascade), <code>abilities</code>, <code>auth_version</code> at issue, <code>expires_at</code>, <code>revoked_at</code></td></tr>
+<tr><td><code>jwt_refresh_tokens</code></td><td>each refresh token of a family</td><td><code>token_hash</code> = HMAC-SHA-256 under a key derived from <code>APP_KEY</code></td><td><code>family_id</code> → <code>jwt_families</code> (cascade), <code>used_at</code>: reusing a used token revokes the family</td></tr>
+<tr><td><code>user_tokens</code></td><td>password-reset and invitation links</td><td><code>token_hash</code> under a key derived from <code>APP_KEY</code></td><td>unique (<code>user_id</code>, <code>purpose</code>): one live link per user and purpose; <code>email</code> and <code>auth_version</code> at request, <code>expires_at</code>, <code>sent_at</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>A copy of these tables gives nobody a working credential: only hashes are
+stored. Restoring a backup still requires ending every sign-in
+(<a href="#backup-and-restore">backup and restore</a>).</p>
+<h3 id="reading-them"><a class="header" href="#reading-them">Reading them</a></h3>
+<p>For reports or support, read-only SQL is fine. For example, everyone holding
+a permission in the admin guard:</p>
+<pre><code class="language-sql">SELECT DISTINCT u.id, u.email
+FROM users u
+JOIN model_has_roles mr ON mr.model_type = 'user' AND mr.model_id = CAST(u.id AS CHAR(20))
+JOIN roles r ON r.id = mr.role_id AND r.guard_name = 'admin'
+LEFT JOIN role_has_permissions rp ON rp.role_id = r.id
+LEFT JOIN permissions p ON p.id = rp.permission_id AND p.orphaned = FALSE
+WHERE p.name = 'posts.update' OR r.name = 'super_admin';
+</code></pre>
+<p>(Direct grants: the same through <code>model_has_permissions</code>. On PostgreSQL, use
+<code>CAST(u.id AS TEXT)</code>.) Writes go through <code>RbacService</code> or the System pages.</p>
+<h2 id="other-framework-tables"><a class="header" href="#other-framework-tables">Other framework tables</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Table</th><th>For</th><th>Page</th></tr>
+</thead>
+<tbody>
+<tr><td><code>seaql_migrations</code></td><td>applied migrations</td><td><a href="#database--migrations">Database &amp; migrations</a></td></tr>
+<tr><td><code>rustcms_locks</code></td><td>one row per lock name: a transaction locks it first to run after the others holding it (the same on SQLite, PostgreSQL and MySQL)</td><td><a href="#database--migrations">Database &amp; migrations</a></td></tr>
+<tr><td><code>idempotency_keys</code></td><td>stored results of writes sent with <code>Idempotency-Key</code> (<code>owner</code>, <code>request_hash</code>, <code>result</code>, <code>expires_at</code>, kept 24 hours)</td><td><a href="#actions">Actions</a>, <a href="#what-is-kept-and-for-how-long">Retention</a></td></tr>
+<tr><td><code>media</code>, <code>media_uploads</code>, <code>media_deletions</code></td><td>the media library (<code>disk</code>, <code>key</code>, <code>mime</code>, <code>size</code>, <code>sha256</code>, <code>owner_id</code>, <code>deleted_at</code>); uploads not yet attached; files to delete from storage, with retries</td><td><a href="#media-uploads--rich-text">Media</a>, <a href="#what-is-kept-and-for-how-long">Retention</a></td></tr>
+<tr><td><code>audit_logs</code></td><td>who changed what (<code>event</code>, <code>subject_type</code>/<code>subject_key</code>, actor, <code>credential</code>, <code>ip</code>, <code>request_id</code>, <code>changes</code>)</td><td><a href="#audit-log">Audit log</a></td></tr>
+<tr><td><code>settings</code></td><td>settings groups (<code>name</code>, <code>value</code>, <code>secrets</code> encrypted under a key derived from <code>APP_KEY</code>, <code>version</code>, <code>updated_by</code>)</td><td><a href="#secrets">Settings</a></td></tr>
+<tr><td><code>jobs</code>, <code>job_receipts</code></td><td>the database queue (<code>queue</code>, <code>kind</code>, <code>payload</code>, <code>attempts</code>, <code>available_at</code>, <code>reserved_until</code>, <code>last_error</code>); jobs already run once</td><td><a href="#queues">Queues</a></td></tr>
+<tr><td><code>exports</code>, <code>export_objects</code></td><td>CSV exports and their files</td><td><a href="#import-and-export">Import and export</a></td></tr>
+<tr><td><code>imports</code>, <code>import_rows</code></td><td>CSV imports, their mapping and report; what each row did</td><td><a href="#import-and-export">Import and export</a></td></tr>
 </tbody>
 </table>
 </div>

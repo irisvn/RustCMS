@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "../searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9f4d2959.js"></script>
+        <script src="../toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -234,7 +234,9 @@ inside a handler after reading the body.</p>
 <li>An invalid bearer token is 401 everywhere, public routes included.</li>
 <li><code>HEAD</code> follows <code>GET</code>; other methods of a path answer 405.</li>
 <li>No API route may match a path under <code>auth.admin_path</code>, captures included
-(<code>/{section}/report</code> is refused with the default <code>/admin</code>): registration panics.</li>
+(<code>/{section}/report</code> is refused with the default <code>/admin</code>): registration panics.
+Endpoints for the panel’s own pages, on its session, are
+<a href="../admin/admin-routes.html">admin routes</a>.</li>
 </ul>
 <p><code>api_permissions</code> declares each <code>Access::can</code> permission on the API guard, in
 the group named before the first <code>.</code> (<code>posts.create</code> → <code>posts</code>). A permission

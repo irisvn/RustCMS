@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-9f4d2959.js"></script>
+        <script src="toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -181,8 +181,48 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.3.0</strong> (“LMS-ready
-admin”); 0.1.0-alpha.0 was the first published one.</p>
+<p>RustCMS is in pre-release. The current version is <strong>0.4.0</strong> (“panel
+platform”); 0.1.0-alpha.0 was the first published one.</p>
+<h2 id="040"><a class="header" href="#040">0.4.0</a></h2>
+<ul>
+<li><strong>Admin routes</strong>: JSON routes for your own panel pages under
+<code>{admin}/api/x</code>, on the admin session, each with a declared
+<code>AdminAccess</code> checked before extractors (<code>AdminRoutes</code>,
+<code>AuthProvider::admin_permissions</code>); <code>assert_access</code> tests every route
+against a table of actors (<a href="admin/admin-routes.html">Admin routes</a>).</li>
+<li><strong>Server-sent events</strong>: <code>AdminRoutes::events</code> streams live data to a
+page.
+<ul>
+<li>It is rechecked while open: the session, the user, the permissions and a
+per-target check.</li>
+<li>Limits are per user and per instance, slow clients are dropped, and
+streams end cleanly on shutdown.</li>
+<li>A process-local <code>Hub</code> shares one producer between viewers, with <code>resync</code>
+when a viewer falls behind.</li>
+<li>Script pages read streams with <code>ctx.realtime.events</code>
+(<a href="admin/realtime.html">Realtime</a>).</li>
+</ul>
+</li>
+<li><strong>WebSocket</strong>: <code>AdminRoutes::socket</code> for terminals and consoles.
+<ul>
+<li>Admission: the exact <code>Origin</code> and the session’s CSRF token as a
+subprotocol.</li>
+<li>A supervised, rechecked socket with bounded queues both ways.</li>
+<li><code>AdminSocket::authorize()</code> checks a command when it runs.</li>
+<li>Script pages use <code>ctx.realtime.socket</code>
+(<a href="admin/realtime.html#websocket">Realtime</a>).</li>
+</ul>
+</li>
+<li><strong>Content Security Policy</strong>: unchanged, except that <code>connect-src</code> also
+names the panel’s own <code>ws(s)://</code> origins.</li>
+<li><strong>Secrets from files</strong>: every variable also reads <code>&lt;VAR&gt;_FILE</code> (Docker
+and Kubernetes secrets) (<a href="getting-started/configuration.html">Configuration</a>).</li>
+<li><strong>Testing</strong>: <code>TestApp::new</code> takes a closure, so tests can bind doubles.
+<code>RUSTCMS_TEST_BACKENDS</code> picks the databases, and <code>TestClient::socket</code>
+opens WebSocket connections (<a href="basics/testing.html">Testing</a>).</li>
+<li><strong>Tooling</strong>: the test servers run in memory (the matrix is about twice as
+fast), and <code>just test-fast</code> runs every test on SQLite only.</li>
+</ul>
 <h2 id="030"><a class="header" href="#030">0.3.0</a></h2>
 <ul>
 <li><strong>Admin panel</strong>: soft deletes with a trash; tabs and key/value inputs;

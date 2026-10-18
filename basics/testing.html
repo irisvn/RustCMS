@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "../searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9f4d2959.js"></script>
+        <script src="../toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -239,6 +239,36 @@ and <code>TestS3::configure(config)</code> points <code>[storage]</code> at it.<
 <p>Without <code>RUSTCMS_TEST_PG</code> / <code>RUSTCMS_TEST_MYSQL</code>, those variants print a skip
 notice and pass, unless <code>RUSTCMS_TEST_REQUIRE</code> lists them (<code>postgres,mysql</code>):
 then they fail. Set them in CI so every test runs on the three databases.</p>
+<p>While working, <code>just test-fast</code> in RustCMS (or <code>RUSTCMS_TEST_BACKENDS=sqlite cargo test</code> in an application) runs every test on SQLite in seconds; run every
+database before pushing. Test servers are faster in memory and without fsync
+(RustCMS’s <code>docker-compose.yml</code> does it: PostgreSQL <code>-c fsync=off -c synchronous_commit=off -c full_page_writes=off</code>, MySQL
+<code>--innodb-flush-log-at-trx-commit=0 --innodb-doublewrite=OFF --innodb-flush-method=nosync --sync-binlog=0 --skip-log-bin</code>, data dirs on
+<code>tmpfs</code>); never use these settings for data you keep.</p>
+<p>An application that runs on one database can test only that one:
+<code>RUSTCMS_TEST_BACKENDS=mysql</code> (any of <code>sqlite,postgres,mysql</code>) runs those
+variants and makes them required, so a missing server fails instead of
+skipping. An empty or unknown name fails, as does a backend that
+<code>RUSTCMS_TEST_REQUIRE</code> asks for but the selection leaves out. Unset, all
+three run as before.</p>
+<h2 id="test-doubles"><a class="header" href="#test-doubles">Test doubles</a></h2>
+<p><code>TestApp::new</code> (and <code>with_config</code>) takes any <code>FnOnce(Config) -&gt; AppBuilder</code>,
+so a closure can bind a double next to your real providers:</p>
+<pre><code class="language-rust ignore">struct Docker(Arc&lt;dyn DockerApi&gt;); // a newtype: `bind` keys services by type
+
+let fake = Arc::new(FakeDocker::default());
+let double = fake.clone();
+let app = TestApp::new(
+    move |config| {
+        let mut app = bootstrap::build(config);
+        app.bind(Docker(double));    // replaces the one bound by your provider
+        app
+    },
+    db,
+)
+.await;</code></pre>
+<p><code>bind</code> replaces a service of the <strong>same concrete type</strong>: bind a newtype
+around <code>Arc&lt;dyn Trait&gt;</code> (not the trait object itself) and resolve it with
+<code>Inject&lt;Docker&gt;</code>, so the double and the real service share one key.</p>
 <h2 id="http-helpers"><a class="header" href="#http-helpers">HTTP helpers</a></h2>
 <div class="table-wrapper">
 <table>
@@ -272,6 +302,17 @@ then they fail. Set them in CI so every test runs on the three databases.</p>
 request goes through the real guards, so CSRF, expiry and <code>auth_version</code>
 checks apply. Adjust with <code>.origin(None)</code>, <code>.set_csrf(..)</code>, <code>.from(peer)</code>.</p>
 <p><code>UserFactory::new().password("secret")</code> creates users that can sign in.</p>
+<h3 id="websockets"><a class="header" href="#websockets">WebSockets</a></h3>
+<p>An upgrade needs a real connection: <code>client.socket(path)</code> starts a listener
+for the app on <code>127.0.0.1</code> (once, stopped with the app) and opens the socket
+with the client’s cookies, <code>Origin</code> and CSRF subprotocol.</p>
+<pre><code class="language-rust ignore">let mut socket = app.acting_as(&amp;user).await.socket("/admin/api/x/docker/exec/web").await.unwrap();
+socket.send_text("ls\n").await;
+let output = socket.next_data(Duration::from_secs(2)).await;      // Some(Message::Text(..))
+assert_eq!(socket.closed(Duration::from_secs(15)).await, Some((4403, "forbidden".into())));</code></pre>
+<p><code>socket_with(path, protocols, headers)</code> sends other subprotocols or headers
+(refusals come back as <code>Refused { status, body }</code>), and <code>socket.inner</code> is the
+raw tokio-tungstenite stream.</p>
 <h2 id="authorization-oracles"><a class="header" href="#authorization-oracles">Authorization oracles</a></h2>
 <p>Keep a hand-written table of expected outcomes (route × actor → status), for
 example in a TOML file next to your tests, and test the application against it. Derive

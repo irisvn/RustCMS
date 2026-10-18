@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "../searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9f4d2959.js"></script>
+        <script src="../toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -185,8 +185,9 @@
 decide it per record in the admin panel, and <a href="../basics/routing.html#access">route access</a>
 per API route.</p>
 <p>Spatie-style tables, scoped by guard: <code>permissions</code>, <code>roles</code>,
-<code>role_has_permissions</code>, <code>model_has_roles</code>, <code>model_has_permissions</code>. A user may
-hold roles in both guards; they never mix.</p>
+<code>role_has_permissions</code>, <code>model_has_roles</code>, <code>model_has_permissions</code> (columns,
+keys and how they relate: <a href="../reference/database-schema.html">Database schema</a>).
+A user may hold roles in both guards; they never mix.</p>
 <ul>
 <li><strong>Deny by default.</strong> Missing permission → 403.</li>
 <li><strong>Super admin.</strong> The system role <code>super_admin</code> (seeded per guard by the

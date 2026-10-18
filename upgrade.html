@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-9f4d2959.js"></script>
+        <script src="toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -210,6 +210,23 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-032-to-040"><a class="header" href="#from-032-to-040">From 0.3.2 to 0.4.0</a></h2>
+<p><code>rustcms self-update</code>, then <code>rustcms upgrade</code> in each application. Nothing
+needs to change in your code.</p>
+<ul>
+<li>New <code>[realtime]</code> keys, all optional: <code>socket_revalidate_secs</code>,
+<code>max_message_bytes</code>, <code>send_timeout_secs</code>
+(<a href="getting-started/configuration.html">Configuration</a>). The other keys already
+existed.</li>
+<li>The admin page’s CSP now also lists <code>ws(s)://</code> for the panel’s origins in
+<code>connect-src</code>. A test that compares the header with
+<code>rustcms::admin::spa::CONTENT_SECURITY_POLICY</code> should use
+<code>content_security_policy(&amp;origins)</code> instead.</li>
+<li><code>{admin}/api/x</code> belongs to your <code>AdminRoutes</code>: nothing built in lives
+there.</li>
+<li>Behind a proxy, if you add WebSocket routes, see the
+<a href="security/production.html">production checklist</a>.</li>
+</ul>
 <h2 id="from-031-to-032"><a class="header" href="#from-031-to-032">From 0.3.1 to 0.3.2</a></h2>
 <p>Only the command changed (new <code>doctor</code>, <code>upgrade</code>, <code>self-update</code>, <code>docs</code>).
 Install it again with the install script (0.3.1 has no <code>self-update</code>), then

@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8d4216ec.js";
+            window.path_to_searchindex_js = "../searchindex-62459147.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9f4d2959.js"></script>
+        <script src="../toc-75f04dca.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -209,6 +209,10 @@ in the database).</p>
 limits: run one instance unless Redis is configured. Password-hashing and
 upload concurrency limits are always per instance (each bounds its own CPU
 and disk).</p>
+<p><a href="../admin/realtime.html">Realtime events</a> are per instance too. Each instance
+runs its own hub producers, and the <code>[realtime]</code> connection limits apply to
+each one. A change on one instance still reaches every open stream within a
+recheck, because rechecks read the database.</p>
 <h2 id="your-own-periodic-jobs"><a class="header" href="#your-own-periodic-jobs">Your own periodic jobs</a></h2>
 <pre><code class="language-rust ignore">// In a provider's `boot`: run every minute, on one instance at a time.
 let state = state.clone();
