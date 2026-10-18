@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-62459147.js";
+            window.path_to_searchindex_js = "../searchindex-8b0f7891.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-75f04dca.js"></script>
+        <script src="../toc-8c5d8d83.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -535,6 +535,34 @@ application in the current directory (<code>cargo run -- &lt;command&gt;</code>)
 <tbody>
 <tr><td><code>&lt;id&gt;</code></td><td>Job id</td></tr>
 <tr><td><code>--all</code></td><td>Every failed job</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="keyreencrypt"><a class="header" href="#keyreencrypt"><code>key:reencrypt</code></a></h3>
+<p>Seal every encrypted column and settings secret with APP_KEY (after a rotation)</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--dry-run</code></td><td>Check and count; write nothing</td></tr>
+<tr><td><code>--list</code></td><td>List the encrypted columns and exit</td></tr>
+<tr><td><code>--batch</code></td><td>Rows read at a time (default: <code>500</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="schedulelist"><a class="header" href="#schedulelist"><code>schedule:list</code></a></h3>
+<p>List the schedules, their next slot and their last claimed slot</p>
+<h3 id="schedulerun"><a class="header" href="#schedulerun"><code>schedule:run</code></a></h3>
+<p>Run a schedule now (a manual run: no slot claim, no grace, no without_overlapping; a job is enqueued for the workers, a run runs here)</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>&lt;name&gt;</code></td><td>The schedule’s name</td></tr>
 </tbody>
 </table>
 </div>

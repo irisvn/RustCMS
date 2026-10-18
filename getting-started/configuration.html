@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-62459147.js";
+            window.path_to_searchindex_js = "../searchindex-8b0f7891.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-75f04dca.js"></script>
+        <script src="../toc-8c5d8d83.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -201,6 +201,7 @@
 <tr><td><code>app.debug</code></td><td><code>false</code></td><td></td></tr>
 <tr><td><code>app.url</code></td><td><code>http://localhost:8000</code></td><td></td></tr>
 <tr><td><code>app.key</code></td><td>— (<strong>required</strong>)</td><td><code>base64:</code> + 32 bytes; <code>rustcms key:generate</code></td></tr>
+<tr><td><code>app.previous_keys</code></td><td><code>[]</code></td><td>keys <code>APP_KEY</code> replaced, only to open <a href="../digging-deeper/encryption.html">encrypted values</a> until <code>key:reencrypt</code> ran; env <code>APP_PREVIOUS_KEYS</code> (comma-separated)</td></tr>
 <tr><td><code>app.listen</code></td><td><code>127.0.0.1:8000</code></td><td></td></tr>
 <tr><td><code>app.locale</code></td><td><code>en</code></td><td>admin interface language by default (<a href="../admin/i18n.html">Languages</a>)</td></tr>
 <tr><td><code>app.locales</code></td><td><code>["en", "vi"]</code></td><td>languages users may choose (the panel ships <code>en</code>, <code>vi</code>)</td></tr>
@@ -304,6 +305,19 @@ fail closed (500). See <a href="../digging-deeper/instances.html">Several instan
 <tr><td><code>realtime.socket_revalidate_secs</code></td><td><code>10</code></td><td>how often an open WebSocket rechecks (at least 1)</td></tr>
 <tr><td><code>realtime.max_message_bytes</code></td><td><code>65536</code></td><td>largest WebSocket message, either way (1009 beyond)</td></tr>
 <tr><td><code>realtime.send_timeout_secs</code></td><td><code>10</code></td><td>longest wait of a WebSocket send for a slow client (then <code>lagging</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="schedule-configscheduletoml"><a class="header" href="#schedule-configscheduletoml"><code>[schedule]</code> (<code>config/schedule.toml</code>)</a></h3>
+<p><a href="../digging-deeper/scheduling.html">Scheduling</a>, run by <code>serve</code> only.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Default</th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>schedule.enabled</code></td><td><code>true</code></td><td>run the schedules on this instance</td></tr>
+<tr><td><code>schedule.grace_secs</code></td><td><code>30</code></td><td>how late (1–300 s) a slot may still be claimed; older slots are skipped</td></tr>
 </tbody>
 </table>
 </div>

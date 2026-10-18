@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-62459147.js";
+            window.path_to_searchindex_js = "searchindex-8b0f7891.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-75f04dca.js"></script>
+        <script src="toc-8c5d8d83.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -210,6 +210,21 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-040-to-041"><a class="header" href="#from-040-to-041">From 0.4.0 to 0.4.1</a></h2>
+<ul>
+<li><code>rustcms migrate</code>: two new tables, <code>schedule_states</code> and <code>schedule_slots</code>.</li>
+<li>Periodic work can move from your own <code>tokio::spawn</code> loops to
+<a href="digging-deeper/scheduling.html">schedules</a>, which run once per slot across
+instances and only in <code>serve</code>.</li>
+<li><code>rustcms::settings::{read, load, write}</code> take the keyring
+(<code>state.keyring()</code>) instead of <code>&amp;state.config().app.key</code>.
+<code>settings::get(&amp;state)</code> is unchanged.</li>
+<li>New, optional: <code>APP_PREVIOUS_KEYS</code> (see
+<a href="operations/app-key.html">Rotating APP_KEY</a>), and
+<a href="digging-deeper/encryption.html">encrypted columns</a>.</li>
+<li>The admin vocabulary is 8 (<code>secret_map</code> inputs). An extension that checks
+the vocabulary version should accept 8.</li>
+</ul>
 <h2 id="from-032-to-040"><a class="header" href="#from-032-to-040">From 0.3.2 to 0.4.0</a></h2>
 <p><code>rustcms self-update</code>, then <code>rustcms upgrade</code> in each application. Nothing
 needs to change in your code.</p>

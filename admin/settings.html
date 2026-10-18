@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-62459147.js";
+            window.path_to_searchindex_js = "../searchindex-8b0f7891.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-75f04dca.js"></script>
+        <script src="../toc-8c5d8d83.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -315,7 +315,7 @@ if general.enrolments_open { /* … */ }
 let password = general.smtp_password.expose(); // Option&lt;&amp;str&gt;</code></pre>
 <p><code>get</code> reads the row (one query) and is correct on every instance at once,
 with no cache to clear. Inside a transaction, read with
-<code>rustcms::settings::load::&lt;GeneralSettings, _&gt;(&amp;txn, &amp;state.config().app.key)</code> to see the
+<code>rustcms::settings::load::&lt;GeneralSettings, _&gt;(&amp;txn, state.keyring())</code> to see the
 transaction’s own writes. A group that was never saved reads as its
 <code>Default</code>; a field added to the struct later reads as its default until saved.</p>
 <h2 id="secrets"><a class="header" href="#secrets">Secrets</a></h2>

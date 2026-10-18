@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-62459147.js";
+            window.path_to_searchindex_js = "../searchindex-8b0f7891.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-75f04dca.js"></script>
+        <script src="../toc-8c5d8d83.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -215,6 +215,7 @@ write are left out or disabled, and the server checks everything again.</p>
 <tr><td><code>KeyValue</code></td><td>a JSON object of text values (<a href="#key-value">below</a>)</td></tr>
 <tr><td><code>FileUpload</code>, <code>RichEditor</code></td><td><a href="media.html">media and rich text</a></td></tr>
 <tr><td><code>CustomInput::make(field, "vendor/widget")</code></td><td>a <a href="custom-fields.html">custom widget</a></td></tr>
+<tr><td><code>SecretInput</code>, <code>SecretMapInput</code></td><td><a href="#encrypted-fields">encrypted fields</a> (chosen for them by default)</td></tr>
 </tbody>
 </table>
 </div>
@@ -253,6 +254,74 @@ then apply to every write, API and hooks included, whatever the form shows:
 <code>max_length</code> (default 1,000). A stored value that is not an object of text is
 shown read-only and never rewritten; a nullable field can be cleared to “not
 set” (distinct from an empty object).</p>
+<h2 id="encrypted-fields"><a class="header" href="#encrypted-fields">Encrypted fields</a></h2>
+<pre><code class="language-rust ignore">Field::column(integration::Column::ApiToken).encrypted(),
+Field::column(integration::Column::Env).encrypted_map().max_items(20),</code></pre>
+<p>Both hold secrets sealed with <code>APP_KEY</code> in a text column; the model’s field
+is an <a href="../digging-deeper/encryption.html"><code>Encrypted&lt;T&gt;</code></a>:</p>
+<ul>
+<li><code>encrypted()</code> takes an <code>Encrypted&lt;String&gt;</code>;</li>
+<li><code>encrypted_map()</code> takes an <code>Encrypted&lt;BTreeMap&lt;String, String&gt;&gt;</code>.</li>
+</ul>
+<p>The panel never shows them.</p>
+<ul>
+<li>
+<p><strong>A secret string</strong> (<code>SecretInput</code>) shows <em>Set</em>, <em>Not set</em> or <em>Cannot be
+read</em>, with Replace and Clear. Leaving it alone keeps it.</p>
+</li>
+<li>
+<p><strong>Named secrets</strong> (<code>SecretMapInput</code>):</p>
+<ul>
+<li>the names are listed, and each one is kept, replaced or removed;</li>
+<li>new rows take a name and a value;</li>
+<li>values are never shown or prefilled.</li>
+</ul>
+</li>
+<li>
+<p>What the API returns and takes (for scripts and tests):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>Record value</th><th>Write</th></tr>
+</thead>
+<tbody>
+<tr><td>string</td><td><code>{"state": "set"}</code> (<code>unset</code>, <code>unreadable</code>)</td><td><code>{"replace": "…"}</code>, <code>{"clear": true}</code>; left out: kept</td></tr>
+<tr><td>map</td><td><code>{"state", "keys", "revision"}</code></td><td><code>{"revision", "set": {…}, "keep": ["NAME"]}</code>, <code>{"revision", "clear": true}</code></td></tr>
+</tbody>
+</table>
+</div>
+</li>
+<li>
+<p><strong>Map rules:</strong></p>
+<ul>
+<li>Names neither kept nor set are removed.</li>
+<li>On an existing record every change needs the <code>revision</code> it was read
+with. If someone changed the map meanwhile the save gets 409: reload and
+try again.</li>
+<li>Keeping a name of a map that cannot be read (another <code>APP_KEY</code>) is
+refused; replacing every value recovers it.</li>
+<li>A nullable map can be cleared back to <em>not set</em> (Clear in the form).</li>
+<li>After a 409 the form offers Reload.</li>
+<li>The key/value bounds hold on the result.</li>
+</ul>
+</li>
+<li>
+<p><strong>Who sees what:</strong> users who may read the field see the names. Users who
+may only write it see the state and can still replace everything.</p>
+</li>
+<li>
+<p><strong>Never allowed:</strong> encrypted fields are always write-only, never sortable,
+searchable, filterable, a title or a key, a pivot field or a dashboard
+column. They are never exported or
+imported, and always redacted in the audit log. Anything else panics at
+start.</p>
+</li>
+<li>
+<p><strong>In hooks and actions:</strong> read the stored value with
+<code>model.env.open(ctx.keyring()?, &amp;context)</code>, and write it with
+<code>Encrypted::seal</code>.</p>
+</li>
+</ul>
 
                     </main>
 
