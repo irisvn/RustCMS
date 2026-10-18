@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8b0f7891.js";
+            window.path_to_searchindex_js = "searchindex-cbce2c3b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-8c5d8d83.js"></script>
+        <script src="toc-3a27c04e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -210,6 +210,19 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-041-to-050"><a class="header" href="#from-041-to-050">From 0.4.1 to 0.5.0</a></h2>
+<p>Nothing needs to change: v1 scripts (<code>extension_script</code>,
+<code>window.rustcms.registerPage</code> with <code>apiVersion: 1</code>) work as before.</p>
+<ul>
+<li>New, optional: <a href="admin/react-pages.html">React pages</a>
+(<code>rustcms make:page &lt;Name&gt; --react</code>, <code>extension_script_v2</code>). They need Node
+20.19+ or 22.12+ to build, not to compile or deploy the app.</li>
+<li><code>GET {admin}/api/panel</code> has a new <code>permissions</code> list; a test that compares
+the whole response should expect it.</li>
+<li><code>{admin}/api/pages/{slug}/{*path}</code> is new: a page now answers its
+sub-paths too (with the page’s permissions; read <code>ctx.page_path()</code> in
+<code>data</code> to tell them apart).</li>
+</ul>
 <h2 id="from-040-to-041"><a class="header" href="#from-040-to-041">From 0.4.0 to 0.4.1</a></h2>
 <ul>
 <li><code>rustcms migrate</code>: two new tables, <code>schedule_states</code> and <code>schedule_slots</code>.</li>
