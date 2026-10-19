@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -214,21 +214,16 @@ runs its own hub producers, and the <code>[realtime]</code> connection limits ap
 each one. A change on one instance still reaches every open stream within a
 recheck, because rechecks read the database.</p>
 <h2 id="your-own-periodic-jobs"><a class="header" href="#your-own-periodic-jobs">Your own periodic jobs</a></h2>
-<pre><code class="language-rust ignore">// In a provider's `boot`: run every minute, on one instance at a time.
-let state = state.clone();
-tokio::spawn(async move {
-    loop {
-        rustcms::jobs::exclusive(&amp;state, "invoices-sync", Duration::from_secs(120), || async {
-            // the work; must be safe to run twice
-        })
-        .await;
-        tokio::time::sleep(Duration::from_secs(60)).await;
-    }
-});</code></pre>
-<p><code>jobs::exclusive</code> runs the job unless another instance holds the lease
-(without Redis it always runs). If Redis does not answer, the job runs anyway,
-and a lease can expire during a long run: write jobs that are correct when
-two run at once (claim rows in the database), the lease only saves work.</p>
+<p>Use a <a href="scheduling.html">schedule</a>, declared in a provider’s <code>register</code>:</p>
+<pre><code class="language-rust ignore">app.schedule(Schedule::every("invoices-sync", Duration::from_secs(60)).job(|| SyncInvoices {}));</code></pre>
+<p>Schedules run only in <code>serve</code>. Each slot is claimed once in the database
+across instances, with or without Redis, and enqueues the job; the job must
+still be safe to retry.</p>
+<p><code>rustcms::jobs::exclusive(&amp;state, name, ttl, f)</code> is a separate, best-effort
+helper. It runs <code>f</code> unless another instance holds a Redis lease (without
+Redis it always runs). If Redis does not answer, <code>f</code> runs anyway, and a lease
+can expire during a long run: write work that is correct when two runs
+overlap (claim rows in the database), the lease only saves work.</p>
 
                     </main>
 

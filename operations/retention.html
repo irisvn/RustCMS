@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -181,9 +181,10 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="what-is-kept-and-for-how-long"><a class="header" href="#what-is-kept-and-for-how-long">What is kept, and for how long</a></h1>
-<p><code>serve</code> deletes expired data on its own, once per period. With Redis, one
-instance at a time does it; without, every instance runs the pass (each
-deletion is safe to repeat). The commands do the same on demand.</p>
+<p><code>serve</code> deletes expired data on its own, once per period. With Redis, a
+lease keeps instances from doing it at the same time in the usual case (runs
+can still overlap after a lease expires or when Redis fails); without, every
+instance runs the pass. Each deletion is safe to repeat. The commands do the same on demand.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -195,6 +196,7 @@ deletion is safe to repeat). The commands do the same on demand.</p>
 <tr><td>Reset and invitation links</td><td>until they expire (marks of credential changes: 30 days)</td><td><code>serve</code> hourly</td></tr>
 <tr><td>Audit entries</td><td><code>audit.retention_days</code> (365)</td><td><code>serve</code> hourly, <code>audit:prune</code></td></tr>
 <tr><td>Idempotency receipts</td><td>24 hours</td><td><code>serve</code>, <code>idempotency:prune</code></td></tr>
+<tr><td>Schedule claims (<code>schedule_slots</code>)</td><td>7 days (<code>schedule_states</code> are kept)</td><td><code>serve</code> hourly, while schedules are registered and <code>[schedule] enabled</code></td></tr>
 <tr><td>Failed jobs, <code>once</code> receipts</td><td><code>queue.failed_retention_days</code> (30)</td><td>the workers</td></tr>
 <tr><td>Background exports (file and row)</td><td>24 hours, removed an hour later</td><td><code>serve</code></td></tr>
 <tr><td>Imports (file, row, report, receipts)</td><td>24 hours from upload, or from the start of the run</td><td><code>serve</code></td></tr>

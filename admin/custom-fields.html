@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -233,8 +233,9 @@ mount, unmount and mount again: <code>unmount</code> must undo <code>mount</code
 extensions are loaded. A name can be registered once.</li>
 </ul>
 <h2 id="failures"><a class="header" href="#failures">Failures</a></h2>
-<p>A script that fails to load, or takes more than 10 seconds, is skipped (the
-error is in the browser console). A widget that throws, returns no
+<p>A script that fails to load, or takes longer than
+<code>AdminProvider::extension_timeout</code> (10 seconds by default, 1–60), is skipped
+(the error is in the browser console). A widget that throws, returns no
 <code>{update, unmount}</code>, or reports a number JSON cannot carry exactly (<code>NaN</code>,
 <code>Infinity</code>, an integer beyond 2^53) is disabled for the rest of the page’s
 life, in every field that uses it. In both cases its fields are shown read-only (the stored

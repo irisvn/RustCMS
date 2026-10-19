@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -274,12 +274,22 @@ impl PanelPage for CourseOverviewPage {
 &lt;/section&gt;
 </code></pre>
 <ul>
-<li><strong>Who sees it:</strong> every permission of <code>PanelPageMeta</code> (at least one: a page
-without one stops the boot). <code>declare_permission("reports.view")</code> also
-declares it for <code>permission:sync</code>. The navigation lists the pages a user
+<li><strong>Who sees it:</strong> every <code>.permission(…)</code> of <code>PanelPageMeta</code>, and at least
+one of each <code>.permission_any([…])</code> group. A page needs at least one of
+either, and an empty group stops the boot.
+<code>declare_permission("reports.view")</code> also declares it for
+<code>permission:sync</code>.
+<ul>
+<li><code>permission_any</code> suits a page that gathers several sections, for example
+a settings page for whoever manages any of them:
+<code>.permission_any(["storage_providers.view_any", "notification_channels.view_any"])</code>.
+The page’s <code>data</code> and its <a href="admin-routes.html">admin routes</a> still check
+each section. The navigation lists the pages a user
 may open. A user who may open no page gets 403 for any slug; otherwise an
 unknown slug is 404 and a page they may not open 403. <code>data</code> runs only for
 allowed users.</li>
+</ul>
+</li>
 <li><strong><code>data</code> is application code</strong>, like a controller: read records with
 <code>ctx.records(slug, &amp;query)</code> and <code>ctx.record(slug, key)</code>, which apply the
 resource’s scope, policy and field read rules. Anything else you return

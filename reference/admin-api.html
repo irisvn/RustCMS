@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -197,14 +197,14 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><th>Method</th><th>Path</th><th>Response</th></tr>
 </thead>
 <tbody>
-<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings}</code> (resources with <code>view_any</code>, settings pages with <code>view</code>)</td></tr>
+<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings, pages, home?, permissions}</code>: resources with <code>view_any</code> (hidden ones too, <code>nav: false</code>; optional <code>sort</code>), settings pages with <code>view</code>, custom pages the user may open (optional <code>sort</code>), the home page’s slug when the user may open it, the declared admin permissions the user holds</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/schema?operation=create|edit|view&amp;key=</code></td><td><code>ResourceSchema</code> for this user</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records?…</code></td><td><code>{data: [Envelope], meta}</code></td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records</code></td><td>201 <code>{data: Envelope}</code></td></tr>
 <tr><td>GET / PATCH / DELETE</td><td><code>/resources/{slug}/records/{key}</code></td><td><code>{data: Envelope}</code> / <code>{data: Envelope}</code> / 204</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records/{key}/restore</code></td><td><code>{data: Envelope}</code> (soft deletes; trashed records only)</td></tr>
 <tr><td>DELETE</td><td><code>/resources/{slug}/records/{key}/force</code></td><td>204 (soft deletes; trashed records only)</td></tr>
-<tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}?…</code></td><td><code>{data: [Envelope], meta}</code> of the target (list query string)</td></tr>
+<tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}?…</code></td><td><code>{data: [Envelope], meta, pivot?}</code> of the target (list query string; <code>pivot</code>: readable belongs-to-many pivot columns by target key)</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records/{key}/relations/{relation}</code></td><td>201 <code>{data: Envelope}</code> of the target, foreign key set by the server</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/actions/{action}</code> <code>{keys, data?}</code></td><td><code>{processed, denied, missing}</code></td></tr>
 <tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (media library enabled)</td></tr>
@@ -216,8 +216,9 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><td>GET</td><td><code>/queue</code></td><td>counts per queue and status, worker settings, <code>canManage</code> (<code>queue.view</code>)</td></tr>
 <tr><td>GET</td><td><code>/queue/jobs?status=&amp;queue=&amp;kind=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [QueueJob], meta: {nextCursor?}}</code>, newest first (<code>queue.view</code>)</td></tr>
 <tr><td>GET</td><td><code>/pages/{slug}</code></td><td><code>{slug, title, content}</code> of a custom page: <code>{kind: "html", html}</code> or <code>{kind: "script", script, data}</code>, see <a href="../admin/customizing.html#custom-pages">Customizing</a></td></tr>
+<tr><td>GET</td><td><code>/pages/{slug}/{*path}</code></td><td>the same response for a sub-page; <code>Ctx::page_path()</code> gives the canonical sub-path; an invalid sub-path is a 422 on <code>path</code>, after the permission checks</td></tr>
 <tr><td>GET</td><td><code>/slots?resource=&amp;key=</code></td><td><code>{data: [{name, label?, content}]}</code> beside a record</td></tr>
-<tr><td>POST</td><td><code>/queue/jobs/{id}/retry</code>, <code>/forget</code>, <code>/cancel</code></td><td>204; 409 <code>not_failed</code> (retry, forget) or <code>running</code> / <code>not_waiting</code> (cancel) (<code>queue.view</code> + <code>queue.manage</code>), see <a href="../digging-deeper/queues.html#the-queue-page">Queues</a></td></tr>
+<tr><td>POST</td><td><code>/queue/jobs/{id}/retry</code>, <code>/forget</code>, <code>/cancel</code></td><td>204; 409 <code>write_conflict</code> with reason <code>not_failed</code> (retry, forget), <code>running</code> or <code>not_waiting</code> (cancel) (<code>queue.view</code> + <code>queue.manage</code>), see <a href="../digging-deeper/queues.html#the-queue-page">Queues</a></td></tr>
 </tbody>
 </table>
 </div>

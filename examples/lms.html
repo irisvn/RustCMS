@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -223,7 +223,7 @@ accounts with a public password.</p>
 <tr><td><code>src/services/enrollment_service.rs</code></td><td>the seat rules (<code>check</code>, <code>enroll_in</code>, <code>enroll</code>), used by the panel, the enroll action and the seeders</td></tr>
 <tr><td><code>src/models/course.rs</code>, <code>learner.rs</code></td><td>query scopes: <code>course::taught_by</code>, <code>learner::taught_by</code></td></tr>
 <tr><td><code>src/policies/</code></td><td><code>permissions.rs</code> (names), <code>enrollment_policy.rs</code></td></tr>
-<tr><td><code>src/admin/resources/</code></td><td>the four resources: fields, forms, tables, scopes, hooks that call the service</td></tr>
+<tr><td><code>src/admin/resources/</code></td><td>the seven resources: fields, forms, tables, scopes, hooks that call the service</td></tr>
 <tr><td><code>src/settings/lms_settings.rs</code> + <code>src/admin/pages/lms_settings_page.rs</code></td><td>the <code>lms</code> settings group and its page</td></tr>
 <tr><td><code>src/jobs/send_welcome.rs</code></td><td>the <code>lms.enrolled</code> job</td></tr>
 <tr><td><code>src/database/seeders/</code></td><td>roles, users, courses, learners, enrollments</td></tr>
@@ -299,7 +299,9 @@ lists need no scan), since the scope decides visibility.</li>
 at <code>/admin/settings/lms</code> by staff (<code>settings.lms.view</code> / <code>.update</code>).</li>
 <li>A new active enrollment queues <code>lms.enrolled</code> with <code>ctx.dispatch(txn, …)</code>
 in its own transaction: a refused or failed enrollment queues nothing. The
-job carries ids only and logs a welcome with the school name.</li>
+job carries ids only and sends the <code>welcome</code> mail (with the school name),
+then records a receipt for the course/learner pair; an interrupted run can
+send it again.</li>
 <li><code>lang/vi.toml</code> translates labels, the service’s messages (through
 <code>ctx.t</code>) and the unique constraint messages; a test checks that
 <code>lang:missing vi</code> has nothing to report.</li>
@@ -332,8 +334,9 @@ order), and every lesson that moves is recorded in the audit log.</li>
 <li><strong>Dashboard</strong>: learners, new enrollments (against the 30 days before),
 enrollments per week and the newest courses — each with its permission,
 granted to staff, instructors (their courses) and viewers.</li>
-<li><strong>Mail and invitations</strong>: the welcome mail goes to each new learner once
-(<code>lms.enrolled</code>); an administrator invites instructors from System → Users
+<li><strong>Mail and invitations</strong>: the welcome mail goes to each new learner
+(<code>lms.enrolled</code>; a receipt per course/learner pair keeps a later run from
+sending it again, though an interrupted run can); an administrator invites instructors from System → Users
 (they choose their password from the mail; staff have no user management).</li>
 </ul>
 <h2 id="conflicts"><a class="header" href="#conflicts">Conflicts</a></h2>
@@ -345,8 +348,7 @@ RUSTCMS_TEST_PG=postgres://postgres:postgres@localhost:55439/postgres \
 RUSTCMS_TEST_MYSQL=mysql://root:mysql@localhost:53306/mysql \
 cargo nextest run -p lms               # SQLite, PostgreSQL and MySQL
 </code></pre>
-<p>Not part of the example yet: learner sign-in, mail (the welcome is logged),
-quizzes.</p>
+<p>Not part of the example yet: learner sign-in and quizzes.</p>
 
                     </main>
 

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -202,8 +202,10 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { version = "…", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.0", features = ["redis", "s3"] }
 </code></pre>
+<p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
+adding features.</p>
 <p>Build for the server’s platform: on a Linux CI runner, or in Docker (below).</p>
 <h2 id="what-the-binary-reads"><a class="header" href="#what-the-binary-reads">What the binary reads</a></h2>
 <p>Everything is relative to the working directory:</p>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -241,7 +241,7 @@ gone, another context, or an altered value. Which one is not said.</li>
 </li>
 <li>
 <p><strong>Others:</strong> register them yourself, in a provider’s <code>register</code>:</p>
-<pre><code class="language-rust ignore">app.encrypted_column::&lt;integration::Entity&gt;(integration::Column::Secret, Binding::Column);</code></pre>
+<pre><code class="language-rust ignore">app.encrypted_column::&lt;integration::Entity&gt;(integration::Column::ApiToken, Binding::Column);</code></pre>
 <p>Use <code>Binding::Row</code> if you seal with <code>.row(id)</code>.</p>
 </li>
 </ul>

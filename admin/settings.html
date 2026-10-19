@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -326,10 +326,12 @@ browser: the page shows only whether it is set, with <strong>Set a value</strong
 <p><code>Secret</code> serializes as <code>null</code> and prints as <code>Secret(set)</code>, so a settings
 struct can be logged, queued or serialized without leaking it; read the value
 with <code>.expose()</code>. A secret’s default is always unset (<code>Secret::default()</code>).</p>
-<p>If <code>APP_KEY</code> changes, stored secrets can no longer be decrypted: <code>get</code> fails
-with an error naming the secret, the page marks it <strong>Cannot be read</strong>, and
-the group cannot be saved until each such secret is replaced or cleared. Keep
-<code>APP_KEY</code> stable, and plan to enter secrets again if you rotate it.</p>
+<p>When you rotate <code>APP_KEY</code>, keep the old key in <code>APP_PREVIOUS_KEYS</code> and run
+<code>rustcms key:reencrypt</code> (<a href="../operations/app-key.html">Rotating APP_KEY</a>):
+saved secrets stay readable. A secret that no current or previous key opens
+cannot be decrypted: <code>get</code> fails with an error naming the secret, the page
+marks it <strong>Cannot be read</strong>, and the group cannot be saved until each such
+secret is replaced or cleared.</p>
 <h3 id="secrets-bound-to-other-settings"><a class="header" href="#secrets-bound-to-other-settings">Secrets bound to other settings</a></h3>
 <p><code>SettingField::secret("password").kept_while(&amp;["host", "port", "username"])</code>
 keeps the saved secret only while those settings keep their values: changing

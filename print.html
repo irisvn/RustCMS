@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,24 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.5.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.6.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="060"><a class="header" href="#060">0.6.0</a></h2>
+<ul>
+<li><strong>Resources from React pages</strong>: <code>props.resources</code> and the hooks
+<code>useResource</code> and <code>useResourceMutation</code> read and write your resources
+through the panel’s routes. Policies, validation, audit and encrypted
+fields apply; a lost answer pauses writes safely, as in the panel
+(<a href="#records-of-your-resources">React pages</a>).</li>
+<li><strong>Toasts</strong>: <code>props.toast.success</code> and <code>props.toast.error</code>.</li>
+<li><strong>Page titles</strong>: <code>props.title(text)</code> names a sub-page in the panel’s
+heading and breadcrumb (<code>null</code> hides the heading).</li>
+<li><strong>More components</strong>: Tabs, DropdownMenu, Tooltip, Table, Skeleton,
+Separator and CodeBlock, CSP-safe and usable inside dialogs.</li>
+<li><strong>More icons</strong> for resources and pages.</li>
+<li><strong>Any-of page permissions</strong>: <code>PanelPageMeta::permission_any([…])</code>.</li>
+<li><code>ui: 1</code> React pages keep working; set <code>ui: 2</code> to use the new parts.</li>
+</ul>
 <h2 id="051"><a class="header" href="#051">0.5.1</a></h2>
 <ul>
 <li><strong>Home page</strong>: <code>AdminProvider::home(slug)</code> opens one of your pages at
@@ -266,8 +282,8 @@ inside the panel, on its React, React Query, UI kit, theme and router
 <li>Props carry the page data, the sub-path, <code>can(permission)</code>, an API
 client with the session and CSRF token, and realtime streams; hooks
 <code>useAdminQuery</code>, <code>useAdminMutation</code>, <code>useEvents</code>, <code>useSocket</code>.</li>
-<li>A bundle built for another React or UI version is refused before it
-runs; a view that throws shows Retry; the CSP is unchanged.</li>
+<li>A bundle needing another React or React Query major, a newer minor
+than the panel’s, or a higher UI level is refused before it runs; a view that throws shows Retry; the CSP is unchanged.</li>
 <li>Built files are committed, so building the app needs no Node
 (<a href="#react-pages">React pages</a>).</li>
 </ul>
@@ -471,6 +487,16 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-051-to-060"><a class="header" href="#from-051-to-060">From 0.5.1 to 0.6.0</a></h2>
+<p>Nothing needs to change: React pages built with <code>ui: 1</code> keep working.</p>
+<p>To use <code>props.resources</code>, <code>props.toast</code> and the new components:</p>
+<ol>
+<li>Run <code>rustcms make:sdk</code>: it updates <code>resources/admin/sdk</code> (keeping files
+you edited) and lists the registrations to change.</li>
+<li>Set <code>ui: 2</code> in those <code>Requires { … }</code>. A bundle built with the new SDK
+is refused while its provider still declares <code>ui: 1</code>.</li>
+<li>Run <code>npm install &amp;&amp; npm run build</code> in <code>resources/admin</code>, then commit.</li>
+</ol>
 <h2 id="from-050-to-051"><a class="header" href="#from-050-to-051">From 0.5.0 to 0.5.1</a></h2>
 <p>Nothing needs to change. <code>PanelResponse</code> (<code>home</code>), <code>ResourceInfo</code> (<code>sort</code>,
 <code>nav</code>) and <code>PageLink</code> (<code>sort</code>) have new fields: code that builds these
@@ -483,7 +509,8 @@ structs with a literal must add them (they are normally only read).</p>
 (<code>rustcms make:page &lt;Name&gt; --react</code>, <code>extension_script_v2</code>). They need Node
 20.19+ or 22.12+ to build, not to compile or deploy the app.</li>
 <li><code>GET {admin}/api/panel</code> has a new <code>permissions</code> list; a test that compares
-the whole response should expect it.</li>
+the whole response should expect it, and Rust code building a
+<code>PanelResponse</code> literal must add <code>permissions</code>.</li>
 <li><code>{admin}/api/pages/{slug}/{*path}</code> is new: a page now answers its
 sub-paths too (with the page’s permissions; read <code>ctx.page_path()</code> in
 <code>data</code> to tell them apart).</li>
@@ -682,7 +709,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.4.0 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.6.0 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -693,7 +720,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.4.0" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.0" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1036,8 +1063,10 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { version = "…", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.0", features = ["redis", "s3"] }
 </code></pre>
+<p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
+adding features.</p>
 <p>Build for the server’s platform: on a Linux CI runner, or in Docker (below).</p>
 <h2 id="what-the-binary-reads"><a class="header" href="#what-the-binary-reads">What the binary reads</a></h2>
 <p>Everything is relative to the working directory:</p>
@@ -2043,8 +2072,8 @@ people and <code>Actor::System</code> for trusted operators (console). It refuse
 </table>
 </div>
 <p>Every change runs in one transaction that first takes the RBAC lock
-(<code>rbac::lock</code>: a transaction-scoped advisory lock on PostgreSQL, the write lock
-on SQLite) and then re-reads the actor’s own grants. Concurrent changes are
+(<code>rbac::lock</code>: a transaction-scoped advisory lock on PostgreSQL, the
+<code>rustcms_locks</code> row locked <code>FOR UPDATE</code> on MySQL, the write lock on SQLite) and then re-reads the actor’s own grants. Concurrent changes are
 therefore applied one after another, each checked against the state left by
 the previous one: an edit cannot restore a permission revoked meanwhile, and a
 promotion racing a removal cannot leave a guard without an active super admin.</p>
@@ -2125,8 +2154,10 @@ the same response.</li>
 <ul>
 <li><input disabled="" type="checkbox"> <code>APP_ENV=production</code>, <code>APP_DEBUG=false</code>.</li>
 <li><input disabled="" type="checkbox"> <code>APP_KEY</code> generated once (<code>key:generate</code>), stored as a secret, never committed.
-Rotating it signs every admin out, ends every JWT sign-in (API tokens stay valid) and makes
-<a href="#secrets">secret settings</a> unreadable until they are entered again.</li>
+Rotating it signs every admin out and ends every JWT sign-in (API tokens stay valid). Keep the
+old key in <code>APP_PREVIOUS_KEYS</code> and run <code>key:reencrypt</code>, or
+<a href="#secrets">secret settings</a> and encrypted columns become unreadable
+(<a href="#rotating-app_key">Rotating APP_KEY</a>).</li>
 <li><input disabled="" type="checkbox"> <code>APP_URL</code> is the public <strong>https</strong> URL (enables <code>Secure</code> cookies and the default allowed origin).</li>
 <li><input disabled="" type="checkbox"> <code>auth.admin_origins</code> lists every origin serving the admin panel, nothing else.</li>
 <li><input disabled="" type="checkbox"> <code>http.trusted_proxies</code> lists only your load balancers, so throttling sees real client IPs.</li>
@@ -2194,8 +2225,13 @@ allow, and their own Account page.</p>
 <p>Resources the user may list (<code>view_any</code>) appear in the sidebar, grouped by
 <code>ResourceMeta::group</code>, with <code>ResourceMeta::icon</code>:</p>
 <pre><code class="language-rust ignore">ResourceMeta::new("Post").plural("Posts").group("Content").icon("file-text")</code></pre>
-<p>Icons: <code>box</code>, <code>file-text</code>, <code>folder</code>, <code>history</code>, <code>image</code>, <code>layers</code>,
-<code>settings</code>, <code>shield</code>, <code>shopping-cart</code>, <code>tag</code>, <code>users</code>.</p>
+<p>Icons (also for pages): <code>activity</code>, <code>bell</code>, <code>box</code>, <code>calendar</code>, <code>chart</code>,
+<code>cloud</code>, <code>container</code>, <code>cpu</code>, <code>dashboard</code>, <code>database</code>, <code>file-code</code>,
+<code>file-text</code>, <code>folder</code>, <code>gauge</code>, <code>git-branch</code>, <code>globe</code>, <code>hard-drive</code>,
+<code>history</code>, <code>home</code>, <code>image</code>, <code>key</code>, <code>layers</code>, <code>link</code>, <code>lock</code>, <code>logs</code>, <code>mail</code>,
+<code>network</code>, <code>package</code>, <code>rocket</code>, <code>server</code>, <code>settings</code>, <code>shield</code>,
+<code>shopping-cart</code>, <code>tag</code>, <code>terminal</code>, <code>users</code>, <code>workflow</code>. Others show a
+generic icon.</p>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
 <p>By default, resources come by slug, then <a href="#custom-pages">custom pages</a>
 in registration order, resources first in a group. <code>.sort(n)</code> on
@@ -3222,8 +3258,9 @@ mount, unmount and mount again: <code>unmount</code> must undo <code>mount</code
 extensions are loaded. A name can be registered once.</li>
 </ul>
 <h2 id="failures"><a class="header" href="#failures">Failures</a></h2>
-<p>A script that fails to load, or takes more than 10 seconds, is skipped (the
-error is in the browser console). A widget that throws, returns no
+<p>A script that fails to load, or takes longer than
+<code>AdminProvider::extension_timeout</code> (10 seconds by default, 1–60), is skipped
+(the error is in the browser console). A widget that throws, returns no
 <code>{update, unmount}</code>, or reports a number JSON cannot carry exactly (<code>NaN</code>,
 <code>Infinity</code>, an integer beyond 2^53) is disabled for the rest of the page’s
 life, in every field that uses it. In both cases its fields are shown read-only (the stored
@@ -3336,12 +3373,22 @@ impl PanelPage for CourseOverviewPage {
 &lt;/section&gt;
 </code></pre>
 <ul>
-<li><strong>Who sees it:</strong> every permission of <code>PanelPageMeta</code> (at least one: a page
-without one stops the boot). <code>declare_permission("reports.view")</code> also
-declares it for <code>permission:sync</code>. The navigation lists the pages a user
+<li><strong>Who sees it:</strong> every <code>.permission(…)</code> of <code>PanelPageMeta</code>, and at least
+one of each <code>.permission_any([…])</code> group. A page needs at least one of
+either, and an empty group stops the boot.
+<code>declare_permission("reports.view")</code> also declares it for
+<code>permission:sync</code>.
+<ul>
+<li><code>permission_any</code> suits a page that gathers several sections, for example
+a settings page for whoever manages any of them:
+<code>.permission_any(["storage_providers.view_any", "notification_channels.view_any"])</code>.
+The page’s <code>data</code> and its <a href="#admin-routes">admin routes</a> still check
+each section. The navigation lists the pages a user
 may open. A user who may open no page gets 403 for any slug; otherwise an
 unknown slug is 404 and a page they may not open 403. <code>data</code> runs only for
 allowed users.</li>
+</ul>
+</li>
 <li><strong><code>data</code> is application code</strong>, like a controller: read records with
 <code>ctx.records(slug, &amp;query)</code> and <code>ctx.record(slug, key)</code>, which apply the
 resource’s scope, policy and field read rules. Anything else you return
@@ -3488,7 +3535,7 @@ cd resources/admin &amp;&amp; npm install &amp;&amp; npm run build   # Node 20.1
 <li>
 <p>in the admin provider:</p>
 <pre><code class="language-rust ignore">.extension_script_v2("stats", include_str!("../../resources/admin/js/blog/stats.js"),
-    Requires { react: "19.3", react_query: "5.104", ui: 1 })
+    Requires { react: "19.3", react_query: "5.104", ui: 2 })
 .extension_style("stats", include_str!("../../resources/admin/css/blog/stats.css"))</code></pre>
 </li>
 <li>
@@ -3527,10 +3574,13 @@ registerPage("blog/stats", Stats);
 </code></pre>
 <p>Register with <code>registerPage</code>, <code>registerSlot</code> or <code>registerCell</code> and the name of
 the Rust side (<code>PageView::Script("…")</code> of a page or slot, <code>.cell("…")</code> of a
-column). A
-name is taken once, by v1 or v2.</p>
-<p>Only these imports are available; anything else (<code>react-dom/client</code>,
-<code>react/jsx-dev-runtime</code>, <code>import()</code>) fails the build:</p>
+column). Within each kind (page, slot or cell) a name is taken once, by v1
+or v2.</p>
+<p>These imports use the panel’s own modules, except <code>@rustcms/admin-sdk</code>,
+whose hooks and registration code are bundled into your script. Other installed
+dependencies and your local modules are bundled into the script; other
+React, React DOM and React Query subpaths (<code>react-dom/client</code>,
+<code>react/jsx-dev-runtime</code>) and every dynamic <code>import()</code> fail the build:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -3541,7 +3591,7 @@ name is taken once, by v1 or v2.</p>
 <tr><td><code>react-dom</code></td><td><code>createPortal</code></td></tr>
 <tr><td><code>@tanstack/react-query</code></td><td><code>useQuery</code>, <code>useMutation</code>, <code>useQueryClient</code>, <code>useInfiniteQuery</code></td></tr>
 <tr><td><code>@rustcms/admin-sdk</code></td><td><code>registerPage/Slot/Cell</code>, the hooks below, the prop types</td></tr>
-<tr><td><code>@rustcms/admin-sdk/ui</code></td><td><code>Alert</code>, <code>Badge</code>, <code>Button</code>, <code>buttonVariants</code>, <code>Card</code>, <code>CardContent</code>, <code>CardHeader</code>, <code>CardTitle</code>, <code>Checkbox</code>, <code>Switch</code>, <code>Dialog</code>, <code>Input</code>, <code>Label</code>, <code>NativeSelect</code>, <code>Textarea</code>, <code>Page</code>, <code>PageHeader</code>, <code>Loading</code>, <code>ErrorState</code>, <code>cn</code></td></tr>
+<tr><td><code>@rustcms/admin-sdk/ui</code></td><td><code>Alert</code>, <code>Badge</code>, <code>Button</code>, <code>buttonVariants</code>, <code>Card</code>, <code>CardContent</code>, <code>CardHeader</code>, <code>CardTitle</code>, <code>Checkbox</code>, <code>Switch</code>, <code>Dialog</code>, <code>Input</code>, <code>Label</code>, <code>NativeSelect</code>, <code>Textarea</code>, <code>Page</code>, <code>PageHeader</code>, <code>Loading</code>, <code>ErrorState</code>, <code>cn</code>; and from <code>ui</code> 2: <code>Tabs*</code>, <code>DropdownMenu*</code>, <code>Tooltip</code>, <code>Table*</code>, <code>Skeleton</code>, <code>Separator</code>, <code>CodeBlock</code> (<a href="#components">below</a>)</td></tr>
 <tr><td><code>@rustcms/admin-sdk/host</code></td><td><code>ApiError</code>, <code>versions</code></td></tr>
 </tbody>
 </table>
@@ -3561,6 +3611,8 @@ name is taken once, by v1 or v2.</p>
 <tr><td><code>props</code> (the cell’s)</td><td></td><td></td><td>✓</td></tr>
 <tr><td><code>locale</code>, <code>t</code>, <code>scope</code>, <code>can</code></td><td>✓</td><td>✓</td><td>✓</td></tr>
 <tr><td><code>navigate</code>, <code>reload</code>, <code>api</code>, <code>realtime</code></td><td>✓</td><td>✓</td><td></td></tr>
+<tr><td><code>resources</code>, <code>toast</code> (<code>ui</code> 2)</td><td>✓</td><td>✓</td><td></td></tr>
+<tr><td><code>title</code> (<code>ui</code> 2)</td><td>✓</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -3572,7 +3624,8 @@ only hides buttons: the server checks every request.</li>
 <li><code>navigate("/p/stats/items/2")</code> opens a panel path.</li>
 </ul>
 <h2 id="calling-your-routes"><a class="header" href="#calling-your-routes">Calling your routes</a></h2>
-<p><code>props.api.get/post/put/patch/delete(path, body?, { query })</code> call your
+<p><code>props.api.get/delete(path, { query }?)</code> and
+<code>props.api.post/put/patch(path, body?, { query }?)</code> call your
 <a href="#admin-routes">admin routes</a> under <code>{admin}/api/x</code>, with the session and
 CSRF token. Paths start with one <code>/</code> (<code>/blog/posts</code>); <code>..</code>, <code>//</code>, <code>?</code>, <code>#</code>,
 encoded slashes and double encoding are refused before anything is sent.
@@ -3591,13 +3644,86 @@ user, and the view’s next writes wait.</li>
 mounted again for the new session; calls and callbacks of the old one do
 nothing (a call rejects with <code>ApiError</code> code <code>session_changed</code>). A refused
 CSRF token also ends the session state, so that call rejects the same way.</p>
+<h2 id="records-of-your-resources"><a class="header" href="#records-of-your-resources">Records of your resources</a></h2>
+<p>With <code>ui: 2</code> in <code>Requires</code>, <code>props.resources</code> reads and writes the records of
+your <a href="#resources">resources</a> through the panel’s own routes, so their
+policy, <code>scope()</code>, field rules, validation, audit log and encrypted fields
+apply:</p>
+<pre><code class="language-tsx">import { fieldErrors, useResource, useResourceMutation } from "@rustcms/admin-sdk";
+
+const services = useResource&lt;Service&gt;(props, "services", { query: { search: "web", per_page: "25" } });
+const restart = useResourceMutation(props, "services", "action", {
+  onSuccess: () =&gt; props.toast.success(props.t("Restarted")),
+});
+const save = useResourceMutation(props, "services", "update");
+// services.data?.data: envelopes { key, title, abilities, data, labels }
+restart.mutate({ name: "restart", keys: [service.key] });
+save.mutate({ key: service.key, data: { replicas: "3" } });
+const errors = fieldErrors(save.error); // { replicas: ["must be at most 10"] }
+</code></pre>
+<ul>
+<li><strong>Methods:</strong> <code>list</code>, <code>get</code>, <code>create</code>, <code>update</code>, <code>delete</code>, <code>restore</code>,
+<code>forceDelete</code>, <code>action</code>. The hooks <code>useResource</code>, <code>useRecord</code> and
+<code>useResourceMutation</code> wrap them.</li>
+<li><strong>Values</strong> use the panel’s wire format: 64-bit integers and decimals as
+strings. <code>props.resources</code> sends values unchanged: send <code>null</code> to clear a
+field (or to leave a <code>required</code> one empty, which it refuses); an empty
+string stays an empty string.</li>
+<li><strong>Updates</strong> send the changed fields, and the last write wins. Encrypted
+maps answer <code>409 secret_stale</code> when they changed meanwhile. On a 409 or
+422, keep the user’s draft.</li>
+<li><strong>Lost answers:</strong> a write whose answer was lost pauses that resource’s
+writes, in your view and in the resource’s own pages. Both show the
+banner; creates and actions can be retried safely there. Writes are never
+retried automatically.</li>
+<li><strong>Refreshing:</strong> after any write to a resource, every view reading it
+refetches, the built-in lists included.</li>
+<li><strong>Validation:</strong> slugs, action names and keys a URL could change (<code>.</code>,
+<code>..</code>) are refused before anything is sent.</li>
+</ul>
+<h2 id="toasts"><a class="header" href="#toasts">Toasts</a></h2>
+<p><code>props.toast.success(text)</code> and <code>props.toast.error(text)</code> (<code>ui</code> 2) show a
+message in the panel’s corner:</p>
+<ul>
+<li>a success for 5 s, an error for 8 s; at most 5 at a time;</li>
+<li>announced to screen readers;</li>
+<li>kept when the user leaves the page, dropped when the session changes.</li>
+</ul>
+<h2 id="page-titles"><a class="header" href="#page-titles">Page titles</a></h2>
+<p><code>props.title(text)</code> (<code>ui</code> 2, pages) names the current sub-path in the
+panel’s heading and breadcrumb; <code>props.title(null)</code> hides the heading (it
+stays for screen readers) when the page draws its own:</p>
+<pre><code class="language-tsx">useEffect(() =&gt; {
+  if (props.path.startsWith("services/")) props.title(props.path.slice("services/".length));
+}, [props.path, props.title]);
+</code></pre>
+<p>A title holds for the sub-path it was set on: on another one the page’s own
+title shows again until it is set there too. It ends with the view and with
+the session.</p>
+<h2 id="components"><a class="header" href="#components">Components</a></h2>
+<p><code>ui</code> 2 adds:</p>
+<ul>
+<li><code>Tabs</code> (controlled): with sub-paths,
+<code>&lt;Tabs value={props.path || "overview"} onValueChange={(v) =&gt; props.navigate("/p/x/" + v)}&gt;</code>,
+then <code>TabsList aria-label=…</code>, <code>TabsTrigger value=…</code> and
+<code>TabsContent value=…</code>.</li>
+<li><code>DropdownMenu trigger="Actions"</code> with <code>DropdownMenuItem onSelect destructive disabled</code>, <code>DropdownMenuSeparator</code> and <code>DropdownMenuLabel</code>. The keyboard
+works, and Escape returns to the button.</li>
+<li><code>Tooltip content="…"</code> around one element.</li>
+<li><code>Table</code>, <code>TableHeader</code>, <code>TableBody</code>, <code>TableRow</code>, <code>TableHead</code> and
+<code>TableCell</code>, styled like the panel’s lists.</li>
+<li><code>Skeleton</code>, <code>Separator</code>, and <code>CodeBlock code="…"</code> (with a copy button).</li>
+</ul>
+<p>Menus and tooltips work inside a <code>Dialog</code>.</p>
 <h2 id="sub-pages"><a class="header" href="#sub-pages">Sub-pages</a></h2>
 <p><code>/admin/p/&lt;slug&gt;/&lt;sub/path&gt;</code> opens the same page: <code>props.path</code> is
 <code>"sub/path"</code> (<code>""</code> without one), and <code>PanelPage::data</code> reads
 <code>ctx.page_path()</code>. The page’s permissions cover every sub-path; check more in
-<code>data</code> when some need it. Segments are <code>A-Z a-z 0-9 . _ ~ -</code>, at most 16;
-anything else is “not found” in the panel and a 422 validation error on
-<code>path</code> from the API.</p>
+<code>data</code> when some need it. A sub-path is up to 16 non-empty segments of
+<code>A-Z a-z 0-9 . _ ~ -</code> (<code>.</code> and <code>..</code> are refused), at most 512 bytes as sent
+(one trailing slash is dropped). Anything else is “not found” in the panel
+and a 422 validation error on <code>path</code> from the API, after the permission
+checks.</p>
 <h2 id="styles"><a class="header" href="#styles">Styles</a></h2>
 <p>The panel’s stylesheet holds only the classes the panel uses. Put yours in the
 page’s CSS file (imported by the TSX), with the theme’s variables so they
@@ -3614,9 +3740,12 @@ time, so the panel’s Content Security Policy stays strict.</p>
 <li>A component that throws while rendering shows “unavailable” with Retry;
 other views are unaffected (a cell shows its plain value).</li>
 <li><code>Requires</code> states the React, React Query and <code>ui</code> versions the bundle was
-built against. A panel with another major, an older minor or another <code>ui</code>
+built against. A panel with another major, an older minor or a lower <code>ui</code>
 does not load the script at all, and the console says why: rebuild with the
-SDK of that RustCMS version.</li>
+SDK of that RustCMS version. A <code>ui: 1</code> bundle keeps working on newer
+panels.</li>
+<li>A bundle built with the <code>ui</code> 2 SDK whose <code>Requires</code> still says <code>ui: 1</code> is
+refused at registration, with a message: update the provider.</li>
 <li><code>AdminProvider::extension_timeout(Duration)</code> (1–60 s, default 10) bounds how
 long the panel waits for scripts to register.</li>
 </ul>
@@ -3627,8 +3756,9 @@ end-to-end tests drive the built page in a browser.</p>
 <h2 id="upgrading-the-sdk"><a class="header" href="#upgrading-the-sdk">Upgrading the SDK</a></h2>
 <p><code>rustcms upgrade</code> warns when <code>resources/admin/sdk</code> is older than the command.
 Run <code>rustcms make:sdk</code>: it replaces the files you did not edit and lists the
-ones it kept. Then update <code>package.json</code> to the versions in <code>Requires</code>,
-<code>npm install &amp;&amp; npm run build</code>, and commit.</p>
+ones it kept, and the <code>extension_script_v2</code> registrations whose <code>Requires</code>
+declare an older <code>ui</code>: set <code>ui: 2</code> there. Then update <code>package.json</code> to the
+versions in <code>Requires</code>, run <code>npm install &amp;&amp; npm run build</code>, and commit.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="admin-routes"><a class="header" href="#admin-routes">Admin routes</a></h1>
 <p>Resources cover database rows. When a panel page drives something else (a
@@ -4321,10 +4451,12 @@ browser: the page shows only whether it is set, with <strong>Set a value</strong
 <p><code>Secret</code> serializes as <code>null</code> and prints as <code>Secret(set)</code>, so a settings
 struct can be logged, queued or serialized without leaking it; read the value
 with <code>.expose()</code>. A secret’s default is always unset (<code>Secret::default()</code>).</p>
-<p>If <code>APP_KEY</code> changes, stored secrets can no longer be decrypted: <code>get</code> fails
-with an error naming the secret, the page marks it <strong>Cannot be read</strong>, and
-the group cannot be saved until each such secret is replaced or cleared. Keep
-<code>APP_KEY</code> stable, and plan to enter secrets again if you rotate it.</p>
+<p>When you rotate <code>APP_KEY</code>, keep the old key in <code>APP_PREVIOUS_KEYS</code> and run
+<code>rustcms key:reencrypt</code> (<a href="#rotating-app_key">Rotating APP_KEY</a>):
+saved secrets stay readable. A secret that no current or previous key opens
+cannot be decrypted: <code>get</code> fails with an error naming the secret, the page
+marks it <strong>Cannot be read</strong>, and the group cannot be saved until each such
+secret is replaced or cleared.</p>
 <h3 id="secrets-bound-to-other-settings"><a class="header" href="#secrets-bound-to-other-settings">Secrets bound to other settings</a></h3>
 <p><code>SettingField::secret("password").kept_while(&amp;["host", "port", "username"])</code>
 keeps the saved secret only while those settings keep their values: changing
@@ -4471,7 +4603,7 @@ gone, another context, or an altered value. Which one is not said.</li>
 </li>
 <li>
 <p><strong>Others:</strong> register them yourself, in a provider’s <code>register</code>:</p>
-<pre><code class="language-rust ignore">app.encrypted_column::&lt;integration::Entity&gt;(integration::Column::Secret, Binding::Column);</code></pre>
+<pre><code class="language-rust ignore">app.encrypted_column::&lt;integration::Entity&gt;(integration::Column::ApiToken, Binding::Column);</code></pre>
 <p>Use <code>Binding::Row</code> if you seal with <code>.row(id)</code>.</p>
 </li>
 </ul>
@@ -4597,21 +4729,16 @@ runs its own hub producers, and the <code>[realtime]</code> connection limits ap
 each one. A change on one instance still reaches every open stream within a
 recheck, because rechecks read the database.</p>
 <h2 id="your-own-periodic-jobs"><a class="header" href="#your-own-periodic-jobs">Your own periodic jobs</a></h2>
-<pre><code class="language-rust ignore">// In a provider's `boot`: run every minute, on one instance at a time.
-let state = state.clone();
-tokio::spawn(async move {
-    loop {
-        rustcms::jobs::exclusive(&amp;state, "invoices-sync", Duration::from_secs(120), || async {
-            // the work; must be safe to run twice
-        })
-        .await;
-        tokio::time::sleep(Duration::from_secs(60)).await;
-    }
-});</code></pre>
-<p><code>jobs::exclusive</code> runs the job unless another instance holds the lease
-(without Redis it always runs). If Redis does not answer, the job runs anyway,
-and a lease can expire during a long run: write jobs that are correct when
-two run at once (claim rows in the database), the lease only saves work.</p>
+<p>Use a <a href="#scheduling">schedule</a>, declared in a provider’s <code>register</code>:</p>
+<pre><code class="language-rust ignore">app.schedule(Schedule::every("invoices-sync", Duration::from_secs(60)).job(|| SyncInvoices {}));</code></pre>
+<p>Schedules run only in <code>serve</code>. Each slot is claimed once in the database
+across instances, with or without Redis, and enqueues the job; the job must
+still be safe to retry.</p>
+<p><code>rustcms::jobs::exclusive(&amp;state, name, ttl, f)</code> is a separate, best-effort
+helper. It runs <code>f</code> unless another instance holds a Redis lease (without
+Redis it always runs). If Redis does not answer, <code>f</code> runs anyway, and a lease
+can expire during a long run: write work that is correct when two runs
+overlap (claim rows in the database), the lease only saves work.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="audit-log"><a class="header" href="#audit-log">Audit log</a></h1>
 <p>RustCMS records who changed what, and from where, in the <code>audit_logs</code> table
@@ -5271,9 +5398,10 @@ receipts, export objects are unique per run, mails carry their run’s
 <p>Keep the clocks of every instance synchronized (NTP).</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="what-is-kept-and-for-how-long"><a class="header" href="#what-is-kept-and-for-how-long">What is kept, and for how long</a></h1>
-<p><code>serve</code> deletes expired data on its own, once per period. With Redis, one
-instance at a time does it; without, every instance runs the pass (each
-deletion is safe to repeat). The commands do the same on demand.</p>
+<p><code>serve</code> deletes expired data on its own, once per period. With Redis, a
+lease keeps instances from doing it at the same time in the usual case (runs
+can still overlap after a lease expires or when Redis fails); without, every
+instance runs the pass. Each deletion is safe to repeat. The commands do the same on demand.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -5285,6 +5413,7 @@ deletion is safe to repeat). The commands do the same on demand.</p>
 <tr><td>Reset and invitation links</td><td>until they expire (marks of credential changes: 30 days)</td><td><code>serve</code> hourly</td></tr>
 <tr><td>Audit entries</td><td><code>audit.retention_days</code> (365)</td><td><code>serve</code> hourly, <code>audit:prune</code></td></tr>
 <tr><td>Idempotency receipts</td><td>24 hours</td><td><code>serve</code>, <code>idempotency:prune</code></td></tr>
+<tr><td>Schedule claims (<code>schedule_slots</code>)</td><td>7 days (<code>schedule_states</code> are kept)</td><td><code>serve</code> hourly, while schedules are registered and <code>[schedule] enabled</code></td></tr>
 <tr><td>Failed jobs, <code>once</code> receipts</td><td><code>queue.failed_retention_days</code> (30)</td><td>the workers</td></tr>
 <tr><td>Background exports (file and row)</td><td>24 hours, removed an hour later</td><td><code>serve</code></td></tr>
 <tr><td>Imports (file, row, report, receipts)</td><td>24 hours from upload, or from the start of the run</td><td><code>serve</code></td></tr>
@@ -5476,7 +5605,7 @@ accounts with a public password.</p>
 <tr><td><code>src/services/enrollment_service.rs</code></td><td>the seat rules (<code>check</code>, <code>enroll_in</code>, <code>enroll</code>), used by the panel, the enroll action and the seeders</td></tr>
 <tr><td><code>src/models/course.rs</code>, <code>learner.rs</code></td><td>query scopes: <code>course::taught_by</code>, <code>learner::taught_by</code></td></tr>
 <tr><td><code>src/policies/</code></td><td><code>permissions.rs</code> (names), <code>enrollment_policy.rs</code></td></tr>
-<tr><td><code>src/admin/resources/</code></td><td>the four resources: fields, forms, tables, scopes, hooks that call the service</td></tr>
+<tr><td><code>src/admin/resources/</code></td><td>the seven resources: fields, forms, tables, scopes, hooks that call the service</td></tr>
 <tr><td><code>src/settings/lms_settings.rs</code> + <code>src/admin/pages/lms_settings_page.rs</code></td><td>the <code>lms</code> settings group and its page</td></tr>
 <tr><td><code>src/jobs/send_welcome.rs</code></td><td>the <code>lms.enrolled</code> job</td></tr>
 <tr><td><code>src/database/seeders/</code></td><td>roles, users, courses, learners, enrollments</td></tr>
@@ -5552,7 +5681,9 @@ lists need no scan), since the scope decides visibility.</li>
 at <code>/admin/settings/lms</code> by staff (<code>settings.lms.view</code> / <code>.update</code>).</li>
 <li>A new active enrollment queues <code>lms.enrolled</code> with <code>ctx.dispatch(txn, …)</code>
 in its own transaction: a refused or failed enrollment queues nothing. The
-job carries ids only and logs a welcome with the school name.</li>
+job carries ids only and sends the <code>welcome</code> mail (with the school name),
+then records a receipt for the course/learner pair; an interrupted run can
+send it again.</li>
 <li><code>lang/vi.toml</code> translates labels, the service’s messages (through
 <code>ctx.t</code>) and the unique constraint messages; a test checks that
 <code>lang:missing vi</code> has nothing to report.</li>
@@ -5585,8 +5716,9 @@ order), and every lesson that moves is recorded in the audit log.</li>
 <li><strong>Dashboard</strong>: learners, new enrollments (against the 30 days before),
 enrollments per week and the newest courses — each with its permission,
 granted to staff, instructors (their courses) and viewers.</li>
-<li><strong>Mail and invitations</strong>: the welcome mail goes to each new learner once
-(<code>lms.enrolled</code>); an administrator invites instructors from System → Users
+<li><strong>Mail and invitations</strong>: the welcome mail goes to each new learner
+(<code>lms.enrolled</code>; a receipt per course/learner pair keeps a later run from
+sending it again, though an interrupted run can); an administrator invites instructors from System → Users
 (they choose their password from the mail; staff have no user management).</li>
 </ul>
 <h2 id="conflicts"><a class="header" href="#conflicts">Conflicts</a></h2>
@@ -5598,8 +5730,7 @@ RUSTCMS_TEST_PG=postgres://postgres:postgres@localhost:55439/postgres \
 RUSTCMS_TEST_MYSQL=mysql://root:mysql@localhost:53306/mysql \
 cargo nextest run -p lms               # SQLite, PostgreSQL and MySQL
 </code></pre>
-<p>Not part of the example yet: learner sign-in, mail (the welcome is logged),
-quizzes.</p>
+<p>Not part of the example yet: learner sign-in and quizzes.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="cli-reference"><a class="header" href="#cli-reference">CLI reference</a></h1>
 <!-- Generated by `rustcms docs:cli`; do not edit. -->
@@ -6207,7 +6338,7 @@ advances it, and every instance reloads (<a href="#several-instances">several in
 <tr><th>Table</th><th>Holds</th><th>Stored secret</th><th>Notes</th></tr>
 </thead>
 <tbody>
-<tr><td><code>sessions</code></td><td>admin sign-ins (and anonymous CSRF sessions)</td><td><code>id</code> = SHA-256 of the cookie’s random value</td><td><code>data</code> (JSON), <code>expires_at</code> (indexed, pruned hourly), <code>lineage</code> (the first session of a re-issued chain: sign-out ends all of it)</td></tr>
+<tr><td><code>sessions</code></td><td>admin sign-ins (and anonymous CSRF sessions)</td><td><code>id</code> = HMAC-SHA-256 of the cookie’s random value, keyed by <code>APP_KEY</code></td><td><code>data</code> (JSON), <code>expires_at</code> (indexed, pruned hourly), <code>lineage</code> (the first session of a re-issued chain: sign-out ends all of it)</td></tr>
 <tr><td><code>personal_access_tokens</code></td><td>API tokens (<code>rcms_…</code>)</td><td><code>token_hash</code> = SHA-256</td><td><code>user_id</code> → <code>users</code> (cascade), <code>name</code>, <code>abilities</code> (JSON list, <code>["*"]</code> = all of the user’s permissions), <code>last_used_at</code>, <code>expires_at</code>, <code>revoked_at</code></td></tr>
 <tr><td><code>jwt_families</code></td><td>one JWT sign-in and its refresh chain</td><td>none</td><td><code>id</code>, <code>user_id</code> → <code>users</code> (cascade), <code>abilities</code>, <code>auth_version</code> at issue, <code>expires_at</code>, <code>revoked_at</code></td></tr>
 <tr><td><code>jwt_refresh_tokens</code></td><td>each refresh token of a family</td><td><code>token_hash</code> = HMAC-SHA-256 under a key derived from <code>APP_KEY</code></td><td><code>family_id</code> → <code>jwt_families</code> (cascade), <code>used_at</code>: reusing a used token revokes the family</td></tr>
@@ -6244,6 +6375,7 @@ WHERE p.name = 'posts.update' OR r.name = 'super_admin';
 <tr><td><code>media</code>, <code>media_uploads</code>, <code>media_deletions</code></td><td>the media library (<code>disk</code>, <code>key</code>, <code>mime</code>, <code>size</code>, <code>sha256</code>, <code>owner_id</code>, <code>deleted_at</code>); uploads not yet attached; files to delete from storage, with retries</td><td><a href="#media-uploads--rich-text">Media</a>, <a href="#what-is-kept-and-for-how-long">Retention</a></td></tr>
 <tr><td><code>audit_logs</code></td><td>who changed what (<code>event</code>, <code>subject_type</code>/<code>subject_key</code>, actor, <code>credential</code>, <code>ip</code>, <code>request_id</code>, <code>changes</code>)</td><td><a href="#audit-log">Audit log</a></td></tr>
 <tr><td><code>settings</code></td><td>settings groups (<code>name</code>, <code>value</code>, <code>secrets</code> encrypted under a key derived from <code>APP_KEY</code>, <code>version</code>, <code>updated_by</code>)</td><td><a href="#secrets">Settings</a></td></tr>
+<tr><td><code>schedule_states</code>, <code>schedule_slots</code></td><td>one state row per schedule (never pruned); each claimed slot, kept 7 days and pruned hourly while the scheduler runs</td><td><a href="#scheduling">Scheduling</a></td></tr>
 <tr><td><code>jobs</code>, <code>job_receipts</code></td><td>the database queue (<code>queue</code>, <code>kind</code>, <code>payload</code>, <code>attempts</code>, <code>available_at</code>, <code>reserved_until</code>, <code>last_error</code>); jobs already run once</td><td><a href="#queues">Queues</a></td></tr>
 <tr><td><code>exports</code>, <code>export_objects</code></td><td>CSV exports and their files</td><td><a href="#import-and-export">Import and export</a></td></tr>
 <tr><td><code>imports</code>, <code>import_rows</code></td><td>CSV imports, their mapping and report; what each row did</td><td><a href="#import-and-export">Import and export</a></td></tr>
@@ -6268,14 +6400,14 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><th>Method</th><th>Path</th><th>Response</th></tr>
 </thead>
 <tbody>
-<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings}</code> (resources with <code>view_any</code>, settings pages with <code>view</code>)</td></tr>
+<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings, pages, home?, permissions}</code>: resources with <code>view_any</code> (hidden ones too, <code>nav: false</code>; optional <code>sort</code>), settings pages with <code>view</code>, custom pages the user may open (optional <code>sort</code>), the home page’s slug when the user may open it, the declared admin permissions the user holds</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/schema?operation=create|edit|view&amp;key=</code></td><td><code>ResourceSchema</code> for this user</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records?…</code></td><td><code>{data: [Envelope], meta}</code></td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records</code></td><td>201 <code>{data: Envelope}</code></td></tr>
 <tr><td>GET / PATCH / DELETE</td><td><code>/resources/{slug}/records/{key}</code></td><td><code>{data: Envelope}</code> / <code>{data: Envelope}</code> / 204</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records/{key}/restore</code></td><td><code>{data: Envelope}</code> (soft deletes; trashed records only)</td></tr>
 <tr><td>DELETE</td><td><code>/resources/{slug}/records/{key}/force</code></td><td>204 (soft deletes; trashed records only)</td></tr>
-<tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}?…</code></td><td><code>{data: [Envelope], meta}</code> of the target (list query string)</td></tr>
+<tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}?…</code></td><td><code>{data: [Envelope], meta, pivot?}</code> of the target (list query string; <code>pivot</code>: readable belongs-to-many pivot columns by target key)</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records/{key}/relations/{relation}</code></td><td>201 <code>{data: Envelope}</code> of the target, foreign key set by the server</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/actions/{action}</code> <code>{keys, data?}</code></td><td><code>{processed, denied, missing}</code></td></tr>
 <tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (media library enabled)</td></tr>
@@ -6287,8 +6419,9 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><td>GET</td><td><code>/queue</code></td><td>counts per queue and status, worker settings, <code>canManage</code> (<code>queue.view</code>)</td></tr>
 <tr><td>GET</td><td><code>/queue/jobs?status=&amp;queue=&amp;kind=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [QueueJob], meta: {nextCursor?}}</code>, newest first (<code>queue.view</code>)</td></tr>
 <tr><td>GET</td><td><code>/pages/{slug}</code></td><td><code>{slug, title, content}</code> of a custom page: <code>{kind: "html", html}</code> or <code>{kind: "script", script, data}</code>, see <a href="#custom-pages">Customizing</a></td></tr>
+<tr><td>GET</td><td><code>/pages/{slug}/{*path}</code></td><td>the same response for a sub-page; <code>Ctx::page_path()</code> gives the canonical sub-path; an invalid sub-path is a 422 on <code>path</code>, after the permission checks</td></tr>
 <tr><td>GET</td><td><code>/slots?resource=&amp;key=</code></td><td><code>{data: [{name, label?, content}]}</code> beside a record</td></tr>
-<tr><td>POST</td><td><code>/queue/jobs/{id}/retry</code>, <code>/forget</code>, <code>/cancel</code></td><td>204; 409 <code>not_failed</code> (retry, forget) or <code>running</code> / <code>not_waiting</code> (cancel) (<code>queue.view</code> + <code>queue.manage</code>), see <a href="#the-queue-page">Queues</a></td></tr>
+<tr><td>POST</td><td><code>/queue/jobs/{id}/retry</code>, <code>/forget</code>, <code>/cancel</code></td><td>204; 409 <code>write_conflict</code> with reason <code>not_failed</code> (retry, forget), <code>running</code> or <code>not_waiting</code> (cancel) (<code>queue.view</code> + <code>queue.manage</code>), see <a href="#the-queue-page">Queues</a></td></tr>
 </tbody>
 </table>
 </div>
@@ -6493,6 +6626,8 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>write_conflict</code></td><td>409</td><td><code>busy</code> (another change in progress), <code>upload_expired</code>, <code>receipt_expired</code>; queue actions: <code>not_failed</code>, <code>not_waiting</code>, <code>running</code></td></tr>
 <tr><td><code>export_not_ready</code></td><td>409</td><td><code>pending</code> (the background export has not finished)</td></tr>
 <tr><td><code>export_stale</code></td><td>409</td><td><code>stale</code> (access changed since the export was made: export again)</td></tr>
+<tr><td><code>secret_stale</code></td><td>409</td><td><code>stale</code> (an encrypted map changed meanwhile: reload before retrying)</td></tr>
+<tr><td><code>import_started</code></td><td>409</td><td><code>started</code> (the import has already started)</td></tr>
 <tr><td><code>payload_too_large</code></td><td>413</td><td></td></tr>
 <tr><td><code>validation_failed</code></td><td>422</td><td></td></tr>
 <tr><td><code>too_many_requests</code></td><td>429</td><td></td></tr>
@@ -6573,7 +6708,8 @@ date and secret (store larger numbers or decimals as text).</li>
 <li>Image resizing and thumbnails, range requests, public media URLs (add your
 own route).</li>
 <li>MariaDB; Redis Cluster.</li>
-<li>Idempotency keys outside resource creates, actions and media uploads.</li>
+<li>Idempotency keys outside resource creates (relation creates included), actions, media uploads,
+CSV import uploads and background export requests.</li>
 <li>Managing API-guard roles from the panel (use <code>rustcms role:assign</code>).</li>
 </ul>
 <h2 id="writes-in-flight"><a class="header" href="#writes-in-flight">Writes in flight</a></h2>

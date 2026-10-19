@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -217,8 +217,13 @@ allow, and their own Account page.</p>
 <p>Resources the user may list (<code>view_any</code>) appear in the sidebar, grouped by
 <code>ResourceMeta::group</code>, with <code>ResourceMeta::icon</code>:</p>
 <pre><code class="language-rust ignore">ResourceMeta::new("Post").plural("Posts").group("Content").icon("file-text")</code></pre>
-<p>Icons: <code>box</code>, <code>file-text</code>, <code>folder</code>, <code>history</code>, <code>image</code>, <code>layers</code>,
-<code>settings</code>, <code>shield</code>, <code>shopping-cart</code>, <code>tag</code>, <code>users</code>.</p>
+<p>Icons (also for pages): <code>activity</code>, <code>bell</code>, <code>box</code>, <code>calendar</code>, <code>chart</code>,
+<code>cloud</code>, <code>container</code>, <code>cpu</code>, <code>dashboard</code>, <code>database</code>, <code>file-code</code>,
+<code>file-text</code>, <code>folder</code>, <code>gauge</code>, <code>git-branch</code>, <code>globe</code>, <code>hard-drive</code>,
+<code>history</code>, <code>home</code>, <code>image</code>, <code>key</code>, <code>layers</code>, <code>link</code>, <code>lock</code>, <code>logs</code>, <code>mail</code>,
+<code>network</code>, <code>package</code>, <code>rocket</code>, <code>server</code>, <code>settings</code>, <code>shield</code>,
+<code>shopping-cart</code>, <code>tag</code>, <code>terminal</code>, <code>users</code>, <code>workflow</code>. Others show a
+generic icon.</p>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
 <p>By default, resources come by slug, then <a href="customizing.html#custom-pages">custom pages</a>
 in registration order, resources first in a group. <code>.sort(n)</code> on

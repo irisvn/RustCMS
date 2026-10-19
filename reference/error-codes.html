@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -306,6 +306,8 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>write_conflict</code></td><td>409</td><td><code>busy</code> (another change in progress), <code>upload_expired</code>, <code>receipt_expired</code>; queue actions: <code>not_failed</code>, <code>not_waiting</code>, <code>running</code></td></tr>
 <tr><td><code>export_not_ready</code></td><td>409</td><td><code>pending</code> (the background export has not finished)</td></tr>
 <tr><td><code>export_stale</code></td><td>409</td><td><code>stale</code> (access changed since the export was made: export again)</td></tr>
+<tr><td><code>secret_stale</code></td><td>409</td><td><code>stale</code> (an encrypted map changed meanwhile: reload before retrying)</td></tr>
+<tr><td><code>import_started</code></td><td>409</td><td><code>started</code> (the import has already started)</td></tr>
 <tr><td><code>payload_too_large</code></td><td>413</td><td></td></tr>
 <tr><td><code>validation_failed</code></td><td>422</td><td></td></tr>
 <tr><td><code>too_many_requests</code></td><td>429</td><td></td></tr>

@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,16 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-051-to-060"><a class="header" href="#from-051-to-060">From 0.5.1 to 0.6.0</a></h2>
+<p>Nothing needs to change: React pages built with <code>ui: 1</code> keep working.</p>
+<p>To use <code>props.resources</code>, <code>props.toast</code> and the new components:</p>
+<ol>
+<li>Run <code>rustcms make:sdk</code>: it updates <code>resources/admin/sdk</code> (keeping files
+you edited) and lists the registrations to change.</li>
+<li>Set <code>ui: 2</code> in those <code>Requires { … }</code>. A bundle built with the new SDK
+is refused while its provider still declares <code>ui: 1</code>.</li>
+<li>Run <code>npm install &amp;&amp; npm run build</code> in <code>resources/admin</code>, then commit.</li>
+</ol>
 <h2 id="from-050-to-051"><a class="header" href="#from-050-to-051">From 0.5.0 to 0.5.1</a></h2>
 <p>Nothing needs to change. <code>PanelResponse</code> (<code>home</code>), <code>ResourceInfo</code> (<code>sort</code>,
 <code>nav</code>) and <code>PageLink</code> (<code>sort</code>) have new fields: code that builds these
@@ -222,7 +232,8 @@ structs with a literal must add them (they are normally only read).</p>
 (<code>rustcms make:page &lt;Name&gt; --react</code>, <code>extension_script_v2</code>). They need Node
 20.19+ or 22.12+ to build, not to compile or deploy the app.</li>
 <li><code>GET {admin}/api/panel</code> has a new <code>permissions</code> list; a test that compares
-the whole response should expect it.</li>
+the whole response should expect it, and Rust code building a
+<code>PanelResponse</code> literal must add <code>permissions</code>.</li>
 <li><code>{admin}/api/pages/{slug}/{*path}</code> is new: a page now answers its
 sub-paths too (with the page’s permissions; read <code>ctx.page_path()</code> in
 <code>data</code> to tell them apart).</li>

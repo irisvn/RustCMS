@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-aba034b4.js";
+            window.path_to_searchindex_js = "searchindex-8c5f5033.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,24 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.5.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.6.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="060"><a class="header" href="#060">0.6.0</a></h2>
+<ul>
+<li><strong>Resources from React pages</strong>: <code>props.resources</code> and the hooks
+<code>useResource</code> and <code>useResourceMutation</code> read and write your resources
+through the panel’s routes. Policies, validation, audit and encrypted
+fields apply; a lost answer pauses writes safely, as in the panel
+(<a href="admin/react-pages.html#records-of-your-resources">React pages</a>).</li>
+<li><strong>Toasts</strong>: <code>props.toast.success</code> and <code>props.toast.error</code>.</li>
+<li><strong>Page titles</strong>: <code>props.title(text)</code> names a sub-page in the panel’s
+heading and breadcrumb (<code>null</code> hides the heading).</li>
+<li><strong>More components</strong>: Tabs, DropdownMenu, Tooltip, Table, Skeleton,
+Separator and CodeBlock, CSP-safe and usable inside dialogs.</li>
+<li><strong>More icons</strong> for resources and pages.</li>
+<li><strong>Any-of page permissions</strong>: <code>PanelPageMeta::permission_any([…])</code>.</li>
+<li><code>ui: 1</code> React pages keep working; set <code>ui: 2</code> to use the new parts.</li>
+</ul>
 <h2 id="051"><a class="header" href="#051">0.5.1</a></h2>
 <ul>
 <li><strong>Home page</strong>: <code>AdminProvider::home(slug)</code> opens one of your pages at
@@ -200,8 +216,8 @@ inside the panel, on its React, React Query, UI kit, theme and router
 <li>Props carry the page data, the sub-path, <code>can(permission)</code>, an API
 client with the session and CSRF token, and realtime streams; hooks
 <code>useAdminQuery</code>, <code>useAdminMutation</code>, <code>useEvents</code>, <code>useSocket</code>.</li>
-<li>A bundle built for another React or UI version is refused before it
-runs; a view that throws shows Retry; the CSP is unchanged.</li>
+<li>A bundle needing another React or React Query major, a newer minor
+than the panel’s, or a higher UI level is refused before it runs; a view that throws shows Retry; the CSP is unchanged.</li>
 <li>Built files are committed, so building the app needs no Node
 (<a href="admin/react-pages.html">React pages</a>).</li>
 </ul>
