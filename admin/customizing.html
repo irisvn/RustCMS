@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-cbce2c3b.js";
+            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -237,6 +237,9 @@ your extension styles. Extension styles may use the same tokens:
 <code>var(--primary)</code>, <code>var(--radius-lg)</code>, <code>var(--font-sans)</code>.</li>
 </ul>
 <h2 id="custom-pages"><a class="header" href="#custom-pages">Custom pages</a></h2>
+<p>A page’s place in the sidebar follows <code>PanelPageMeta::group</code> and
+<a href="overview.html#order"><code>sort</code></a>; <code>AdminProvider::home(slug)</code> makes one the
+<a href="overview.html#home-page">home page</a>.</p>
 <pre><code class="language-rust ignore">// src/admin/pages/course_overview_page.rs (`rustcms make:page CourseOverviewPage`)
 pub struct CourseOverviewPage;
 

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cbce2c3b.js";
+            window.path_to_searchindex_js = "searchindex-aba034b4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,16 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.5.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.5.1</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="051"><a class="header" href="#051">0.5.1</a></h2>
+<ul>
+<li><strong>Home page</strong>: <code>AdminProvider::home(slug)</code> opens one of your pages at
+<code>/admin</code> (<a href="#home-page">Navigation</a>).</li>
+<li><strong>Order</strong>: <code>.sort(n)</code> on resources and pages orders the sidebar.</li>
+<li><strong>Hidden resources</strong>: <code>ResourceMeta::navigation(false)</code> keeps a resource’s
+routes and API without a sidebar entry.</li>
+</ul>
 <h2 id="050"><a class="header" href="#050">0.5.0</a></h2>
 <ul>
 <li><strong>React pages</strong>: a page, slot or cell can be a React component rendered
@@ -463,6 +471,10 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-050-to-051"><a class="header" href="#from-050-to-051">From 0.5.0 to 0.5.1</a></h2>
+<p>Nothing needs to change. <code>PanelResponse</code> (<code>home</code>), <code>ResourceInfo</code> (<code>sort</code>,
+<code>nav</code>) and <code>PageLink</code> (<code>sort</code>) have new fields: code that builds these
+structs with a literal must add them (they are normally only read).</p>
 <h2 id="from-041-to-050"><a class="header" href="#from-041-to-050">From 0.4.1 to 0.5.0</a></h2>
 <p>Nothing needs to change: v1 scripts (<code>extension_script</code>,
 <code>window.rustcms.registerPage</code> with <code>apiVersion: 1</code>) work as before.</p>
@@ -2184,6 +2196,29 @@ allow, and their own Account page.</p>
 <pre><code class="language-rust ignore">ResourceMeta::new("Post").plural("Posts").group("Content").icon("file-text")</code></pre>
 <p>Icons: <code>box</code>, <code>file-text</code>, <code>folder</code>, <code>history</code>, <code>image</code>, <code>layers</code>,
 <code>settings</code>, <code>shield</code>, <code>shopping-cart</code>, <code>tag</code>, <code>users</code>.</p>
+<h3 id="order"><a class="header" href="#order">Order</a></h3>
+<p>By default, resources come by slug, then <a href="#custom-pages">custom pages</a>
+in registration order, resources first in a group. <code>.sort(n)</code> on
+<code>ResourceMeta</code> or <code>PanelPageMeta</code> (default 0) changes it:</p>
+<ul>
+<li>entries are ordered by <code>sort</code>, then by that default order;</li>
+<li>groups are ordered by the smallest <code>sort</code> among their entries, then by
+first appearance;</li>
+<li>System and Settings always come last.</li>
+</ul>
+<pre><code class="language-rust ignore">PanelPageMeta::new("Templates").permission("templates.view").sort(1)
+ResourceMeta::new("Project").group("Docker").sort(10)</code></pre>
+<h3 id="hiding-a-resource"><a class="header" href="#hiding-a-resource">Hiding a resource</a></h3>
+<p><code>ResourceMeta::navigation(false)</code> removes the sidebar entry and the
+dashboard card. The resource keeps its routes, record pages, API, relations
+and breadcrumbs, for example when your own <a href="#react-pages">React pages</a>
+replace its list. This is only presentation: users still need <code>view_any</code>, as
+always.</p>
+<h3 id="home-page"><a class="header" href="#home-page">Home page</a></h3>
+<p><code>AdminProvider::home("dashboard")</code> makes <code>/admin</code> open the custom page
+<code>dashboard</code> instead of the default dashboard, with that page as the first
+sidebar entry. Users who may not open it see the default dashboard. An
+unknown slug stops the boot.</p>
 <h2 id="what-users-get"><a class="header" href="#what-users-get">What users get</a></h2>
 <ul>
 <li><strong>Lists</strong>: search, sortable columns, filters and pagination, kept in the URL;
@@ -2364,6 +2399,7 @@ fields as columns.</p>
 <tr><td><code>.plural("Posts")</code></td><td>plural label (default: label + <code>s</code>)</td></tr>
 <tr><td><code>.title("title")</code></td><td>the field used as a record’s title</td></tr>
 <tr><td><code>.group("Content")</code>, <code>.icon("file-text")</code></td><td><a href="#navigation">navigation</a></td></tr>
+<tr><td><code>.sort(10)</code>, <code>.navigation(false)</code></td><td><a href="#order">order</a>, <a href="#hiding-a-resource">hidden from the navigation</a></td></tr>
 <tr><td><code>.key(KeyStrategy::…)</code></td><td><a href="#primary-keys">primary keys</a></td></tr>
 <tr><td><code>.unique(constraint, &amp;[columns], message)</code></td><td>maps a unique constraint to a field error</td></tr>
 <tr><td><code>.soft_deletes()</code>, <code>.soft_deletes_column("removed_at")</code></td><td><a href="#soft-deletes">soft deletes</a></td></tr>
@@ -3263,6 +3299,9 @@ your extension styles. Extension styles may use the same tokens:
 <code>var(--primary)</code>, <code>var(--radius-lg)</code>, <code>var(--font-sans)</code>.</li>
 </ul>
 <h2 id="custom-pages"><a class="header" href="#custom-pages">Custom pages</a></h2>
+<p>A page’s place in the sidebar follows <code>PanelPageMeta::group</code> and
+<a href="#order"><code>sort</code></a>; <code>AdminProvider::home(slug)</code> makes one the
+<a href="#home-page">home page</a>.</p>
 <pre><code class="language-rust ignore">// src/admin/pages/course_overview_page.rs (`rustcms make:page CourseOverviewPage`)
 pub struct CourseOverviewPage;
 

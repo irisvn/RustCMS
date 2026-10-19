@@ -1,0 +1,511 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Realtime: events and WebSocket - RustCMS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Build admin panels and headless CMS backends in Rust.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-3a27c04e.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">RustCMS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/irisvn/RustCMS-Core" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/irisvn/RustCMS-Core/edit/main/docs/guide/src/admin/realtime.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="realtime"><a class="header" href="#realtime">Realtime</a></h1>
+<p>A panel page can show live data (stats, logs, progress) through <strong>server-sent
+events</strong>, and talk both ways (terminals, consoles) through a
+<a href="#websocket"><strong>WebSocket</strong></a>, from an <a href="admin-routes.html">admin route</a>. The stream runs on the
+panel’s session, is rechecked while open, and ends when the user signs out
+or loses access. Changes still go through ordinary POST admin routes.</p>
+<pre><code class="language-rust ignore">// src/routes/admin.rs
+AdminRoutes::new("/docker")
+    .events("/containers/{id}/stats", AdminAccess::can("docker.view"), controllers::docker::stats)
+    .post("/containers/{id}/restart", AdminAccess::can("docker.manage"), controllers::docker::restart)</code></pre>
+<pre><code class="language-rust ignore">// src/http/controllers/docker.rs
+use rustcms::auth::{EventStream, LiveSession};
+use rustcms::realtime::{Event, StreamExt, stream, time};
+
+pub async fn stats(live: LiveSession, Path(id): Path&lt;String&gt;, Inject(docker): Inject&lt;Docker&gt;) -&gt; AppResult&lt;EventStream&gt; {
+    let source = docker.clone();
+    let target = id.clone();
+    let events = stream::unfold((), move |()| {
+        let (source, id) = (source.clone(), id.clone());
+        async move {
+            time::sleep(std::time::Duration::from_secs(2)).await;
+            let stats = source.stats(&amp;id).await.ok()?;          // ends the stream on an error
+            Some((Event::json("stats", &amp;stats).ok()?, ()))
+        }
+    });
+    Ok(live.stream(events).target(move |principal| {
+        let (docker, id) = (docker.clone(), target.clone());
+        async move { docker.authorize(&amp;principal, &amp;id).await }   // may this user still see it?
+    }))
+}</code></pre>
+<ul>
+<li>
+<p>The route admits the request before the handler runs: the origin, the
+open limits and the stream’s place. The handler takes <code>LiveSession</code> (the
+admitted stream, with <code>live.principal()</code>); a handler without it is
+admitted all the same.</p>
+</li>
+<li>
+<p><code>live.stream(events)</code> takes any <code>Stream&lt;Item = Event&gt;</code>.
+<code>Event::json(name, &amp;value)</code> serializes a value (names <code>[a-z0-9_.-]</code>, at
+most 64 KiB of JSON).</p>
+</li>
+<li>
+<p><code>.target(check)</code> is the per-target authorization. It runs before the first
+event and at every recheck; <code>Err(Forbidden)</code> or <code>Err(NotFound)</code> ends the
+stream. The route’s <code>AdminAccess</code> gates the route, while <code>target</code> decides
+for this container, site or record.</p>
+</li>
+<li>
+<p>A check written once for several streams returns a <code>TargetFuture</code> (a
+boxed future):</p>
+<pre><code class="language-rust ignore">use rustcms::auth::TargetFuture;
+
+fn sees_container(docker: Docker, id: String) -&gt; impl Fn(Principal) -&gt; TargetFuture + Send + Sync + 'static {
+    move |principal| {
+        let (docker, id) = (docker.clone(), id.clone());
+        Box::pin(async move { docker.authorize(&amp;principal, &amp;id).await })
+    }
+}
+// live.stream(events).target(sees_container(docker, id))</code></pre>
+</li>
+<li>
+<p>A stream must not change anything. Use a POST route for that.</p>
+</li>
+<li>
+<p><code>rustcms::realtime</code> re-exports what producers need: <code>stream</code>
+(<code>unfold</code>, <code>once</code>, <code>iter</code>), <code>StreamExt</code> (<code>.chain</code>, <code>.map</code>) and <code>time</code>
+(<code>sleep</code>, <code>interval</code>).</p>
+</li>
+</ul>
+<h2 id="many-viewers-one-producer-the-hub"><a class="header" href="#many-viewers-one-producer-the-hub">Many viewers, one producer: the hub</a></h2>
+<pre><code class="language-rust ignore">// bound once, e.g. in a provider's register: app.bind(Stats(Hub::new(app.shutdown(), HubLimits::default())))
+pub struct Stats(pub Hub&lt;String&gt;);
+
+let subscription = stats.0
+    .subscribe(format!("container:{id}"), move || docker_stats_stream(id))
+    .map_err(|_| AppError::TooManyRequests { retry_after: 5 })?;
+Ok(live.stream(subscription.into_events()).target(/* … */))</code></pre>
+<ul>
+<li>The first subscriber of a key starts its producer; the others share it.
+The producer stops 5 s after the last one leaves (<code>HubLimits::idle_grace</code>).</li>
+<li><code>hub.publish(&amp;key, event)</code> sends to current subscribers, for example after
+a POST changed something.</li>
+<li>A viewer that falls behind gets <code>event: resync</code>: reload what the page
+shows. A producer whose own source lost events (an upstream broadcast
+that lagged, a reconnect to the source) yields <code>Event::resync()</code>, so pages
+handle both the same way.</li>
+<li>The hub knows no users. A key must hold everything that decides its data
+(<code>container:&lt;id&gt;</code>). Never share a key between users who should see
+different data.</li>
+<li>The hub lives in one process: each instance runs its own producers.</li>
+</ul>
+<h2 id="in-a-script-page"><a class="header" href="#in-a-script-page">In a script page</a></h2>
+<pre><code class="language-js">window.rustcms.registerPage("docker/stats", {
+  apiVersion: 1,
+  mount(element, ctx) {
+    const value = document.createElement("output");
+    element.append(value);
+    ctx.realtime.events(`/docker/containers/${encodeURIComponent(ctx.data.id)}/stats`, {
+      onEvent(name, data) {
+        if (name === "stats") value.textContent = `${data.cpu}%`;
+        if (name === "resync") ctx.reload();
+      },
+      onState(state) { /* "open", "reconnecting", or "closed" with a status or reason */ },
+    });
+    return { update() {}, unmount() {} };
+  },
+});
+</code></pre>
+<p><code>ctx.realtime.events(path, handlers)</code> opens the route under
+<code>{admin}/api/x</code> and returns <code>{ close() }</code>.</p>
+<ul>
+<li>It is closed for you when the view is unmounted or the session changes
+(sign-in, sign-out, credentials rotated in any tab).</li>
+<li>It reconnects with backoff after a dropped connection or a server restart.</li>
+<li>It stops for good on 401, 403 or 404, and when the server ends it with
+<code>signed_out</code> or <code>forbidden</code>.</li>
+<li>It is built on <code>fetch</code>. Do not use <code>EventSource</code>: it hides statuses and
+reconnects on its own after a sign-out.</li>
+</ul>
+<h2 id="what-the-server-enforces"><a class="header" href="#what-the-server-enforces">What the server enforces</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td>Origin</td><td>an <code>Origin</code>, when sent, must be the panel’s; <code>Sec-Fetch-Site</code>, when sent, <code>same-origin</code>; with neither (an old browser), a same-origin <code>Referer</code>. No CSRF token is needed</td></tr>
+<tr><td>Access</td><td>the route’s <code>AdminAccess</code> before anything runs (401, 403); <code>HEAD</code> is 405</td></tr>
+<tr><td>While open</td><td>every <code>revalidate_secs</code> (30): the session, the user and its credential version, its permissions and <code>target</code>. Delivery stops within <code>revalidate_secs + 5 s</code> of a sign-out, a password change, a disabled account or a lost permission (<code>event: closed</code>)</td></tr>
+<tr><td>Limits</td><td>per instance: <code>max_connections</code> (1000), <code>max_per_user</code> (10), 429 beyond. Opens per user (60/min) and per IP (300/min) use the rate limiter, so with Redis they count across instances</td></tr>
+<tr><td>Slow clients</td><td>a bounded queue (64 events, 1 MiB): a client that stops reading is dropped (<code>lagging</code>) and never holds the server</td></tr>
+<tr><td>Shutdown</td><td>new streams get 503; open ones end with <code>closed: shutdown</code> within <code>shutdown_grace_secs</code> (5)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Events end with <code>event: closed</code> and data <code>{"reason": …}</code>: one of
+<code>signed_out</code>, <code>forbidden</code>, <code>shutdown</code>, <code>lagging</code> or <code>error</code>.</p>
+<p>Each recheck reads the session, the user and the grants (about 3 queries),
+plus what <code>target</code> does. At 1000 streams every 30 s that is about 100
+queries per second: raise <code>revalidate_secs</code> or the database pool
+(<code>database.max_connections</code>) accordingly.</p>
+<p>Streams are not cached, carry the session’s <code>Set-Cookie</code> like any admin
+response, and never renew the session by themselves.</p>
+<h2 id="websocket"><a class="header" href="#websocket">WebSocket</a></h2>
+<pre><code class="language-rust ignore">// src/routes/admin.rs
+AdminRoutes::new("/docker")
+    .socket("/containers/{id}/exec", AdminAccess::can("docker.exec"), controllers::docker::exec)</code></pre>
+<pre><code class="language-rust ignore">// src/http/controllers/docker.rs
+use rustcms::auth::{LiveSocket, SocketMessage, SocketResponse};
+
+pub async fn exec(live: LiveSocket, Path(id): Path&lt;String&gt;, Inject(docker): Inject&lt;Docker&gt;) -&gt; SocketResponse {
+    let target = (docker.clone(), id.clone());
+    live.accept(move |mut socket| async move {
+        // Dropped when the socket ends: the process goes with it.
+        let Ok(mut shell) = docker.exec(&amp;id).kill_on_drop(true).spawn() else { return };
+        loop {
+            tokio::select! {
+                input = socket.recv() =&gt; match input {
+                    Some(SocketMessage::Text(command)) if command.starts_with("resize ") =&gt; {
+                        // A command: authorized when it runs, on a fresh principal.
+                        let Ok(principal) = socket.authorize().await else { break };
+                        if !principal.can("docker.exec") { break }
+                        shell.resize(&amp;command[7..]);
+                    }
+                    Some(SocketMessage::Binary(keys)) =&gt; shell.write(&amp;keys).await,
+                    Some(_) =&gt; {}
+                    None =&gt; break,
+                },
+                output = shell.read() =&gt; match output {
+                    Some(bytes) =&gt; if socket.send(SocketMessage::Binary(bytes)).await.is_err() { break },
+                    None =&gt; break,
+                },
+            }
+        }
+    })
+    .target(move |principal| {
+        let (docker, id) = target.clone();
+        async move { docker.authorize(&amp;principal, &amp;id).await }
+    })
+}</code></pre>
+<ul>
+<li>
+<p>The route admits the handshake before the handler runs:</p>
+<ul>
+<li>a mandatory <code>Origin</code> that is exactly the panel’s (no <code>Referer</code> fallback);</li>
+<li>the session’s CSRF token in <code>Sec-WebSocket-Protocol</code>
+(<code>rustcms.v1, rustcms.csrf.&lt;token&gt;</code>, which <code>ctx.realtime.socket</code> sends);</li>
+<li>the open limits and a place, shared with streams.</li>
+</ul>
+<p>The <code>101</code> selects <code>rustcms.v1</code> only.</p>
+</li>
+<li>
+<p><code>live.accept(session)</code> runs <code>session</code> once the connection is upgraded and
+the first check passed (the session, the user, the access, <code>target</code>).
+<code>session</code> gets an <code>AdminSocket</code>:</p>
+<ul>
+<li><code>recv()</code> gives <code>Text</code> or <code>Binary</code> messages, and <code>None</code> once the socket
+ended;</li>
+<li><code>send(message)</code> waits at most <code>send_timeout_secs</code> for a slow client (then
+the socket ends as <code>lagging</code>) and refuses a message over
+<code>max_message_bytes</code> (<code>SendError::TooLarge</code>);</li>
+<li><code>authorize()</code> checks again now and returns the fresh principal.</li>
+</ul>
+</li>
+<li>
+<p><strong>Authorize every command when it runs:</strong> call <code>authorize()</code> and check the
+command’s own permission on what it returns, never on <code>live.principal()</code>.
+A raw terminal is one capability: <code>target</code> decides who may use it. Its
+input is accepted until the next recheck notices a revocation; it cannot
+check each shell command, nor undo one that ran.</p>
+</li>
+<li>
+<p><strong>Cleanup belongs in <code>Drop</code>.</strong> When the socket ends (the client left, a
+recheck failed, a slow client, the server stopping), the session’s future
+is dropped at once, before the close frame is sent. A child process needs
+<code>kill_on_drop</code>. A remote process (<code>docker exec</code> through the API) may need
+an explicit stop: dropping its stream does not end it.</p>
+</li>
+<li>
+<p>Close codes: <code>4401 signed_out</code>, <code>4403 forbidden</code>, <code>1001 shutdown</code>,
+<code>4008 lagging</code>, <code>1009 too_big</code>, <code>1011 error</code> (also a session that panics),
+<code>1000</code> when the session returned. Delivering the code is best effort: a
+connection with unread input may be reset first.</p>
+</li>
+</ul>
+<h3 id="in-a-script-page-1"><a class="header" href="#in-a-script-page-1">In a script page</a></h3>
+<pre><code class="language-js">const socket = ctx.realtime.socket(`/docker/containers/${encodeURIComponent(ctx.data.id)}/exec`, {
+  onOpen() { /* … */ },
+  onMessage(data) { /* a string, or an ArrayBuffer for binary messages */ },
+  onState(state) { /* "open", "reconnecting", or "closed" with a code and reason */ },
+});
+socket.send(new TextEncoder().encode("ls\n"));   // false when not open, too large, or 1 MiB is already queued
+</code></pre>
+<ul>
+<li>Closed for you on unmount and on a session change.</li>
+<li><strong>No reconnect by default:</strong> a new socket is a new session on the server
+(a new shell). With <code>{ reconnect: true }</code>:
+<ul>
+<li>it retries with backoff and a fresh token;</li>
+<li>it stops on 4401 and 4403, and after 5 failed or short (under 30 s)
+connections;</li>
+<li>a refused handshake (seen as 1006) checks the session once.</li>
+</ul>
+</li>
+<li>Input is never queued for replay.</li>
+<li>xterm.js injects <code>&lt;style&gt;</code> elements, which the panel’s CSP blocks. A page
+that embeds it needs its own workaround in its script. The CSP stays as it
+is.</li>
+</ul>
+<h3 id="what-the-server-enforces-1"><a class="header" href="#what-the-server-enforces-1">What the server enforces</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td>Origin</td><td>mandatory, exactly one of the panel’s origins; <code>Sec-Fetch-Site</code>, when sent, <code>same-origin</code></td></tr>
+<tr><td>CSRF</td><td>the session’s token as the <code>rustcms.csrf.&lt;token&gt;</code> subprotocol, beside <code>rustcms.v1</code>, nothing else</td></tr>
+<tr><td>Access</td><td>the route’s <code>AdminAccess</code> before anything runs (401, 403); a handler error before <code>accept</code> is an ordinary JSON error</td></tr>
+<tr><td>While open</td><td>every <code>socket_revalidate_secs</code> (10) and at each <code>authorize()</code>: the session, the user and its version, the permissions and <code>target</code>. Work stops within <code>socket_revalidate_secs + 5 s</code> of a sign-out, an expired session, a password change, a disabled account or a lost permission</td></tr>
+<tr><td>Limits</td><td>shared with streams: <code>max_connections</code>, <code>max_per_user</code>, the open rates; messages up to <code>max_message_bytes</code> (64 KiB)</td></tr>
+<tr><td>Slow or flooding clients</td><td>64 messages or 1 MiB queued each way; a client that floods a session, or stops reading, is dropped (<code>lagging</code>)</td></tr>
+<tr><td>Keepalive</td><td>one ping at a time, 15 s after the last answer; no matching pong within 45 s ends the socket</td></tr>
+<tr><td>Shutdown</td><td>new sockets get 503; open ones end with <code>1001</code> within <code>shutdown_grace_secs</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Sockets never renew the session. Limits are per instance. Behind a proxy,
+pass <code>Upgrade</code> and drop <code>Sec-WebSocket-Protocol</code> from access logs (see the
+<a href="../security/production.html">production checklist</a>).</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../admin/admin-routes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../admin/users-roles.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../admin/admin-routes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../admin/users-roles.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

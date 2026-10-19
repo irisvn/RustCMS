@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cbce2c3b.js";
+            window.path_to_searchindex_js = "searchindex-aba034b4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,16 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.5.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.5.1</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="051"><a class="header" href="#051">0.5.1</a></h2>
+<ul>
+<li><strong>Home page</strong>: <code>AdminProvider::home(slug)</code> opens one of your pages at
+<code>/admin</code> (<a href="admin/overview.html#home-page">Navigation</a>).</li>
+<li><strong>Order</strong>: <code>.sort(n)</code> on resources and pages orders the sidebar.</li>
+<li><strong>Hidden resources</strong>: <code>ResourceMeta::navigation(false)</code> keeps a resource’s
+routes and API without a sidebar entry.</li>
+</ul>
 <h2 id="050"><a class="header" href="#050">0.5.0</a></h2>
 <ul>
 <li><strong>React pages</strong>: a page, slot or cell can be a React component rendered

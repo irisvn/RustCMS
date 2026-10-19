@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cbce2c3b.js";
+            window.path_to_searchindex_js = "searchindex-aba034b4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,10 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-050-to-051"><a class="header" href="#from-050-to-051">From 0.5.0 to 0.5.1</a></h2>
+<p>Nothing needs to change. <code>PanelResponse</code> (<code>home</code>), <code>ResourceInfo</code> (<code>sort</code>,
+<code>nav</code>) and <code>PageLink</code> (<code>sort</code>) have new fields: code that builds these
+structs with a literal must add them (they are normally only read).</p>
 <h2 id="from-041-to-050"><a class="header" href="#from-041-to-050">From 0.4.1 to 0.5.0</a></h2>
 <p>Nothing needs to change: v1 scripts (<code>extension_script</code>,
 <code>window.rustcms.registerPage</code> with <code>apiVersion: 1</code>) work as before.</p>

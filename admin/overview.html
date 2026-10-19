@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-cbce2c3b.js";
+            window.path_to_searchindex_js = "../searchindex-aba034b4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -219,6 +219,29 @@ allow, and their own Account page.</p>
 <pre><code class="language-rust ignore">ResourceMeta::new("Post").plural("Posts").group("Content").icon("file-text")</code></pre>
 <p>Icons: <code>box</code>, <code>file-text</code>, <code>folder</code>, <code>history</code>, <code>image</code>, <code>layers</code>,
 <code>settings</code>, <code>shield</code>, <code>shopping-cart</code>, <code>tag</code>, <code>users</code>.</p>
+<h3 id="order"><a class="header" href="#order">Order</a></h3>
+<p>By default, resources come by slug, then <a href="customizing.html#custom-pages">custom pages</a>
+in registration order, resources first in a group. <code>.sort(n)</code> on
+<code>ResourceMeta</code> or <code>PanelPageMeta</code> (default 0) changes it:</p>
+<ul>
+<li>entries are ordered by <code>sort</code>, then by that default order;</li>
+<li>groups are ordered by the smallest <code>sort</code> among their entries, then by
+first appearance;</li>
+<li>System and Settings always come last.</li>
+</ul>
+<pre><code class="language-rust ignore">PanelPageMeta::new("Templates").permission("templates.view").sort(1)
+ResourceMeta::new("Project").group("Docker").sort(10)</code></pre>
+<h3 id="hiding-a-resource"><a class="header" href="#hiding-a-resource">Hiding a resource</a></h3>
+<p><code>ResourceMeta::navigation(false)</code> removes the sidebar entry and the
+dashboard card. The resource keeps its routes, record pages, API, relations
+and breadcrumbs, for example when your own <a href="react-pages.html">React pages</a>
+replace its list. This is only presentation: users still need <code>view_any</code>, as
+always.</p>
+<h3 id="home-page"><a class="header" href="#home-page">Home page</a></h3>
+<p><code>AdminProvider::home("dashboard")</code> makes <code>/admin</code> open the custom page
+<code>dashboard</code> instead of the default dashboard, with that page as the first
+sidebar entry. Users who may not open it see the default dashboard. An
+unknown slug stops the boot.</p>
 <h2 id="what-users-get"><a class="header" href="#what-users-get">What users get</a></h2>
 <ul>
 <li><strong>Lists</strong>: search, sortable columns, filters and pagination, kept in the URL;
