@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
+            window.path_to_searchindex_js = "../searchindex-93253328.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -309,6 +309,10 @@ queries. Writes are never retried automatically: if the outcome of a write
 is unknown (the connection dropped), the panel’s “paused” banner asks the
 user, and the view’s next writes wait.</li>
 <li><code>useEvents(props, path, handlers)</code> and <code>useSocket(props, path, handlers, { reconnect })</code> open a <a href="realtime.html">stream</a> while mounted.</li>
+<li><code>useColorScheme()</code> returns <code>"light"</code> or <code>"dark"</code> and re-renders when the
+user or the system changes it, e.g. to redraw a canvas chart. CSS needs
+nothing: the theme’s variables follow it. It reads the panel’s
+<code>data-scheme</code>, so it works on any 0.6 panel.</li>
 </ul>
 <p>When the session changes (sign-in, sign-out, another tab), the view is
 mounted again for the new session; calls and callbacks of the old one do

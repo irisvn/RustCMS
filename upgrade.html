@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8c5f5033.js";
+            window.path_to_searchindex_js = "searchindex-93253328.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,11 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-060-to-061"><a class="header" href="#from-060-to-061">From 0.6.0 to 0.6.1</a></h2>
+<p>Nothing needs to change. Users can now pick Light, Dark or System; your
+<code>Theme::color_scheme</code> is the default until they do. To use <code>useColorScheme()</code>
+in a React page, run <code>rustcms make:sdk</code>, then <code>npm run build</code> in
+<code>resources/admin</code>.</p>
 <h2 id="from-051-to-060"><a class="header" href="#from-051-to-060">From 0.5.1 to 0.6.0</a></h2>
 <p>Nothing needs to change: React pages built with <code>ui: 1</code> keep working.</p>
 <p>To use <code>props.resources</code>, <code>props.toast</code> and the new components:</p>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-8c5f5033.js";
+            window.path_to_searchindex_js = "../searchindex-93253328.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -227,8 +227,11 @@ AdminProvider::new().theme(
 spaces, dashes; each is quoted for you). Anything else stops the boot: no
 text of yours is copied into CSS as written.</li>
 <li><code>dark(…)</code> sets tokens of the dark scheme; tokens it leaves out keep the
-panel’s dark defaults. <code>ColorScheme::Light</code> / <code>Dark</code> forces one scheme;
-<code>System</code> (default) follows the operating system and its changes.</li>
+panel’s dark defaults. <code>ColorScheme</code> is the default scheme: <code>Light</code>,
+<code>Dark</code>, or <code>System</code> (default), which follows the operating system and its
+changes. Each user can choose Light, Dark or System at the bottom of the
+sidebar. The choice is kept in that browser (other tabs follow), and the
+app’s <code>ColorScheme</code> applies until they choose.</li>
 <li>Logo and favicon are PNG, WebP or ICO up to 512 KiB, checked against their
 bytes. SVG and web fonts are not supported yet.</li>
 <li>The theme becomes a stylesheet and images served from

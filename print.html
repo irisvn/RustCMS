@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8c5f5033.js";
+            window.path_to_searchindex_js = "searchindex-93253328.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,16 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.6.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.6.1</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="061"><a class="header" href="#061">0.6.1</a></h2>
+<ul>
+<li><strong>Light, Dark or System per user</strong>: a switch at the bottom of the sidebar,
+kept in the browser; the app’s color scheme stays the default
+(<a href="#theme">Theme</a>).</li>
+<li>React pages: <code>useColorScheme()</code> to redraw canvas charts in the current
+scheme (<a href="#calling-your-routes">React pages</a>).</li>
+</ul>
 <h2 id="060"><a class="header" href="#060">0.6.0</a></h2>
 <ul>
 <li><strong>Resources from React pages</strong>: <code>props.resources</code> and the hooks
@@ -487,6 +495,11 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-060-to-061"><a class="header" href="#from-060-to-061">From 0.6.0 to 0.6.1</a></h2>
+<p>Nothing needs to change. Users can now pick Light, Dark or System; your
+<code>Theme::color_scheme</code> is the default until they do. To use <code>useColorScheme()</code>
+in a React page, run <code>rustcms make:sdk</code>, then <code>npm run build</code> in
+<code>resources/admin</code>.</p>
 <h2 id="from-051-to-060"><a class="header" href="#from-051-to-060">From 0.5.1 to 0.6.0</a></h2>
 <p>Nothing needs to change: React pages built with <code>ui: 1</code> keep working.</p>
 <p>To use <code>props.resources</code>, <code>props.toast</code> and the new components:</p>
@@ -709,7 +722,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.6.0 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.6.1 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -720,7 +733,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.0" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.1" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1063,7 +1076,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.0", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.1", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -3326,8 +3339,11 @@ AdminProvider::new().theme(
 spaces, dashes; each is quoted for you). Anything else stops the boot: no
 text of yours is copied into CSS as written.</li>
 <li><code>dark(…)</code> sets tokens of the dark scheme; tokens it leaves out keep the
-panel’s dark defaults. <code>ColorScheme::Light</code> / <code>Dark</code> forces one scheme;
-<code>System</code> (default) follows the operating system and its changes.</li>
+panel’s dark defaults. <code>ColorScheme</code> is the default scheme: <code>Light</code>,
+<code>Dark</code>, or <code>System</code> (default), which follows the operating system and its
+changes. Each user can choose Light, Dark or System at the bottom of the
+sidebar. The choice is kept in that browser (other tabs follow), and the
+app’s <code>ColorScheme</code> applies until they choose.</li>
 <li>Logo and favicon are PNG, WebP or ICO up to 512 KiB, checked against their
 bytes. SVG and web fonts are not supported yet.</li>
 <li>The theme becomes a stylesheet and images served from
@@ -3639,6 +3655,10 @@ queries. Writes are never retried automatically: if the outcome of a write
 is unknown (the connection dropped), the panel’s “paused” banner asks the
 user, and the view’s next writes wait.</li>
 <li><code>useEvents(props, path, handlers)</code> and <code>useSocket(props, path, handlers, { reconnect })</code> open a <a href="#realtime">stream</a> while mounted.</li>
+<li><code>useColorScheme()</code> returns <code>"light"</code> or <code>"dark"</code> and re-renders when the
+user or the system changes it, e.g. to redraw a canvas chart. CSS needs
+nothing: the theme’s variables follow it. It reads the panel’s
+<code>data-scheme</code>, so it works on any 0.6 panel.</li>
 </ul>
 <p>When the session changes (sign-in, sign-out, another tab), the view is
 mounted again for the new session; calls and callbacks of the old one do
