@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-803ca1af.js";
+            window.path_to_searchindex_js = "searchindex-a2ad49ff.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,13 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-080-to-081"><a class="header" href="#from-080-to-081">From 0.8.0 to 0.8.1</a></h2>
+<p>Nothing needs to change. To survive automatic rollbacks, keep migrations
+additive and start the image with <code>migrate --allow-newer</code>. Deploy that image
+before adding migrations: a rollback only accepts newer migrations when the
+image it returns to is 0.8.1 or later with the flag (a 0.8.0 image still
+refuses). Run migrations once per deployment, not in every replica
+(<a href="getting-started/deployment.html#upgrading">Deployment</a>).</p>
 <h2 id="from-071-to-080"><a class="header" href="#from-071-to-080">From 0.7.1 to 0.8.0</a></h2>
 <p>Run <code>rustcms migrate</code>: it adds <code>jobs.started_at</code>, <code>jobs.description</code> and the
 <code>job_runs</code> and <code>schedule_runs</code> tables. Then nothing else needs to change.</p>

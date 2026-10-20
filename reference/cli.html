@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-803ca1af.js";
+            window.path_to_searchindex_js = "../searchindex-a2ad49ff.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -432,6 +432,16 @@ application in the current directory (<code>cargo run -- &lt;command&gt;</code>)
 </div>
 <h3 id="migrate"><a class="header" href="#migrate"><code>migrate</code></a></h3>
 <p>Run pending migrations</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--allow-newer</code></td><td>Accept migrations applied by a newer version (after a rollback): they are logged and left as they are; this version’s pending ones run</td></tr>
+</tbody>
+</table>
+</div>
 <h3 id="migraterollback"><a class="header" href="#migraterollback"><code>migrate:rollback</code></a></h3>
 <p>Roll back the last migrations</p>
 <div class="table-wrapper">

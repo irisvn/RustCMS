@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-803ca1af.js";
+            window.path_to_searchindex_js = "searchindex-a2ad49ff.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,16 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.8.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.8.1</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="081"><a class="header" href="#081">0.8.1</a></h2>
+<ul>
+<li><strong>Rollbacks after migrations</strong>: <code>migrate --allow-newer</code> (or
+<code>[database] allow_newer_migrations = true</code>) lets an older binary start on a
+database a newer one migrated, when migrations are additive; <code>migrate:status</code>
+shows them as <code>Newer</code>; <code>rustcms::db::unknown_migrations</code> lists them
+(<a href="#upgrading">Deployment</a>).</li>
+</ul>
 <h2 id="080"><a class="header" href="#080">0.8.0</a></h2>
 <ul>
 <li><strong>Job history on the Queue page</strong>: finished jobs (done, failed, cancelled)
@@ -530,6 +538,13 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-080-to-081"><a class="header" href="#from-080-to-081">From 0.8.0 to 0.8.1</a></h2>
+<p>Nothing needs to change. To survive automatic rollbacks, keep migrations
+additive and start the image with <code>migrate --allow-newer</code>. Deploy that image
+before adding migrations: a rollback only accepts newer migrations when the
+image it returns to is 0.8.1 or later with the flag (a 0.8.0 image still
+refuses). Run migrations once per deployment, not in every replica
+(<a href="#upgrading">Deployment</a>).</p>
 <h2 id="from-071-to-080"><a class="header" href="#from-071-to-080">From 0.7.1 to 0.8.0</a></h2>
 <p>Run <code>rustcms migrate</code>: it adds <code>jobs.started_at</code>, <code>jobs.description</code> and the
 <code>job_runs</code> and <code>schedule_runs</code> tables. Then nothing else needs to change.</p>
@@ -789,7 +804,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.8.0 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.8.1 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -800,7 +815,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.0" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.1" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -865,6 +880,7 @@ roles (System → Roles).</p>
 <tr><td><code>database.url</code></td><td>— (<strong>required</strong>)</td><td><code>sqlite://…</code>, <code>postgres://…</code> or <code>mysql://…</code> (<a href="#mysql">MySQL setup</a>)</td></tr>
 <tr><td><code>database.max_connections</code></td><td><code>10</code></td><td></td></tr>
 <tr><td><code>database.log_statements</code></td><td><code>false</code></td><td></td></tr>
+<tr><td><code>database.allow_newer_migrations</code></td><td><code>false</code></td><td><code>migrate</code> accepts migrations a newer version applied (rollbacks; <a href="#upgrading">additive migrations only</a>)</td></tr>
 <tr><td><code>http.body_limit</code></td><td><code>1048576</code></td><td>bytes; larger bodies get 413</td></tr>
 <tr><td><code>http.timeout_secs</code></td><td><code>30</code></td><td>slower requests get 408</td></tr>
 <tr><td><code>http.trusted_proxies</code></td><td><code>[]</code></td><td>CIDRs allowed to set <code>X-Forwarded-For</code></td></tr>
@@ -1158,7 +1174,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.0", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.1", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -1228,6 +1244,31 @@ shell history.</p>
 <p>To go back, roll back with the <strong>new</strong> binary first (only it knows its
 migrations): <code>./blog.new migrate:rollback --step N</code>, then start the old one.
 Migrations that drop data cannot restore it: use the backup.</p>
+<p><strong>Automatic rollbacks</strong> (a Docker Swarm or Kubernetes rollout that returns to
+the previous image, whose start runs <code>migrate</code>): the older binary finds
+migrations it does not know and <code>migrate</code> refuses to run. If your migrations
+are <strong>additive only</strong> (new tables, new nullable columns or columns with
+defaults; never a rename, a drop or a stricter constraint), let it accept
+them: <code>migrate --allow-newer</code>, or <code>[database] allow_newer_migrations = true</code>
+(<code>RUSTCMS_DATABASE__ALLOW_NEWER_MIGRATIONS=true</code>). It logs the unknown ones,
+leaves them as they are and applies its own pending migrations, so the older
+version starts on the newer schema. Keeping migrations additive is the
+application’s rule; the framework’s own migrations follow it.
+Two things it does not do:</p>
+<ul>
+<li><strong>Protect a rollback to an image older than 0.8.1</strong>, or one started
+without the flag: that image refuses as before. Roll out an image on 0.8.1
+or later with <code>--allow-newer</code> first, and only then add migrations, so the
+image a rollback returns to accepts them.</li>
+<li><strong>Serialize replicas.</strong> Two replicas running <code>migrate</code> at the same start
+may race on the same pending migration, with or without the flag. Run
+migrations once per deployment (a one-off task or job before the rollout,
+or a single replica), not in every replica’s entry point.</li>
+</ul>
+<p><code>migrate:status</code> lists the unknown ones as <code>Newer</code>, and
+<code>rustcms::db::unknown_migrations::&lt;Migrator&gt;(state.db())</code> returns them (for
+a warning in your panel). <code>migrate:rollback</code> still needs the binary that knows
+a migration.</p>
 <p><code>serve</code> stops gracefully on Ctrl-C or SIGTERM: requests in progress finish.</p>
 <h2 id="systemd"><a class="header" href="#systemd">systemd</a></h2>
 <pre><code class="language-ini">[Unit]
@@ -6297,6 +6338,16 @@ application in the current directory (<code>cargo run -- &lt;command&gt;</code>)
 </div>
 <h3 id="migrate"><a class="header" href="#migrate"><code>migrate</code></a></h3>
 <p>Run pending migrations</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--allow-newer</code></td><td>Accept migrations applied by a newer version (after a rollback): they are logged and left as they are; this version’s pending ones run</td></tr>
+</tbody>
+</table>
+</div>
 <h3 id="migraterollback"><a class="header" href="#migraterollback"><code>migrate:rollback</code></a></h3>
 <p>Roll back the last migrations</p>
 <div class="table-wrapper">

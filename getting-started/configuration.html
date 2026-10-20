@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-803ca1af.js";
+            window.path_to_searchindex_js = "../searchindex-a2ad49ff.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -208,6 +208,7 @@
 <tr><td><code>database.url</code></td><td>— (<strong>required</strong>)</td><td><code>sqlite://…</code>, <code>postgres://…</code> or <code>mysql://…</code> (<a href="../basics/database.html#mysql">MySQL setup</a>)</td></tr>
 <tr><td><code>database.max_connections</code></td><td><code>10</code></td><td></td></tr>
 <tr><td><code>database.log_statements</code></td><td><code>false</code></td><td></td></tr>
+<tr><td><code>database.allow_newer_migrations</code></td><td><code>false</code></td><td><code>migrate</code> accepts migrations a newer version applied (rollbacks; <a href="deployment.html#upgrading">additive migrations only</a>)</td></tr>
 <tr><td><code>http.body_limit</code></td><td><code>1048576</code></td><td>bytes; larger bodies get 413</td></tr>
 <tr><td><code>http.timeout_secs</code></td><td><code>30</code></td><td>slower requests get 408</td></tr>
 <tr><td><code>http.trusted_proxies</code></td><td><code>[]</code></td><td>CIDRs allowed to set <code>X-Forwarded-For</code></td></tr>
