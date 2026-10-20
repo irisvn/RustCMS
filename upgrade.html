@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-93253328.js";
+            window.path_to_searchindex_js = "searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,22 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-061-to-070"><a class="header" href="#from-061-to-070">From 0.6.1 to 0.7.0</a></h2>
+<p>Most applications need no change; update links of your own to theme files,
+and <code>PermissionInfo</code> struct literals, if you have any.</p>
+<ul>
+<li>The Roles page now groups permissions by area: resource matrix cells under
+“Resources”, the built-in users, roles and permissions permissions under
+“System”, the rest under “Other” until you declare areas
+(<code>permission_area</code>, <code>permission_meta</code>).</li>
+<li>Theme files moved from <code>{admin}/assets/ext/</code> to <code>{admin}/assets/brand/</code>
+(<code>theme.css</code>, <code>logo</code>, <code>favicon</code>). Change any link of your own to the old
+paths; the panel’s pages need nothing.</li>
+<li>The sign-in pages now show your <code>brand(…)</code> name and logo instead of
+“rustcms”.</li>
+<li><code>PermissionInfo</code> (from <code>GET {admin}/api/system/permissions</code>) has new fields;
+code that builds it with a struct literal must add them.</li>
+</ul>
 <h2 id="from-060-to-061"><a class="header" href="#from-060-to-061">From 0.6.0 to 0.6.1</a></h2>
 <p>Nothing needs to change. Users can now pick Light, Dark or System; your
 <code>Theme::color_scheme</code> is the default until they do. To use <code>useColorScheme()</code>

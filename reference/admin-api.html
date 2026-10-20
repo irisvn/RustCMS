@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-93253328.js";
+            window.path_to_searchindex_js = "../searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -211,6 +211,7 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><td>GET</td><td><code>/media/{id}/file</code></td><td>the file (authorized, safe headers)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/fields/{field}/options?search=&amp;keys=a,b&amp;record=</code></td><td><code>{data: [{value, label}]}</code> (≤ 50)</td></tr>
 <tr><td>…</td><td><code>/system/…</code></td><td>users, roles and permissions, see <a href="../admin/users-roles.html">Users, roles &amp; account</a></td></tr>
+<tr><td>GET</td><td><code>/system/permission-presets</code></td><td><code>[{id, label, description?, permissions}]</code> (<code>roles.view_any</code> or <code>permissions.view_any</code>); <code>/system/permissions</code> items carry <code>area</code>, <code>areaLabel</code>, <code>areaSort</code>, and <code>label</code>/<code>description</code> when declared</td></tr>
 <tr><td>GET / PUT</td><td><code>/settings/{group}</code></td><td>settings pages, see <a href="../admin/settings.html#api">Settings</a></td></tr>
 <tr><td>GET</td><td><code>/audit</code>, <code>/resources/{slug}/records/{key}/history</code></td><td>the audit log and record histories, see <a href="../digging-deeper/audit-log.html#viewing-the-log">Audit log</a></td></tr>
 <tr><td>GET</td><td><code>/queue</code></td><td>counts per queue and status, worker settings, <code>canManage</code> (<code>queue.view</code>)</td></tr>

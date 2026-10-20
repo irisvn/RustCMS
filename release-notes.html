@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-93253328.js";
+            window.path_to_searchindex_js = "searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,22 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.6.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.7.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="070"><a class="header" href="#070">0.7.0</a></h2>
+<ul>
+<li><strong>Roles page</strong>: permissions by area (collapsible, with counts), a search
+box, labels and descriptions, and presets (“Viewer”, “Developer”) as
+starting selections, declared on the <code>AuthProvider</code> with
+<code>permission_area</code>, <code>permission_meta</code> and <code>permission_preset</code>
+(<a href="security/authorization.html#the-roles-page-areas-labels-and-presets">Roles &amp; permissions</a>).</li>
+<li><strong>Runtime branding</strong>: <code>AdminProvider::branding(source)</code> sets the brand
+name, logos (light and dark), favicon and theme tokens while the app runs,
+cached per instance and invalidated at once; <code>[admin] branding = "static"</code>
+recovers (<a href="admin/customizing.html#runtime-branding">Runtime branding</a>).</li>
+<li>The sign-in, password reset and invitation pages show the brand name and
+logo; the brand names the browser tab.</li>
+</ul>
 <h2 id="061"><a class="header" href="#061">0.6.1</a></h2>
 <ul>
 <li><strong>Light, Dark or System per user</strong>: a switch at the bottom of the sidebar,

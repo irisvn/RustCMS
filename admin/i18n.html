@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-93253328.js";
+            window.path_to_searchindex_js = "../searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -226,7 +226,9 @@ boot. An empty translation (<code>"Title" = ""</code>) counts as missing.</li>
 <li><code>rustcms lang:missing vi</code> lists the labels no catalog translates, as TOML to
 fill in, and exits with an error while any is missing (useful in CI). It reads
 the resource definitions; messages your hooks build at run time are not
-listed: translate them with <code>ctx.t("…")</code> (<code>ctx.t_in(slug, "…")</code>).</li>
+listed: translate them with <code>ctx.t("…")</code> (<code>ctx.t_in(slug, "…")</code>). It also
+lists the Roles page’s area, permission and preset labels and descriptions
+(looked up globally).</li>
 <li>Data, identifiers (slugs, field names, permission names) and role names are
 never translated. Permission groups get a translated <code>groupLabel</code>: a
 resource’s plural label, or the group in words (<code>users</code> → “Users”).</li>

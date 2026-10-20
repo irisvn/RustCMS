@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-93253328.js";
+            window.path_to_searchindex_js = "../searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -205,6 +205,10 @@ time.</li>
 <p>Permissions need no Redis: a change made on one instance applies on every
 instance from the next request (the permission cache follows a counter kept
 in the database).</p>
+<p><a href="../admin/customizing.html#runtime-branding">Runtime branding</a> is cached per
+instance: <code>AdminBranding::invalidate()</code> clears this instance only; the others
+load it again once their <code>[admin] branding_ttl_secs</code> has passed. Redis does not
+broadcast it.</p>
 <p>Without Redis, several instances still work, but each keeps its own rate
 limits: run one instance unless Redis is configured. Password-hashing and
 upload concurrency limits are always per instance (each bounds its own CPU

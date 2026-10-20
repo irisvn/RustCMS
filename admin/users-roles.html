@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-93253328.js";
+            window.path_to_searchindex_js = "../searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -206,12 +206,15 @@ CLI and your own code:</p>
 </tbody>
 </table>
 </div>
-<p><strong>The role page</strong> shows the permissions of resources as a matrix: a row per
+<p><strong>The role page</strong> shows permissions in collapsible <strong>areas</strong> with a
+selected/total count, a search box and the presets the application declares
+(<a href="../security/authorization.html#the-roles-page-areas-labels-and-presets">The Roles page</a>).
+Inside an area, the permissions of resources come first as a matrix: a row per
 resource, a column per ability (list, view, create, update, delete, restore,
 delete for good), the resource’s other abilities (actions, <code>attach_tags</code>…) in
-its last column, and a box to switch a whole row or column. Everything else
-(users, roles, settings, audit, queue, pages, media) is listed by group. Boxes
-of permissions you do not hold are disabled, and saving keeps them as they are.</p>
+its last column, and a box to switch a whole row or column. The rest is listed
+by group, with a box for the whole group. Boxes of permissions you do not hold
+are disabled, and saving keeps them as they are.</p>
 <p><strong>Invitations.</strong> On <strong>New user</strong>, <em>Send an invitation instead of setting a
 password</em> creates the user pending (badge <em>Invited</em>) and mails them a link;
 the user page offers <em>Send the invitation again</em> until they accept. Setting
@@ -240,7 +243,8 @@ the rest of the admin API):</p>
 <tr><td>GET / POST</td><td><code>/roles</code></td><td>POST: <code>{name, permissions}</code></td><td><code>[SystemRole]</code> / 201 <code>SystemRole</code></td></tr>
 <tr><td>GET / DELETE</td><td><code>/roles/{id}</code></td><td></td><td><code>SystemRole</code> / 204</td></tr>
 <tr><td>PUT</td><td><code>/roles/{id}/permissions</code></td><td><code>{permissions, expectedPermissions}</code></td><td><code>SystemRole</code></td></tr>
-<tr><td>GET</td><td><code>/permissions</code></td><td></td><td><code>[PermissionInfo]</code> (with <code>grantable</code>; <code>resource</code> and <code>ability</code> when it is exactly one resource’s <code>{slug}.{ability}</code>)</td></tr>
+<tr><td>GET</td><td><code>/permissions</code></td><td></td><td><code>[PermissionInfo]</code> (with <code>grantable</code>; <code>resource</code> and <code>ability</code> when it is exactly one resource’s <code>{slug}.{ability}</code>; <code>area</code>, <code>areaLabel</code>, <code>areaSort</code> always; <code>label</code> and <code>description</code> when declared)</td></tr>
+<tr><td>GET</td><td><code>/permission-presets</code></td><td></td><td><code>[PermissionPresetInfo]</code> <code>{id, label, description?, permissions}</code> (declared, not orphaned names, also those the caller may not grant); <code>roles.view_any</code> or <code>permissions.view_any</code>, as <code>/permissions</code></td></tr>
 </tbody>
 </table>
 </div>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-93253328.js";
+            window.path_to_searchindex_js = "../searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -204,6 +204,7 @@ app.provider(
 <tr><td><code>/admin</code>, <code>/admin/…</code></td><td>the panel (<code>/admin/login</code>, <code>/admin/r/&lt;slug&gt;</code>, <code>…/create</code>, <code>…/records/&lt;key&gt;</code>, <code>…/edit</code>)</td></tr>
 <tr><td><code>/admin/assets/…</code></td><td>the panel’s JS and CSS</td></tr>
 <tr><td><code>/admin/assets/ext/…</code></td><td>your <a href="custom-fields.html">extension</a> scripts and styles</td></tr>
+<tr><td><code>/admin/assets/brand/{theme.css,logo,logo-dark,favicon}?v=…</code></td><td>the theme’s stylesheet and images, static or <a href="customizing.html#runtime-branding">runtime branding</a></td></tr>
 <tr><td><code>/admin/api/…</code></td><td>the panel’s JSON API (used by the panel itself)</td></tr>
 </tbody>
 </table>
@@ -258,6 +259,9 @@ timeout, a cut connection) pauses further writes on that resource, and
 creates and actions can be retried safely.</li>
 <li><strong>Record pages</strong> with their <a href="relationships.html">relations</a>.</li>
 <li><strong>Languages</strong>: English and Vietnamese, chosen per user (<a href="i18n.html">i18n</a>).</li>
+<li><strong>Roles</strong> (System → Roles): permissions by area with a search box, the
+labels and presets the application declares
+(<a href="../security/authorization.html#the-roles-page-areas-labels-and-presets">The Roles page</a>).</li>
 <li>Someone who may update a record but not view it gets an empty edit form;
 records outside a user’s scope show “Not found”, forbidden pages “Access denied”.</li>
 </ul>

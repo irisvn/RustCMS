@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-93253328.js";
+            window.path_to_searchindex_js = "searchindex-14922553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,22 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.6.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.7.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="070"><a class="header" href="#070">0.7.0</a></h2>
+<ul>
+<li><strong>Roles page</strong>: permissions by area (collapsible, with counts), a search
+box, labels and descriptions, and presets (“Viewer”, “Developer”) as
+starting selections, declared on the <code>AuthProvider</code> with
+<code>permission_area</code>, <code>permission_meta</code> and <code>permission_preset</code>
+(<a href="#the-roles-page-areas-labels-and-presets">Roles &amp; permissions</a>).</li>
+<li><strong>Runtime branding</strong>: <code>AdminProvider::branding(source)</code> sets the brand
+name, logos (light and dark), favicon and theme tokens while the app runs,
+cached per instance and invalidated at once; <code>[admin] branding = "static"</code>
+recovers (<a href="#runtime-branding">Runtime branding</a>).</li>
+<li>The sign-in, password reset and invitation pages show the brand name and
+logo; the brand names the browser tab.</li>
+</ul>
 <h2 id="061"><a class="header" href="#061">0.6.1</a></h2>
 <ul>
 <li><strong>Light, Dark or System per user</strong>: a switch at the bottom of the sidebar,
@@ -495,6 +509,22 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-061-to-070"><a class="header" href="#from-061-to-070">From 0.6.1 to 0.7.0</a></h2>
+<p>Most applications need no change; update links of your own to theme files,
+and <code>PermissionInfo</code> struct literals, if you have any.</p>
+<ul>
+<li>The Roles page now groups permissions by area: resource matrix cells under
+“Resources”, the built-in users, roles and permissions permissions under
+“System”, the rest under “Other” until you declare areas
+(<code>permission_area</code>, <code>permission_meta</code>).</li>
+<li>Theme files moved from <code>{admin}/assets/ext/</code> to <code>{admin}/assets/brand/</code>
+(<code>theme.css</code>, <code>logo</code>, <code>favicon</code>). Change any link of your own to the old
+paths; the panel’s pages need nothing.</li>
+<li>The sign-in pages now show your <code>brand(…)</code> name and logo instead of
+“rustcms”.</li>
+<li><code>PermissionInfo</code> (from <code>GET {admin}/api/system/permissions</code>) has new fields;
+code that builds it with a struct literal must add them.</li>
+</ul>
 <h2 id="from-060-to-061"><a class="header" href="#from-060-to-061">From 0.6.0 to 0.6.1</a></h2>
 <p>Nothing needs to change. Users can now pick Light, Dark or System; your
 <code>Theme::color_scheme</code> is the default until they do. To use <code>useColorScheme()</code>
@@ -722,7 +752,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.6.1 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.7.0 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -733,7 +763,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.1" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.7.0" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -840,6 +870,20 @@ roles (System → Roles).</p>
 <tr><td><code>auth.jwt.access_ttl_secs</code></td><td><code>900</code></td><td>access token lifetime (60–3600)</td></tr>
 <tr><td><code>auth.jwt.refresh_ttl_days</code></td><td><code>14</code></td><td>an unused refresh token expires (1–90)</td></tr>
 <tr><td><code>auth.jwt.refresh_family_days</code></td><td><code>30</code></td><td>a sign-in ends, however often refreshed (≥ refresh_ttl_days, ≤ 365)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="admin-configadmintoml"><a class="header" href="#admin-configadmintoml"><code>[admin]</code> (<code>config/admin.toml</code>)</a></h3>
+<p><a href="#runtime-branding">Runtime branding</a> of the panel.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Default</th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>admin.branding</code></td><td><code>"runtime"</code></td><td><code>"static"</code> ignores the <code>BrandingSource</code> (recovery: <code>RUSTCMS_ADMIN__BRANDING=static</code>)</td></tr>
+<tr><td><code>admin.branding_ttl_secs</code></td><td><code>30</code></td><td>how long an instance keeps the loaded branding (1–3600)</td></tr>
+<tr><td><code>admin.branding_timeout_ms</code></td><td><code>2000</code></td><td>a slower load shows the static theme (1–30000)</td></tr>
 </tbody>
 </table>
 </div>
@@ -1076,7 +1120,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.6.1", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.7.0", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -2063,6 +2107,54 @@ checked with <code>gate.allows(principal, "publish")</code>.</li>
 then <code>rustcms permission:sync</code>. Sync never renames or deletes: undeclared
 permissions become <em>orphaned</em> and stop granting access.</li>
 </ul>
+<h2 id="the-roles-page-areas-labels-and-presets"><a class="header" href="#the-roles-page-areas-labels-and-presets">The Roles page: areas, labels and presets</a></h2>
+<p>The panel’s Roles page groups admin permissions by <strong>area</strong>, with a search box
+(name, label, description, area and group labels; case and diacritics
+ignored, <code>đ</code> too). Declare how
+permissions are shown on the <code>AuthProvider</code>. Nothing here is stored or grants
+anything:</p>
+<pre><code class="language-rust ignore">use rustcms::auth::{ADMIN_GUARD, PermissionArea, PermissionMeta, PermissionPreset};
+
+AuthProvider::new()
+    .admin_permissions(&amp;admin_routes)
+    .permission_area("docker", PermissionArea::new("Docker").sort(20))
+    .permission_meta(ADMIN_GUARD, "docker.manage", PermissionMeta::new()
+        .label("Manage containers")
+        .description("Start, stop and remove containers")
+        .area("docker"))
+    .permission_preset("viewer", PermissionPreset::new("Viewer")
+        .description("Read-only access")
+        .permissions(["docker.view", "posts.view_any", "posts.view"]))</code></pre>
+<ul>
+<li><strong>Areas.</strong> Framework defaults: <code>resources</code> (sort 0: permissions that are
+exactly one resource’s ability, shown as a matrix), <code>system</code> (1000: users,
+roles, permissions) and <code>other</code> (2000: the rest). Declare your own, or
+relabel or reorder a default once with <code>permission_area("system", …)</code>.
+Within an area, the matrix comes first, then one box per permission group.
+An area starts open; with more than three, only the first.</li>
+<li><strong>Metadata.</strong> <code>label</code> is shown instead of the name, which stays visible
+below it, and <code>description</code> under it (in the matrix: the label names the
+cell, the description is its tooltip and screen-reader description);
+<code>area</code> must be declared. Labels (areas, permissions, presets) are 1–80
+characters, descriptions 1–300; neither may be blank or contain control
+characters. Labels, descriptions and area and preset labels are
+English sources, translated like other labels (<code>lang/vi.toml</code>;
+<code>rustcms lang:missing vi</code> lists them).</li>
+<li><strong>Presets</strong> are starting selections for admin roles. Applying one changes
+the unsaved selection only: the permissions the user may grant become
+exactly the preset’s, the others keep their state, and a notice says how
+many could not be granted. Saving checks everything as usual.</li>
+<li><strong>Bulk toggles</strong> (a matrix row or column, a group) change only the
+permissions shown (matching the search, in an open area) that the user may
+grant. There is no select-all for an area.</li>
+<li><strong>Checked</strong> with a panic naming the entry. The builders check ids
+(<code>[a-z0-9_-]</code>, 1–64), texts and duplicates at once: metadata once per
+<code>(guard, name)</code>, each area and preset id once. <code>AdminProvider::register</code>
+then checks references against the permissions declared so far (register
+providers that declare permissions before it): metadata must name a
+declared permission of that guard, its area must exist, a preset may only
+name declared admin permissions.</li>
+</ul>
 <h2 id="changing-access-rbacservice"><a class="header" href="#changing-access-rbacservice">Changing access: <code>RbacService</code></a></h2>
 <p>Every change goes through <code>RbacService</code>, with <code>Actor::User(&amp;principal)</code> for
 people and <code>Actor::System</code> for trusted operators (console). It refuses:</p>
@@ -2199,6 +2291,9 @@ session’s CSRF token).</li>
 <li><input disabled="" type="checkbox"> <code>audit.retention_days</code> set to what you must keep, no longer: the <a href="#audit-log">audit log</a>
 holds personal data (IP addresses, emails typed in failed sign-ins), and so do backups that include it.
 Restrict who can read <code>audit_logs</code>; ship it elsewhere if it must be tamper-proof.</li>
+<li><input disabled="" type="checkbox"> <a href="#runtime-branding">Runtime branding</a>: the brand name and logo are public (the sign-in
+page shows them); only operators may change them; you know the recovery switch
+(<code>RUSTCMS_ADMIN__BRANDING=static</code>, then restart) if a branding makes the panel unusable.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="admin-panel"><a class="header" href="#admin-panel">Admin panel</a></h1>
@@ -2225,6 +2320,7 @@ app.provider(
 <tr><td><code>/admin</code>, <code>/admin/…</code></td><td>the panel (<code>/admin/login</code>, <code>/admin/r/&lt;slug&gt;</code>, <code>…/create</code>, <code>…/records/&lt;key&gt;</code>, <code>…/edit</code>)</td></tr>
 <tr><td><code>/admin/assets/…</code></td><td>the panel’s JS and CSS</td></tr>
 <tr><td><code>/admin/assets/ext/…</code></td><td>your <a href="#custom-fields">extension</a> scripts and styles</td></tr>
+<tr><td><code>/admin/assets/brand/{theme.css,logo,logo-dark,favicon}?v=…</code></td><td>the theme’s stylesheet and images, static or <a href="#runtime-branding">runtime branding</a></td></tr>
 <tr><td><code>/admin/api/…</code></td><td>the panel’s JSON API (used by the panel itself)</td></tr>
 </tbody>
 </table>
@@ -2279,6 +2375,9 @@ timeout, a cut connection) pauses further writes on that resource, and
 creates and actions can be retried safely.</li>
 <li><strong>Record pages</strong> with their <a href="#relationships">relations</a>.</li>
 <li><strong>Languages</strong>: English and Vietnamese, chosen per user (<a href="#languages-i18n">i18n</a>).</li>
+<li><strong>Roles</strong> (System → Roles): permissions by area with a search box, the
+labels and presets the application declares
+(<a href="#the-roles-page-areas-labels-and-presets">The Roles page</a>).</li>
 <li>Someone who may update a record but not view it gets an empty edit form;
 records outside a user’s scope show “Not found”, forbidden pages “Access denied”.</li>
 </ul>
@@ -3347,9 +3446,65 @@ app’s <code>ColorScheme</code> applies until they choose.</li>
 <li>Logo and favicon are PNG, WebP or ICO up to 512 KiB, checked against their
 bytes. SVG and web fonts are not supported yet.</li>
 <li>The theme becomes a stylesheet and images served from
-<code>{admin}/assets/ext/</code> with content hashes (cached for good), loaded before
-your extension styles. Extension styles may use the same tokens:
-<code>var(--primary)</code>, <code>var(--radius-lg)</code>, <code>var(--font-sans)</code>.</li>
+<code>{admin}/assets/brand/{theme.css,logo,favicon}?v={hash}</code> (cached for good
+when <code>v</code> is current), loaded before your extension styles. Extension styles
+may use the same tokens: <code>var(--primary)</code>, <code>var(--radius-lg)</code>,
+<code>var(--font-sans)</code>.</li>
+<li>The brand name and logo also appear above the sign-in, password reset and
+invitation forms, and the brand names the browser tab.</li>
+</ul>
+<h2 id="runtime-branding"><a class="header" href="#runtime-branding">Runtime branding</a></h2>
+<p>When the brand is chosen while the app runs (a Settings → Branding page of
+your own), give the panel a <code>BrandingSource</code>. What it returns goes over
+<code>brand(…)</code> and the <code>Theme</code>, field by field:</p>
+<pre><code class="language-rust ignore">use rustcms::admin::{AdminBranding, Branding, BrandingSource};
+
+struct SettingsBranding;
+
+#[async_trait]
+impl BrandingSource for SettingsBranding {
+    async fn load(&amp;self, app: &amp;AppState) -&gt; AppResult&lt;Option&lt;Branding&gt;&gt; {
+        let Some(row) = branding::Entity::find().one(app.db()).await? else { return Ok(None) };
+        let mut b = Branding::new().name(&amp;row.name).map_err(AppError::internal)?;
+        if let Some(logo) = row.logo {
+            b = b.logo(logo, &amp;row.logo_mime).map_err(AppError::internal)?;
+        }
+        Ok(Some(b.primary(&amp;row.primary).map_err(AppError::internal)?))
+    }
+}
+
+AdminProvider::new().brand("Acme").theme(theme).branding(SettingsBranding)
+
+// After saving the branding (in your settings handler):
+app.service::&lt;AdminBranding&gt;().expect("AdminProvider").invalidate();</code></pre>
+<ul>
+<li><strong>What it sets</strong>: <code>name</code> (1–64 characters, not blank, no control
+characters; plain text), <code>logo</code>, <code>logo_dark</code>
+(shown when the page is dark; else <code>logo</code>), <code>favicon</code> (PNG, WebP or ICO up
+to 512 KiB, checked against their bytes; never SVG), <code>color</code>, <code>primary</code>,
+<code>dark(…)</code> (with <code>Palette::try_color</code>) and <code>radius</code>: the theme’s tokens and
+rules. Fonts and custom CSS are not available at runtime. Each setter
+returns <code>Result&lt;_, BrandingError&gt;</code>; validate uploads with the same rules
+through <code>Branding::check_image</code>, <code>Branding::check_color</code> and
+<code>Branding::check_name</code>. Contrast is not checked.</li>
+<li><strong>Cache</strong>: each instance keeps what <code>load</code> returned for
+<code>[admin] branding_ttl_secs</code> (default 30, 1–3600), one load at a time.
+<code>AdminBranding::invalidate()</code> makes the next request on this instance load
+again; other instances follow within the period (there is no push between
+instances). A load that overlaps an invalidation is not kept.</li>
+<li><strong>Failures</strong>: <code>None</code>, an error, or a load slower than
+<code>[admin] branding_timeout_ms</code> (default 2000, 1–30000) shows the static brand
+and theme until the next period; the error is logged without its data.</li>
+<li><strong>One branding per page</strong>: the panel reads the brand, logos and favicon
+from the page it loaded with, until a reload. Images and the stylesheet are
+served by kind: a page from another instance or from before a change gets
+the current file (with <code>no-cache</code>; cached for good only when <code>v</code> matches)
+while that kind exists, else a 404.</li>
+<li><strong>Recovery</strong>: <code>[admin] branding = "static"</code> (or
+<code>RUSTCMS_ADMIN__BRANDING=static</code>) ignores the source until it is removed; a
+restart applies it. <code>rustcms admin:branding</code> shows the mode and, in runtime
+mode, loads the branding once and reports whether it is valid; it changes
+nothing.</li>
 </ul>
 <h2 id="custom-pages"><a class="header" href="#custom-pages">Custom pages</a></h2>
 <p>A page’s place in the sidebar follows <code>PanelPageMeta::group</code> and
@@ -4188,12 +4343,15 @@ CLI and your own code:</p>
 </tbody>
 </table>
 </div>
-<p><strong>The role page</strong> shows the permissions of resources as a matrix: a row per
+<p><strong>The role page</strong> shows permissions in collapsible <strong>areas</strong> with a
+selected/total count, a search box and the presets the application declares
+(<a href="#the-roles-page-areas-labels-and-presets">The Roles page</a>).
+Inside an area, the permissions of resources come first as a matrix: a row per
 resource, a column per ability (list, view, create, update, delete, restore,
 delete for good), the resource’s other abilities (actions, <code>attach_tags</code>…) in
-its last column, and a box to switch a whole row or column. Everything else
-(users, roles, settings, audit, queue, pages, media) is listed by group. Boxes
-of permissions you do not hold are disabled, and saving keeps them as they are.</p>
+its last column, and a box to switch a whole row or column. The rest is listed
+by group, with a box for the whole group. Boxes of permissions you do not hold
+are disabled, and saving keeps them as they are.</p>
 <p><strong>Invitations.</strong> On <strong>New user</strong>, <em>Send an invitation instead of setting a
 password</em> creates the user pending (badge <em>Invited</em>) and mails them a link;
 the user page offers <em>Send the invitation again</em> until they accept. Setting
@@ -4222,7 +4380,8 @@ the rest of the admin API):</p>
 <tr><td>GET / POST</td><td><code>/roles</code></td><td>POST: <code>{name, permissions}</code></td><td><code>[SystemRole]</code> / 201 <code>SystemRole</code></td></tr>
 <tr><td>GET / DELETE</td><td><code>/roles/{id}</code></td><td></td><td><code>SystemRole</code> / 204</td></tr>
 <tr><td>PUT</td><td><code>/roles/{id}/permissions</code></td><td><code>{permissions, expectedPermissions}</code></td><td><code>SystemRole</code></td></tr>
-<tr><td>GET</td><td><code>/permissions</code></td><td></td><td><code>[PermissionInfo]</code> (with <code>grantable</code>; <code>resource</code> and <code>ability</code> when it is exactly one resource’s <code>{slug}.{ability}</code>)</td></tr>
+<tr><td>GET</td><td><code>/permissions</code></td><td></td><td><code>[PermissionInfo]</code> (with <code>grantable</code>; <code>resource</code> and <code>ability</code> when it is exactly one resource’s <code>{slug}.{ability}</code>; <code>area</code>, <code>areaLabel</code>, <code>areaSort</code> always; <code>label</code> and <code>description</code> when declared)</td></tr>
+<tr><td>GET</td><td><code>/permission-presets</code></td><td></td><td><code>[PermissionPresetInfo]</code> <code>{id, label, description?, permissions}</code> (declared, not orphaned names, also those the caller may not grant); <code>roles.view_any</code> or <code>permissions.view_any</code>, as <code>/permissions</code></td></tr>
 </tbody>
 </table>
 </div>
@@ -4296,7 +4455,9 @@ boot. An empty translation (<code>"Title" = ""</code>) counts as missing.</li>
 <li><code>rustcms lang:missing vi</code> lists the labels no catalog translates, as TOML to
 fill in, and exits with an error while any is missing (useful in CI). It reads
 the resource definitions; messages your hooks build at run time are not
-listed: translate them with <code>ctx.t("…")</code> (<code>ctx.t_in(slug, "…")</code>).</li>
+listed: translate them with <code>ctx.t("…")</code> (<code>ctx.t_in(slug, "…")</code>). It also
+lists the Roles page’s area, permission and preset labels and descriptions
+(looked up globally).</li>
 <li>Data, identifiers (slugs, field names, permission names) and role names are
 never translated. Permission groups get a translated <code>groupLabel</code>: a
 resource’s plural label, or the group in words (<code>users</code> → “Users”).</li>
@@ -4740,6 +4901,10 @@ time.</li>
 <p>Permissions need no Redis: a change made on one instance applies on every
 instance from the next request (the permission cache follows a counter kept
 in the database).</p>
+<p><a href="#runtime-branding">Runtime branding</a> is cached per
+instance: <code>AdminBranding::invalidate()</code> clears this instance only; the others
+load it again once their <code>[admin] branding_ttl_secs</code> has passed. Redis does not
+broadcast it.</p>
 <p>Without Redis, several instances still work, but each keeps its own rate
 limits: run one instance unless Redis is configured. Password-hashing and
 upload concurrency limits are always per instance (each bounds its own CPU
@@ -6212,6 +6377,8 @@ application in the current directory (<code>cargo run -- &lt;command&gt;</code>)
 </tbody>
 </table>
 </div>
+<h3 id="adminbranding"><a class="header" href="#adminbranding"><code>admin:branding</code></a></h3>
+<p>Show where the panel’s branding comes from, and load it once to check it (changes nothing)</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="database-schema"><a class="header" href="#database-schema">Database schema</a></h1>
 <p>The framework’s migrations (<code>rustcms::migration</code>, run by <code>rustcms migrate</code>
@@ -6434,6 +6601,7 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><td>GET</td><td><code>/media/{id}/file</code></td><td>the file (authorized, safe headers)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/fields/{field}/options?search=&amp;keys=a,b&amp;record=</code></td><td><code>{data: [{value, label}]}</code> (≤ 50)</td></tr>
 <tr><td>…</td><td><code>/system/…</code></td><td>users, roles and permissions, see <a href="#users-roles--your-account">Users, roles &amp; account</a></td></tr>
+<tr><td>GET</td><td><code>/system/permission-presets</code></td><td><code>[{id, label, description?, permissions}]</code> (<code>roles.view_any</code> or <code>permissions.view_any</code>); <code>/system/permissions</code> items carry <code>area</code>, <code>areaLabel</code>, <code>areaSort</code>, and <code>label</code>/<code>description</code> when declared</td></tr>
 <tr><td>GET / PUT</td><td><code>/settings/{group}</code></td><td>settings pages, see <a href="#api-2">Settings</a></td></tr>
 <tr><td>GET</td><td><code>/audit</code>, <code>/resources/{slug}/records/{key}/history</code></td><td>the audit log and record histories, see <a href="#viewing-the-log">Audit log</a></td></tr>
 <tr><td>GET</td><td><code>/queue</code></td><td>counts per queue and status, worker settings, <code>canManage</code> (<code>queue.view</code>)</td></tr>
