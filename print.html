@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-14922553.js";
+            window.path_to_searchindex_js = "searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,29 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.7.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.8.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="080"><a class="header" href="#080">0.8.0</a></h2>
+<ul>
+<li><strong>Job history on the Queue page</strong>: finished jobs (done, failed, cancelled)
+with their times and duration, a details dialog, filters by time, auto
+refresh; <code>Job::describe()</code> names a job (“deploy demo/web #12”); the
+<em>Scheduled</em> status is now <em>Delayed</em> (<a href="#the-queue-page">Queues</a>).</li>
+<li><strong>System → Schedules</strong>: every schedule, its next and last run and its
+history, and <strong>Run now</strong> for job and closure schedules
+(<a href="#the-schedules-page">Scheduling</a>).</li>
+<li><strong><code>Resource::after_delete</code></strong> runs in the transaction of a hard delete, for
+example to dispatch a job that removes what the record configured
+(<a href="#resources">Resources</a>).</li>
+<li><strong><code>.task(…)</code> schedules</strong> report a summary or a safe error; <code>.timeout(…)</code>
+bounds a closure’s run; <code>Job::AT_MOST_ONCE</code> for jobs that must never run
+twice.</li>
+</ul>
+<h2 id="071"><a class="header" href="#071">0.7.1</a></h2>
+<ul>
+<li><strong>Dialogs have a close button</strong> (×) in their top right corner, also the
+<code>Dialog</code> of React pages; forms in dialogs cannot be closed while saving.</li>
+</ul>
 <h2 id="070"><a class="header" href="#070">0.7.0</a></h2>
 <ul>
 <li><strong>Roles page</strong>: permissions by area (collapsible, with counts), a search
@@ -509,6 +530,22 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-071-to-080"><a class="header" href="#from-071-to-080">From 0.7.1 to 0.8.0</a></h2>
+<p>Run <code>rustcms migrate</code>: it adds <code>jobs.started_at</code>, <code>jobs.description</code> and the
+<code>job_runs</code> and <code>schedule_runs</code> tables. Then nothing else needs to change.</p>
+<ul>
+<li>Grant <code>schedules.view</code> (and <code>schedules.manage</code> for Run now) to the roles
+that should see System → Schedules (<code>rustcms permission:sync</code> declares them).</li>
+<li><code>.run</code> schedules keep working; switch to <code>.task</code> to show a summary.</li>
+<li>Job kinds starting with <code>rustcms.</code> are now refused (they are the
+framework’s).</li>
+<li>The Queue’s <em>Scheduled</em> status is labelled <em>Delayed</em> (the API value stays
+<code>scheduled</code>).</li>
+</ul>
+<h2 id="from-070-to-071"><a class="header" href="#from-070-to-071">From 0.7.0 to 0.7.1</a></h2>
+<p>Nothing needs to change. React pages’ dialogs get the close button without a
+rebuild; <code>rustcms make:sdk</code> adds <code>closeButton</code> and <code>closeDisabled</code> to the
+SDK’s types.</p>
 <h2 id="from-061-to-070"><a class="header" href="#from-061-to-070">From 0.6.1 to 0.7.0</a></h2>
 <p>Most applications need no change; update links of your own to theme files,
 and <code>PermissionInfo</code> struct literals, if you have any.</p>
@@ -752,7 +789,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.7.0 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.8.0 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -763,7 +800,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.7.0" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.0" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -952,6 +989,7 @@ fail closed (500). See <a href="#several-instances">Several instances</a>.</p>
 <tbody>
 <tr><td><code>schedule.enabled</code></td><td><code>true</code></td><td>run the schedules on this instance</td></tr>
 <tr><td><code>schedule.grace_secs</code></td><td><code>30</code></td><td>how late (1–300 s) a slot may still be claimed; older slots are skipped</td></tr>
+<tr><td><code>schedule.history_retention_days</code></td><td><code>7</code></td><td>runs kept on the Schedules page (1–3,650)</td></tr>
 </tbody>
 </table>
 </div>
@@ -1120,7 +1158,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.7.0", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.0", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -2328,7 +2366,8 @@ app.provider(
 <p>Each resource declares its permissions (<code>posts.view_any</code>, <code>posts.create</code>, …)
 for <code>rustcms permission:sync</code>. Users see the panel’s System pages
 (<a href="#users-roles--your-account">users &amp; roles</a>, <a href="#viewing-the-log">audit log</a>,
-<a href="#the-queue-page">queue</a>) as their permissions
+<a href="#the-queue-page">queue</a>,
+<a href="#the-schedules-page">schedules</a>) as their permissions
 allow, and their own Account page.</p>
 <h2 id="navigation"><a class="header" href="#navigation">Navigation</a></h2>
 <p>Resources the user may list (<code>view_any</code>) appear in the sidebar, grouped by
@@ -2577,8 +2616,12 @@ async fn after_save(ctx: &amp;Ctx, txn: &amp;DatabaseTransaction, post: &amp;pos
     // runs in the write's transaction: an error rolls everything back
     Ok(())
 }</code></pre>
-<p><code>mutate_before_update</code> receives the current record too; <code>after_force_delete</code>
-runs when a trashed record is deleted for good. A message a hook returns is
+<p><code>mutate_before_update</code> receives the current record too. <code>after_delete</code> runs
+in the transaction that deletes a record of a resource without soft deletes,
+after the delete, with the record as it was: dispatch a job there to undo
+what the record configured (an error rolls the delete back). Trashing does
+not call it; <code>after_force_delete</code> runs when a trashed record is deleted for
+good. A message a hook returns is
 shown as written: translate it with <code>ctx.t("…")</code> (<a href="#languages-i18n">i18n</a>).</p>
 <h2 id="parent-locks"><a class="header" href="#parent-locks">Parent locks</a></h2>
 <p>A rule over a parent’s children (at most <code>capacity</code> active enrollments per
@@ -3889,7 +3932,10 @@ works, and Escape returns to the button.</li>
 <code>TableCell</code>, styled like the panel’s lists.</li>
 <li><code>Skeleton</code>, <code>Separator</code>, and <code>CodeBlock code="…"</code> (with a copy button).</li>
 </ul>
-<p>Menus and tooltips work inside a <code>Dialog</code>.</p>
+<p>Menus and tooltips work inside a <code>Dialog</code>. Every <code>Dialog</code> has a close button
+(×, “Close”) in its top right corner, after your content, so opening still
+focuses your first field; <code>closeButton={false}</code> leaves it out, and
+<code>closeDisabled</code> disables it and Escape (for example while saving).</p>
 <h2 id="sub-pages"><a class="header" href="#sub-pages">Sub-pages</a></h2>
 <p><code>/admin/p/&lt;slug&gt;/&lt;sub/path&gt;</code> opens the same page: <code>props.path</code> is
 <code>"sub/path"</code> (<code>""</code> without one), and <code>PanelPage::data</code> reads
@@ -5176,6 +5222,8 @@ the file and this line):</p>
 <tr><td><code>max_attempts()</code></td><td><code>5</code></td><td>1 to 100</td></tr>
 <tr><td><code>backoff(attempt)</code></td><td>10 s, 20 s, 40 s… up to 1 hour</td><td>wait before the next attempt</td></tr>
 <tr><td><code>timeout()</code></td><td>5 minutes</td><td>a longer run is stopped and counts as failed</td></tr>
+<tr><td><code>describe(&amp;self)</code></td><td><code>None</code></td><td>a short text the Queue page shows (“deploy demo/web #12”): at most 200 characters, control characters removed; <code>queue.view</code> holders see it, so never put secrets or personal data in it</td></tr>
+<tr><td><code>AT_MOST_ONCE</code></td><td><code>false</code></td><td>never run twice: a run stopped by a shutdown fails (“interrupted by shutdown”) instead of being given back; use it with <code>max_attempts() == 1</code> for effects that must not repeat</td></tr>
 </tbody>
 </table>
 </div>
@@ -5277,7 +5325,7 @@ through roles.</p>
 </thead>
 <tbody>
 <tr><td>pending</td><td>runs as soon as a worker is free (also a job whose worker vanished, with attempts left)</td><td>cancel</td></tr>
-<tr><td>scheduled</td><td>waits for its <code>available_at</code> (a backoff, a delayed dispatch)</td><td>cancel</td></tr>
+<tr><td>scheduled (shown as <strong>Delayed</strong>)</td><td>waits for its <code>available_at</code> (a backoff, a delayed dispatch); not to be confused with <a href="#the-schedules-page">schedules</a></td><td>cancel</td></tr>
 <tr><td>running</td><td>a worker owns it</td><td>none</td></tr>
 <tr><td>stalled</td><td>its last attempt’s worker vanished; the next worker pass marks it failed</td><td>cancel</td></tr>
 <tr><td>failed</td><td>will not run again</td><td>retry, forget</td></tr>
@@ -5290,7 +5338,7 @@ It keeps its id, so <code>once</code> receipts and idempotency keys built from
 <code>ctx.id</code> still recognise work an earlier attempt finished; effects guarded
 by neither run again (and receipts older than
 <code>queue.failed_retention_days</code> are gone).</li>
-<li><strong>Forget</strong> deletes a failed job and its error.</li>
+<li><strong>Forget</strong> deletes a failed job; its entry in the history stays.</li>
 <li><strong>Cancel</strong> deletes a job waiting to run, in one statement with the
 workers’ claim condition: if a worker took it first, the cancel answers
 409 (<code>running</code>). What earlier attempts committed stays.</li>
@@ -5302,11 +5350,23 @@ forget of any job that has not failed (running ones too), <code>running</code> o
 <code>not_waiting</code> for cancel; a job that is gone, or a malformed id, 404 (after
 the permission checks). While an action’s outcome is unknown (the
 connection dropped), the page pauses further actions until it is resolved.</li>
-<li>The page shows kind, queue, status, attempts, times, the dispatching user
-(named for those who may list users) and the safe error message. It never
-shows payloads or worker tokens.</li>
+<li>The page shows kind, description, queue, status, attempts, times (a
+running job’s start and how long it has run), the dispatching user (named
+for those who may list users) and the safe error message. It never shows
+payloads or worker tokens. Clicking a job’s kind opens its details: its
+times, error and earlier runs.</li>
+<li><strong>History</strong>: a second tab lists finished jobs (done, failed, cancelled)
+with when they finished and how long their last attempt ran, filtered by
+status, queue, kind and time. One row is written per terminal outcome, in
+the transaction of the transition itself (a job retried and finished again
+has several); intermediate retries and shutdown give-backs write none.
+Rows are kept <code>queue.history_retention_days</code> (7 by default; 0 keeps none).</li>
 <li>Counts are per queue, in one SQL query (a job changing status meanwhile is
-counted once); the list pages through jobs newest first.</li>
+counted once), plus the jobs done and failed in the last 24 hours; the
+lists page through jobs newest first.</li>
+<li><strong>Auto refresh</strong>: the page reloads every 5 seconds while the tab is visible
+and no dialog is open, unless the user switches it off (kept in that
+browser). It pauses after “Load more”, until <em>Back to latest</em>.</li>
 </ul>
 <p>The same statuses and actions are available in Rust, for your own tools:
 <code>rustcms::queue::manage::{counts, retry, forget, cancel}</code> with a
@@ -5338,6 +5398,7 @@ Keep the instances’ clocks synchronized (NTP); <code>queue.clock_skew_secs</co
 <tr><td><code>poll_ms</code></td><td><code>1000</code></td><td>wait when no job is ready; 100 to 60,000</td></tr>
 <tr><td><code>shutdown_secs</code></td><td><code>30</code></td><td>0 to 3,600</td></tr>
 <tr><td><code>max_timeout_secs</code></td><td><code>3600</code></td><td>caps every job’s <code>timeout()</code></td></tr>
+<tr><td><code>history_retention_days</code></td><td><code>7</code></td><td>finished jobs kept in the history; 0 to 3,650 (0: no history)</td></tr>
 <tr><td><code>clock_skew_secs</code></td><td><code>5</code></td><td>0 to 60</td></tr>
 <tr><td><code>unknown_kind_grace_secs</code></td><td><code>3600</code></td><td></td></tr>
 <tr><td><code>failed_retention_days</code></td><td><code>30</code></td><td>failed jobs and <code>once</code> receipts</td></tr>
@@ -5379,20 +5440,44 @@ only the next slot runs. A slot is still taken up to
 </ul>
 <h2 id="what-it-does"><a class="header" href="#what-it-does">What it does</a></h2>
 <ul>
-<li><strong><code>.job(make)</code></strong> (recommended) enqueues a <a href="#queues">queue job</a> for each
+<li>
+<p><strong><code>.job(make)</code></strong> (recommended) enqueues a <a href="#queues">queue job</a> for each
 slot. The job’s retries, timeouts and leases apply, and the Queue page
-shows it.
+shows it.</p>
 <ul>
 <li>It registers the job type; <code>app.job::&lt;J&gt;()</code> as well is fine.</li>
 <li>Workers must serve its queue (<code>serve</code>, or <code>queue:work</code>).</li>
 </ul>
 </li>
-<li><strong><code>.run(f)</code></strong> runs in the process. It is best effort: a crash during the
-run loses it.</li>
-<li><strong>Once per slot, whatever the number of instances.</strong> Each slot is claimed in
+<li>
+<p><strong><code>.run(f)</code></strong> runs in the process. It is best effort: a crash during the
+run loses it. Its error is recorded as “failed (see the logs)”.</p>
+</li>
+<li>
+<p><strong><code>.task(f)</code></strong> is <code>.run</code> with a context and a result the
+<a href="#the-schedules-page">Schedules page</a> shows:</p>
+<pre><code class="language-rust ignore">app.schedule(Schedule::cron("database-backups", "0 3 * * *")?.task(|ctx| async move {
+    let n = backup_all(&amp;ctx.state).await?;
+    Ok(Some(format!("{n} databases backed up")))
+}).timeout(Duration::from_secs(1800)));</code></pre>
+<p><code>Ok(Some(summary))</code> is kept (at most 200 characters). An error whose chain
+holds a <a href="#failures-2"><code>queue::Failure</code></a> keeps its message; any other
+error is kept as “failed (see the logs)”. <code>schedules.view</code> holders see
+both: never put secrets in them. <code>ctx</code> has <code>state</code>, <code>run_id</code> (stable, a key
+for your own idempotency), <code>trigger</code> (<code>Schedule</code> or <code>Manual</code>) and
+<code>initiated_by</code>. Moving from <code>.run</code>: <code>|state|</code> becomes <code>|ctx|</code>
+(<code>ctx.state</code>), <code>Ok(())</code> becomes <code>Ok(None)</code>.</p>
+</li>
+<li>
+<p><strong><code>.timeout(d)</code></strong> bounds a <code>.run</code> or <code>.task</code> (default 1 hour, at most a
+day): a longer run is stopped and recorded as failed.</p>
+</li>
+<li>
+<p><strong>Once per slot, whatever the number of instances.</strong> Each slot is claimed in
 the database, in the same transaction as its job, so there is at most one
 job per slot (no Redis needed). Jobs are still at-least-once: make them
-idempotent.</li>
+idempotent.</p>
+</li>
 </ul>
 <h2 id="overlapping-runs"><a class="header" href="#overlapping-runs">Overlapping runs</a></h2>
 <ul>
@@ -5403,7 +5488,8 @@ lock, so a dead worker’s job is retried, then the schedule resumes.</li>
 <li>A <code>.run</code> schedule never overlaps itself on one instance (slots are
 skipped). On several instances two long runs can overlap: use <code>.job</code> +
 <code>.without_overlapping()</code> instead.</li>
-<li>Manual runs (<code>schedule:run</code>) and <code>queue:retry</code> are not held back.</li>
+<li>Manual runs from the console (<code>schedule:run</code>) and <code>queue:retry</code> are not
+held back. The panel’s Run now is (see below).</li>
 </ul>
 <pre><code class="language-rust ignore">/// Converges containers to the declared state: safe to repeat.
 #[derive(Serialize, Deserialize)]
@@ -5434,7 +5520,49 @@ fast can start a slot that much early; it never runs a slot twice.</li>
 rustcms schedule:run reconcile   # run it now: a job is enqueued, a run runs in the command
 </code></pre>
 <p>A manual run is not a slot: there is no claim, no grace and no
-<code>without_overlapping</code>, and <code>enabled</code> is ignored.</p>
+<code>without_overlapping</code>, and <code>enabled</code> is ignored. It is recorded as a manual
+run.</p>
+<h2 id="the-schedules-page"><a class="header" href="#the-schedules-page">The Schedules page</a></h2>
+<p><strong>System → Schedules</strong> lists every schedule to users with <code>schedules.view</code>:
+its rule, what it does (a job kind or a task), its next run, and its last
+run (status, when, how long, a task’s summary or error). Clicking a name
+opens its recent runs. It refreshes like the <a href="#the-queue-page">Queue page</a>.</p>
+<p>Each run is recorded in <code>schedule_runs</code> (kept
+<code>[schedule] history_retention_days</code>, 7 by default; pruned by the scheduler and
+by queue workers):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Status</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td>dispatched</td><td>a job schedule’s job (or Run now’s) is waiting or running</td></tr>
+<tr><td>running</td><td>a closure is running in <code>serve</code></td></tr>
+<tr><td>succeeded, failed</td><td>it ended; a job schedule’s outcome is written by its job’s own transition</td></tr>
+<tr><td>skipped</td><td><code>without_overlapping</code> held the slot back</td></tr>
+<tr><td>cancelled</td><td>its job was cancelled on the Queue page</td></tr>
+<tr><td>unknown</td><td>its end was not recorded (a shutdown, a crash: a <code>running</code> run older than its timeout plus an hour shows so)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Run now</strong> (users who also hold <code>schedules.manage</code>) runs a schedule once, as
+a manual run, after a confirmation; it is recorded in the audit log
+(<code>schedule.run</code>). It goes through the queue, so a worker must run somewhere:</p>
+<ul>
+<li>a job schedule enqueues its job on behalf of the user; with
+<code>without_overlapping</code> it is refused (409) while the previous job is
+pending or running;</li>
+<li>a <code>.run</code> or <code>.task</code> schedule enqueues the framework’s job
+<code>rustcms.schedule.run</code>, which runs the closure once in a worker: never
+retried, and a run stopped by a shutdown or a crash is recorded as failed,
+not run again. It is refused (409) while another run of the schedule is
+unfinished: a Run now whose job is still waiting or running, or a
+scheduled run younger than its timeout plus the grace. While a Run now’s
+job is unfinished, the schedule’s own slots are skipped (<code>skipped</code>). Two
+scheduled runs of adjacent slots may still overlap each other, as before.</li>
+</ul>
+<p>The next scheduled run is unchanged. Both permissions are declared by the
+admin panel (group <code>schedules</code>).</p>
 <p>The framework’s own cleanups (media, exports, idempotency keys) still run as
 provider loops; they will move to schedules later.</p>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -6563,7 +6691,9 @@ WHERE p.name = 'posts.update' OR r.name = 'super_admin';
 <tr><td><code>audit_logs</code></td><td>who changed what (<code>event</code>, <code>subject_type</code>/<code>subject_key</code>, actor, <code>credential</code>, <code>ip</code>, <code>request_id</code>, <code>changes</code>)</td><td><a href="#audit-log">Audit log</a></td></tr>
 <tr><td><code>settings</code></td><td>settings groups (<code>name</code>, <code>value</code>, <code>secrets</code> encrypted under a key derived from <code>APP_KEY</code>, <code>version</code>, <code>updated_by</code>)</td><td><a href="#secrets">Settings</a></td></tr>
 <tr><td><code>schedule_states</code>, <code>schedule_slots</code></td><td>one state row per schedule (never pruned); each claimed slot, kept 7 days and pruned hourly while the scheduler runs</td><td><a href="#scheduling">Scheduling</a></td></tr>
-<tr><td><code>jobs</code>, <code>job_receipts</code></td><td>the database queue (<code>queue</code>, <code>kind</code>, <code>payload</code>, <code>attempts</code>, <code>available_at</code>, <code>reserved_until</code>, <code>last_error</code>); jobs already run once</td><td><a href="#queues">Queues</a></td></tr>
+<tr><td><code>jobs</code>, <code>job_receipts</code></td><td>the database queue (<code>queue</code>, <code>kind</code>, <code>payload</code>, <code>attempts</code>, <code>available_at</code>, <code>reserved_until</code>, <code>started_at</code>, <code>description</code>, <code>last_error</code>); jobs already run once</td><td><a href="#queues">Queues</a></td></tr>
+<tr><td><code>job_runs</code></td><td>one row per finished job (<code>job_id</code>, <code>status</code> done/failed/cancelled, times, <code>duration_ms</code>, safe error), kept <code>queue.history_retention_days</code></td><td><a href="#the-queue-page">Queues</a></td></tr>
+<tr><td><code>schedule_runs</code></td><td>one row per schedule run (<code>trigger</code>, <code>status</code>, <code>job_id</code>, times, <code>summary</code>, safe error), kept <code>schedule.history_retention_days</code></td><td><a href="#the-schedules-page">Scheduling</a></td></tr>
 <tr><td><code>exports</code>, <code>export_objects</code></td><td>CSV exports and their files</td><td><a href="#import-and-export">Import and export</a></td></tr>
 <tr><td><code>imports</code>, <code>import_rows</code></td><td>CSV imports, their mapping and report; what each row did</td><td><a href="#import-and-export">Import and export</a></td></tr>
 </tbody>
@@ -6605,7 +6735,12 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><td>GET / PUT</td><td><code>/settings/{group}</code></td><td>settings pages, see <a href="#api-2">Settings</a></td></tr>
 <tr><td>GET</td><td><code>/audit</code>, <code>/resources/{slug}/records/{key}/history</code></td><td>the audit log and record histories, see <a href="#viewing-the-log">Audit log</a></td></tr>
 <tr><td>GET</td><td><code>/queue</code></td><td>counts per queue and status, worker settings, <code>canManage</code> (<code>queue.view</code>)</td></tr>
-<tr><td>GET</td><td><code>/queue/jobs?status=&amp;queue=&amp;kind=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [QueueJob], meta: {nextCursor?}}</code>, newest first (<code>queue.view</code>)</td></tr>
+<tr><td>GET</td><td><code>/queue/jobs?status=&amp;queue=&amp;kind=&amp;since=&amp;until=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [QueueJob], meta: {nextCursor?}}</code>, newest first (<code>queue.view</code>); <code>since</code>/<code>until</code> RFC 3339 on dispatch time</td></tr>
+<tr><td>GET</td><td><code>/queue/history?status=done|failed|cancelled&amp;queue=&amp;kind=&amp;since=&amp;until=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [JobRun], meta: {nextCursor?}}</code>, finished jobs newest first (<code>queue.view</code>)</td></tr>
+<tr><td>GET</td><td><code>/queue/jobs/{id}</code></td><td><code>{job?: QueueJob, runs: [JobRun]}</code> (at most 20 runs); 404 when neither exists (<code>queue.view</code>)</td></tr>
+<tr><td>GET</td><td><code>/schedules</code></td><td><code>{data: [ScheduleInfo], scheduler, workers, canManage}</code> (<code>schedules.view</code>), see <a href="#the-schedules-page">Scheduling</a></td></tr>
+<tr><td>GET</td><td><code>/schedules/{name}/runs?cursor=&amp;per_page=</code></td><td><code>{data: [ScheduleRunInfo], meta}</code>, newest first; 404 for an unknown name (<code>schedules.view</code>)</td></tr>
+<tr><td>POST</td><td><code>/schedules/{name}/run</code></td><td>202 <code>{run}</code>; 409 <code>write_conflict</code> reason <code>running</code>; 404 unknown (<code>schedules.view</code> + <code>schedules.manage</code>, rechecked under the RBAC lock; audited)</td></tr>
 <tr><td>GET</td><td><code>/pages/{slug}</code></td><td><code>{slug, title, content}</code> of a custom page: <code>{kind: "html", html}</code> or <code>{kind: "script", script, data}</code>, see <a href="#custom-pages">Customizing</a></td></tr>
 <tr><td>GET</td><td><code>/pages/{slug}/{*path}</code></td><td>the same response for a sub-page; <code>Ctx::page_path()</code> gives the canonical sub-path; an invalid sub-path is a 422 on <code>path</code>, after the permission checks</td></tr>
 <tr><td>GET</td><td><code>/slots?resource=&amp;key=</code></td><td><code>{data: [{name, label?, content}]}</code> beside a record</td></tr>
@@ -6711,6 +6846,8 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>confirmation</code></td><td><code>does not match</code></td></tr>
 <tr><td><code>empty</code></td><td><code>is empty</code></td></tr>
 <tr><td><code>given_twice</code></td><td><code>may only be given once</code></td></tr>
+<tr><td><code>not_instant</code></td><td><code>must be a date and time (RFC 3339)</code></td></tr>
+<tr><td><code>not_after_since</code></td><td><code>must be after since</code></td></tr>
 <tr><td><code>token_invalid</code></td><td><code>is invalid or has expired</code> (a reset or invitation link)</td></tr>
 <tr><td><code>max_length</code></td><td><code>may not be longer than {max} characters</code></td></tr>
 <tr><td><code>max_bytes</code></td><td><code>may not be longer than {max} bytes</code></td></tr>

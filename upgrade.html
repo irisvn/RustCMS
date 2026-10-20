@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-14922553.js";
+            window.path_to_searchindex_js = "searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,22 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-071-to-080"><a class="header" href="#from-071-to-080">From 0.7.1 to 0.8.0</a></h2>
+<p>Run <code>rustcms migrate</code>: it adds <code>jobs.started_at</code>, <code>jobs.description</code> and the
+<code>job_runs</code> and <code>schedule_runs</code> tables. Then nothing else needs to change.</p>
+<ul>
+<li>Grant <code>schedules.view</code> (and <code>schedules.manage</code> for Run now) to the roles
+that should see System → Schedules (<code>rustcms permission:sync</code> declares them).</li>
+<li><code>.run</code> schedules keep working; switch to <code>.task</code> to show a summary.</li>
+<li>Job kinds starting with <code>rustcms.</code> are now refused (they are the
+framework’s).</li>
+<li>The Queue’s <em>Scheduled</em> status is labelled <em>Delayed</em> (the API value stays
+<code>scheduled</code>).</li>
+</ul>
+<h2 id="from-070-to-071"><a class="header" href="#from-070-to-071">From 0.7.0 to 0.7.1</a></h2>
+<p>Nothing needs to change. React pages’ dialogs get the close button without a
+rebuild; <code>rustcms make:sdk</code> adds <code>closeButton</code> and <code>closeDisabled</code> to the
+SDK’s types.</p>
 <h2 id="from-061-to-070"><a class="header" href="#from-061-to-070">From 0.6.1 to 0.7.0</a></h2>
 <p>Most applications need no change; update links of your own to theme files,
 and <code>PermissionInfo</code> struct literals, if you have any.</p>

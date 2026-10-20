@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-14922553.js";
+            window.path_to_searchindex_js = "../searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -215,7 +215,12 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><td>GET / PUT</td><td><code>/settings/{group}</code></td><td>settings pages, see <a href="../admin/settings.html#api">Settings</a></td></tr>
 <tr><td>GET</td><td><code>/audit</code>, <code>/resources/{slug}/records/{key}/history</code></td><td>the audit log and record histories, see <a href="../digging-deeper/audit-log.html#viewing-the-log">Audit log</a></td></tr>
 <tr><td>GET</td><td><code>/queue</code></td><td>counts per queue and status, worker settings, <code>canManage</code> (<code>queue.view</code>)</td></tr>
-<tr><td>GET</td><td><code>/queue/jobs?status=&amp;queue=&amp;kind=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [QueueJob], meta: {nextCursor?}}</code>, newest first (<code>queue.view</code>)</td></tr>
+<tr><td>GET</td><td><code>/queue/jobs?status=&amp;queue=&amp;kind=&amp;since=&amp;until=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [QueueJob], meta: {nextCursor?}}</code>, newest first (<code>queue.view</code>); <code>since</code>/<code>until</code> RFC 3339 on dispatch time</td></tr>
+<tr><td>GET</td><td><code>/queue/history?status=done|failed|cancelled&amp;queue=&amp;kind=&amp;since=&amp;until=&amp;cursor=&amp;per_page=</code></td><td><code>{data: [JobRun], meta: {nextCursor?}}</code>, finished jobs newest first (<code>queue.view</code>)</td></tr>
+<tr><td>GET</td><td><code>/queue/jobs/{id}</code></td><td><code>{job?: QueueJob, runs: [JobRun]}</code> (at most 20 runs); 404 when neither exists (<code>queue.view</code>)</td></tr>
+<tr><td>GET</td><td><code>/schedules</code></td><td><code>{data: [ScheduleInfo], scheduler, workers, canManage}</code> (<code>schedules.view</code>), see <a href="../digging-deeper/scheduling.html#the-schedules-page">Scheduling</a></td></tr>
+<tr><td>GET</td><td><code>/schedules/{name}/runs?cursor=&amp;per_page=</code></td><td><code>{data: [ScheduleRunInfo], meta}</code>, newest first; 404 for an unknown name (<code>schedules.view</code>)</td></tr>
+<tr><td>POST</td><td><code>/schedules/{name}/run</code></td><td>202 <code>{run}</code>; 409 <code>write_conflict</code> reason <code>running</code>; 404 unknown (<code>schedules.view</code> + <code>schedules.manage</code>, rechecked under the RBAC lock; audited)</td></tr>
 <tr><td>GET</td><td><code>/pages/{slug}</code></td><td><code>{slug, title, content}</code> of a custom page: <code>{kind: "html", html}</code> or <code>{kind: "script", script, data}</code>, see <a href="../admin/customizing.html#custom-pages">Customizing</a></td></tr>
 <tr><td>GET</td><td><code>/pages/{slug}/{*path}</code></td><td>the same response for a sub-page; <code>Ctx::page_path()</code> gives the canonical sub-path; an invalid sub-path is a 422 on <code>path</code>, after the permission checks</td></tr>
 <tr><td>GET</td><td><code>/slots?resource=&amp;key=</code></td><td><code>{data: [{name, label?, content}]}</code> beside a record</td></tr>

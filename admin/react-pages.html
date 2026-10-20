@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-14922553.js";
+            window.path_to_searchindex_js = "../searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -388,7 +388,10 @@ works, and Escape returns to the button.</li>
 <code>TableCell</code>, styled like the panel’s lists.</li>
 <li><code>Skeleton</code>, <code>Separator</code>, and <code>CodeBlock code="…"</code> (with a copy button).</li>
 </ul>
-<p>Menus and tooltips work inside a <code>Dialog</code>.</p>
+<p>Menus and tooltips work inside a <code>Dialog</code>. Every <code>Dialog</code> has a close button
+(×, “Close”) in its top right corner, after your content, so opening still
+focuses your first field; <code>closeButton={false}</code> leaves it out, and
+<code>closeDisabled</code> disables it and Escape (for example while saving).</p>
 <h2 id="sub-pages"><a class="header" href="#sub-pages">Sub-pages</a></h2>
 <p><code>/admin/p/&lt;slug&gt;/&lt;sub/path&gt;</code> opens the same page: <code>props.path</code> is
 <code>"sub/path"</code> (<code>""</code> without one), and <code>PanelPage::data</code> reads

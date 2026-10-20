@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-14922553.js";
+            window.path_to_searchindex_js = "../searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -282,8 +282,12 @@ async fn after_save(ctx: &amp;Ctx, txn: &amp;DatabaseTransaction, post: &amp;pos
     // runs in the write's transaction: an error rolls everything back
     Ok(())
 }</code></pre>
-<p><code>mutate_before_update</code> receives the current record too; <code>after_force_delete</code>
-runs when a trashed record is deleted for good. A message a hook returns is
+<p><code>mutate_before_update</code> receives the current record too. <code>after_delete</code> runs
+in the transaction that deletes a record of a resource without soft deletes,
+after the delete, with the record as it was: dispatch a job there to undo
+what the record configured (an error rolls the delete back). Trashing does
+not call it; <code>after_force_delete</code> runs when a trashed record is deleted for
+good. A message a hook returns is
 shown as written: translate it with <code>ctx.t("…")</code> (<a href="i18n.html">i18n</a>).</p>
 <h2 id="parent-locks"><a class="header" href="#parent-locks">Parent locks</a></h2>
 <p>A rule over a parent’s children (at most <code>capacity</code> active enrollments per

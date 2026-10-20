@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-14922553.js";
+            window.path_to_searchindex_js = "searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,29 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.7.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.8.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="080"><a class="header" href="#080">0.8.0</a></h2>
+<ul>
+<li><strong>Job history on the Queue page</strong>: finished jobs (done, failed, cancelled)
+with their times and duration, a details dialog, filters by time, auto
+refresh; <code>Job::describe()</code> names a job (“deploy demo/web #12”); the
+<em>Scheduled</em> status is now <em>Delayed</em> (<a href="digging-deeper/queues.html#the-queue-page">Queues</a>).</li>
+<li><strong>System → Schedules</strong>: every schedule, its next and last run and its
+history, and <strong>Run now</strong> for job and closure schedules
+(<a href="digging-deeper/scheduling.html#the-schedules-page">Scheduling</a>).</li>
+<li><strong><code>Resource::after_delete</code></strong> runs in the transaction of a hard delete, for
+example to dispatch a job that removes what the record configured
+(<a href="admin/resources.html">Resources</a>).</li>
+<li><strong><code>.task(…)</code> schedules</strong> report a summary or a safe error; <code>.timeout(…)</code>
+bounds a closure’s run; <code>Job::AT_MOST_ONCE</code> for jobs that must never run
+twice.</li>
+</ul>
+<h2 id="071"><a class="header" href="#071">0.7.1</a></h2>
+<ul>
+<li><strong>Dialogs have a close button</strong> (×) in their top right corner, also the
+<code>Dialog</code> of React pages; forms in dialogs cannot be closed while saving.</li>
+</ul>
 <h2 id="070"><a class="header" href="#070">0.7.0</a></h2>
 <ul>
 <li><strong>Roles page</strong>: permissions by area (collapsible, with counts), a search

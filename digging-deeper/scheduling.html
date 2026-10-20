@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-14922553.js";
+            window.path_to_searchindex_js = "../searchindex-803ca1af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -211,20 +211,44 @@ only the next slot runs. A slot is still taken up to
 </ul>
 <h2 id="what-it-does"><a class="header" href="#what-it-does">What it does</a></h2>
 <ul>
-<li><strong><code>.job(make)</code></strong> (recommended) enqueues a <a href="queues.html">queue job</a> for each
+<li>
+<p><strong><code>.job(make)</code></strong> (recommended) enqueues a <a href="queues.html">queue job</a> for each
 slot. The job’s retries, timeouts and leases apply, and the Queue page
-shows it.
+shows it.</p>
 <ul>
 <li>It registers the job type; <code>app.job::&lt;J&gt;()</code> as well is fine.</li>
 <li>Workers must serve its queue (<code>serve</code>, or <code>queue:work</code>).</li>
 </ul>
 </li>
-<li><strong><code>.run(f)</code></strong> runs in the process. It is best effort: a crash during the
-run loses it.</li>
-<li><strong>Once per slot, whatever the number of instances.</strong> Each slot is claimed in
+<li>
+<p><strong><code>.run(f)</code></strong> runs in the process. It is best effort: a crash during the
+run loses it. Its error is recorded as “failed (see the logs)”.</p>
+</li>
+<li>
+<p><strong><code>.task(f)</code></strong> is <code>.run</code> with a context and a result the
+<a href="#the-schedules-page">Schedules page</a> shows:</p>
+<pre><code class="language-rust ignore">app.schedule(Schedule::cron("database-backups", "0 3 * * *")?.task(|ctx| async move {
+    let n = backup_all(&amp;ctx.state).await?;
+    Ok(Some(format!("{n} databases backed up")))
+}).timeout(Duration::from_secs(1800)));</code></pre>
+<p><code>Ok(Some(summary))</code> is kept (at most 200 characters). An error whose chain
+holds a <a href="queues.html#failures"><code>queue::Failure</code></a> keeps its message; any other
+error is kept as “failed (see the logs)”. <code>schedules.view</code> holders see
+both: never put secrets in them. <code>ctx</code> has <code>state</code>, <code>run_id</code> (stable, a key
+for your own idempotency), <code>trigger</code> (<code>Schedule</code> or <code>Manual</code>) and
+<code>initiated_by</code>. Moving from <code>.run</code>: <code>|state|</code> becomes <code>|ctx|</code>
+(<code>ctx.state</code>), <code>Ok(())</code> becomes <code>Ok(None)</code>.</p>
+</li>
+<li>
+<p><strong><code>.timeout(d)</code></strong> bounds a <code>.run</code> or <code>.task</code> (default 1 hour, at most a
+day): a longer run is stopped and recorded as failed.</p>
+</li>
+<li>
+<p><strong>Once per slot, whatever the number of instances.</strong> Each slot is claimed in
 the database, in the same transaction as its job, so there is at most one
 job per slot (no Redis needed). Jobs are still at-least-once: make them
-idempotent.</li>
+idempotent.</p>
+</li>
 </ul>
 <h2 id="overlapping-runs"><a class="header" href="#overlapping-runs">Overlapping runs</a></h2>
 <ul>
@@ -235,7 +259,8 @@ lock, so a dead worker’s job is retried, then the schedule resumes.</li>
 <li>A <code>.run</code> schedule never overlaps itself on one instance (slots are
 skipped). On several instances two long runs can overlap: use <code>.job</code> +
 <code>.without_overlapping()</code> instead.</li>
-<li>Manual runs (<code>schedule:run</code>) and <code>queue:retry</code> are not held back.</li>
+<li>Manual runs from the console (<code>schedule:run</code>) and <code>queue:retry</code> are not
+held back. The panel’s Run now is (see below).</li>
 </ul>
 <pre><code class="language-rust ignore">/// Converges containers to the declared state: safe to repeat.
 #[derive(Serialize, Deserialize)]
@@ -266,7 +291,49 @@ fast can start a slot that much early; it never runs a slot twice.</li>
 rustcms schedule:run reconcile   # run it now: a job is enqueued, a run runs in the command
 </code></pre>
 <p>A manual run is not a slot: there is no claim, no grace and no
-<code>without_overlapping</code>, and <code>enabled</code> is ignored.</p>
+<code>without_overlapping</code>, and <code>enabled</code> is ignored. It is recorded as a manual
+run.</p>
+<h2 id="the-schedules-page"><a class="header" href="#the-schedules-page">The Schedules page</a></h2>
+<p><strong>System → Schedules</strong> lists every schedule to users with <code>schedules.view</code>:
+its rule, what it does (a job kind or a task), its next run, and its last
+run (status, when, how long, a task’s summary or error). Clicking a name
+opens its recent runs. It refreshes like the <a href="queues.html#the-queue-page">Queue page</a>.</p>
+<p>Each run is recorded in <code>schedule_runs</code> (kept
+<code>[schedule] history_retention_days</code>, 7 by default; pruned by the scheduler and
+by queue workers):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Status</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td>dispatched</td><td>a job schedule’s job (or Run now’s) is waiting or running</td></tr>
+<tr><td>running</td><td>a closure is running in <code>serve</code></td></tr>
+<tr><td>succeeded, failed</td><td>it ended; a job schedule’s outcome is written by its job’s own transition</td></tr>
+<tr><td>skipped</td><td><code>without_overlapping</code> held the slot back</td></tr>
+<tr><td>cancelled</td><td>its job was cancelled on the Queue page</td></tr>
+<tr><td>unknown</td><td>its end was not recorded (a shutdown, a crash: a <code>running</code> run older than its timeout plus an hour shows so)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Run now</strong> (users who also hold <code>schedules.manage</code>) runs a schedule once, as
+a manual run, after a confirmation; it is recorded in the audit log
+(<code>schedule.run</code>). It goes through the queue, so a worker must run somewhere:</p>
+<ul>
+<li>a job schedule enqueues its job on behalf of the user; with
+<code>without_overlapping</code> it is refused (409) while the previous job is
+pending or running;</li>
+<li>a <code>.run</code> or <code>.task</code> schedule enqueues the framework’s job
+<code>rustcms.schedule.run</code>, which runs the closure once in a worker: never
+retried, and a run stopped by a shutdown or a crash is recorded as failed,
+not run again. It is refused (409) while another run of the schedule is
+unfinished: a Run now whose job is still waiting or running, or a
+scheduled run younger than its timeout plus the grace. While a Run now’s
+job is unfinished, the schedule’s own slots are skipped (<code>skipped</code>). Two
+scheduled runs of adjacent slots may still overlap each other, as before.</li>
+</ul>
+<p>The next scheduled run is unchanged. Both permissions are declared by the
+admin panel (group <code>schedules</code>).</p>
 <p>The framework’s own cleanups (media, exports, idempotency keys) still run as
 provider loops; they will move to schedules later.</p>
 
