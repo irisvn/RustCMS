@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-a2ad49ff.js";
+            window.path_to_searchindex_js = "searchindex-31d0f577.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,9 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-081-to-082"><a class="header" href="#from-081-to-082">From 0.8.1 to 0.8.2</a></h2>
+<p>Nothing needs to change (no rebuild of React pages either). A workaround that
+hid <code>session_changed</code> from reads may stay or go.</p>
 <h2 id="from-080-to-081"><a class="header" href="#from-080-to-081">From 0.8.0 to 0.8.1</a></h2>
 <p>Nothing needs to change. To survive automatic rollbacks, keep migrations
 additive and start the image with <code>migrate --allow-newer</code>. Deploy that image

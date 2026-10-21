@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-a2ad49ff.js";
+            window.path_to_searchindex_js = "searchindex-31d0f577.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,16 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.8.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.8.2</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="082"><a class="header" href="#082">0.8.2</a></h2>
+<ul>
+<li>React pages: a read still in flight when a sub-path navigation remounts
+the view is delivered to the new view instead of a “session changed”
+error (<a href="admin/react-pages.html">React pages</a>).</li>
+<li>Security: updated TLS certificate verification crates (<code>rustls-webpki</code>,
+<code>webpki-roots</code>) for RUSTSEC-2026-0381, -0382 and -0383.</li>
+</ul>
 <h2 id="081"><a class="header" href="#081">0.8.1</a></h2>
 <ul>
 <li><strong>Rollbacks after migrations</strong>: <code>migrate --allow-newer</code> (or

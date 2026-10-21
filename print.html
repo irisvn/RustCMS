@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-a2ad49ff.js";
+            window.path_to_searchindex_js = "searchindex-31d0f577.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,16 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.8.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.8.2</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="082"><a class="header" href="#082">0.8.2</a></h2>
+<ul>
+<li>React pages: a read still in flight when a sub-path navigation remounts
+the view is delivered to the new view instead of a “session changed”
+error (<a href="#react-pages">React pages</a>).</li>
+<li>Security: updated TLS certificate verification crates (<code>rustls-webpki</code>,
+<code>webpki-roots</code>) for RUSTSEC-2026-0381, -0382 and -0383.</li>
+</ul>
 <h2 id="081"><a class="header" href="#081">0.8.1</a></h2>
 <ul>
 <li><strong>Rollbacks after migrations</strong>: <code>migrate --allow-newer</code> (or
@@ -538,6 +546,9 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-081-to-082"><a class="header" href="#from-081-to-082">From 0.8.1 to 0.8.2</a></h2>
+<p>Nothing needs to change (no rebuild of React pages either). A workaround that
+hid <code>session_changed</code> from reads may stay or go.</p>
 <h2 id="from-080-to-081"><a class="header" href="#from-080-to-081">From 0.8.0 to 0.8.1</a></h2>
 <p>Nothing needs to change. To survive automatic rollbacks, keep migrations
 additive and start the image with <code>migrate --allow-newer</code>. Deploy that image
@@ -804,7 +815,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.8.1 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.8.2 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -815,7 +826,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.1" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.2" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1174,7 +1185,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.1", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.2", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -3902,7 +3913,11 @@ nothing: the theme’s variables follow it. It reads the panel’s
 <p>When the session changes (sign-in, sign-out, another tab), the view is
 mounted again for the new session; calls and callbacks of the old one do
 nothing (a call rejects with <code>ApiError</code> code <code>session_changed</code>). A refused
-CSRF token also ends the session state, so that call rejects the same way.</p>
+CSRF token also ends the session state, so that call rejects the same way.
+A <strong>read</strong> (<code>api.get</code>, <code>resources.list</code>/<code>get</code>) answered after its view was
+mounted again in the same session (a sub-path navigation) is delivered: its
+query cache entry, shared with the new view, gets the data instead of an
+error. Writes answered late still reject.</p>
 <h2 id="records-of-your-resources"><a class="header" href="#records-of-your-resources">Records of your resources</a></h2>
 <p>With <code>ui: 2</code> in <code>Requires</code>, <code>props.resources</code> reads and writes the records of
 your <a href="#resources">resources</a> through the panel’s own routes, so their
