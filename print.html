@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-25502553.js";
+            window.path_to_searchindex_js = "searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,30 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.10.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.10.1</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="0101"><a class="header" href="#0101">0.10.1</a></h2>
+<ul>
+<li><strong>Media page</strong>: a grid of thumbnails or the table (remembered per user)
+and an upload button for several files (<a href="#the-media-page">The Media page</a>);
+files can be renamed and given an alternative text, which the editor and
+the picker pre-fill (<a href="#names-and-alternative-text">Names and alternative text</a>).</li>
+<li><strong>Media settings</strong>: <code>SettingField::media</code> and <code>media_list</code>
+(<a href="#media-settings">Media settings</a>).</li>
+<li><strong>Actions per record</strong>: <code>Action::visible_when</code>, <code>primary</code> and
+<code>destructive</code>; list rows show one labelled action and a ⋯ menu, and record
+pages and relation tables show their actions too
+(<a href="#per-record-visibility">Per-record visibility</a>).</li>
+<li><strong>Action outcomes</strong>: <code>Action::with_outcome</code> returns a message and a page
+to open in a new tab (<a href="#outcomes-a-message-a-page-to-open">Outcomes</a>).</li>
+<li><strong>Narrow screens</strong>: <code>TableColumn::hide_below(Breakpoint::Md)</code>
+(<a href="#narrow-screens">Narrow screens</a>).</li>
+<li>Fixes: bulk actions are offered on rows too; action dialogs are titled
+without “…” and their button is the action’s label (<code>submit_label</code>);
+record pages format dates and times; the recent-records widget shows
+labels and dates; files that cannot be loaded show “File unavailable”;
+empty values read “Not set”; navigation keeps the registration order.</li>
+</ul>
 <h2 id="0100"><a class="header" href="#0100">0.10.0</a></h2>
 <ul>
 <li><strong>Rich text version 2</strong>: tables, YouTube/Vimeo embeds, callouts, image
@@ -583,6 +605,38 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-0100-to-0101"><a class="header" href="#from-0100-to-0101">From 0.10.0 to 0.10.1</a></h2>
+<ul>
+<li><strong>Run <code>rustcms migrate</code></strong> (<code>m20261201_000022_add_alt_to_media</code>, a nullable
+column): <code>serve</code> does not wait for it, and media queries fail until it
+has run. 0.10.0 binaries read the migrated database: to roll back, run
+them with <code>migrate --allow-newer</code> (or <code>[database] allow_newer_migrations</code>);
+leave the column in place (<code>migrate:rollback</code> would undo the application’s
+own latest migrations first).</li>
+<li><strong><code>media.update</code> now grants something</strong>: renaming one’s own files and
+editing their alternative text (before, updates were always refused); with
+<code>media.manage_all</code>, everyone’s files. Review roles that hold <code>media.*</code> as a
+whole.</li>
+<li>The navigation and the dashboard’s resource cards follow registration
+order, not slugs: use <code>ResourceMeta::sort</code> to keep an order.</li>
+<li>Every <code>.bulk()</code> action is also offered on rows where the record’s
+abilities allow it; an action offered only for a selection is not
+supported (<code>visible_when</code> also applies when the action runs, so hiding
+it on every row would leave a bulk run nothing to process).</li>
+<li>Action dialogs no longer say “Run”: their button is the action’s label
+without “…” (or <code>submit_label</code>); empty values read “Not set”. Update
+end-to-end selectors.</li>
+<li>Vocabulary 10: <code>ActionSchema.primary</code> and <code>submitLabel</code>,
+<code>ColumnSchema.hideBelow</code>; per-record <code>abilities</code> include <code>visible_when</code>.
+An older admin SPA shows the banner and every offered action as a button;
+extensions that check the vocabulary version should accept 10.</li>
+<li>Struct literals: <code>ActionOutcome</code> has <code>message</code> and <code>open</code> (add
+<code>..Default::default()</code>); <code>media::entity::Model</code> / <code>ActiveModel</code> have <code>alt</code>.
+Clients that build wire types by hand gain <code>MediaItem.alt</code>,
+<code>RecentColumn.valueType</code>, <code>options</code> and <code>column</code>, and <code>RecentRecord.data</code>.</li>
+<li><code>Action::new</code> is unchanged; handlers that return an outcome use
+<code>Action::with_outcome</code>.</li>
+</ul>
 <h2 id="from-090-to-0100"><a class="header" href="#from-090-to-0100">From 0.9.0 to 0.10.0</a></h2>
 <ul>
 <li>Rich text documents have a version 2 (tables, embeds, callouts, image
@@ -894,7 +948,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.10.0 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.10.1 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -905,7 +959,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.0" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.1" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1264,7 +1318,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.0", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.1", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -2512,8 +2566,10 @@ allow, and their own Account page.</p>
 <code>shopping-cart</code>, <code>tag</code>, <code>terminal</code>, <code>users</code>, <code>workflow</code>. Others show a
 generic icon.</p>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
-<p>By default, resources come by slug, then <a href="#custom-pages">custom pages</a>
-in registration order, resources first in a group. <code>.sort(n)</code> on
+<p>By default, resources come in registration order (<code>.media()</code> where it is
+called), then <a href="#custom-pages">custom pages</a> in registration
+order, resources first in a group. The dashboard’s resource cards follow
+the same order. <code>.sort(n)</code> on
 <code>ResourceMeta</code> or <code>PanelPageMeta</code> (default 0) changes it:</p>
 <ul>
 <li>entries are ordered by <code>sort</code>, then by that default order;</li>
@@ -2607,7 +2663,7 @@ AdminProvider::new().dashboard(
 <tbody>
 <tr><td><code>Widget::stat(name, resource)</code></td><td>how many records the user may list; with <code>compare_last_days(days, date)</code>, those whose <code>date</code> is in the last <code>days</code>, against the <code>days</code> before</td></tr>
 <tr><td><code>Widget::chart(name, resource, date)</code></td><td>records per <code>Bucket::Day</code>, <code>Week</code> (ISO, from Monday) or <code>Month</code>, the <code>last(n)</code> buckets (1–60), UTC</td></tr>
-<tr><td><code>Widget::recent(name, resource)</code></td><td>the first <code>limit</code> (1–20) records of the list in <code>sort</code> order, with <code>columns</code></td></tr>
+<tr><td><code>Widget::recent(name, resource)</code></td><td>the first <code>limit</code> (1–20) records of the list in <code>sort</code> order, with <code>columns</code>, shown as the resource shows them (option labels, the table column’s custom cell or badge, dates in the user’s language, related records by title)</td></tr>
 </tbody>
 </table>
 </div>
@@ -2868,7 +2924,7 @@ write are left out or disabled, and the server checks everything again.</p>
 <tr><td><code>SelectInput</code></td><td>static <code>.options([(value, label)])</code>, or the records of a <code>belongs_to</code> field</td></tr>
 <tr><td><code>Toggle</code>, <code>Checkbox</code></td><td>booleans (three states when nullable)</td></tr>
 <tr><td><code>CheckboxList</code></td><td>a JSON list of option values</td></tr>
-<tr><td><code>DatePicker</code>, <code>DateTimePicker</code></td><td>dates, local date-times and instants (edited in UTC)</td></tr>
+<tr><td><code>DatePicker</code>, <code>DateTimePicker</code></td><td>dates, local date-times and instants (edited in UTC; shown on the record’s page in the user’s language, instants in their time zone, which is named)</td></tr>
 <tr><td><code>Hidden</code></td><td>a value the user does not edit</td></tr>
 <tr><td><code>KeyValue</code></td><td>a JSON object of text values (<a href="#key-value">below</a>)</td></tr>
 <tr><td><code>FileUpload</code>, <code>RichEditor</code></td><td><a href="#media-uploads--rich-text">media and rich text</a></td></tr>
@@ -3032,6 +3088,17 @@ start.</p>
 </table>
 </div>
 <p>Columns and filters for fields the user may not read are left out.</p>
+<h2 id="narrow-screens"><a class="header" href="#narrow-screens">Narrow screens</a></h2>
+<pre><code class="language-rust ignore">use rustcms::admin::Breakpoint;
+
+TextColumn::make("category_id").hide_below(Breakpoint::Sm),   // hidden under 640 px
+DateColumn::make("published_at").hide_below(Breakpoint::Md),  // hidden under 768 px
+TextColumn::make("notes").hide_below(Breakpoint::Lg),         // hidden under 1024 px</code></pre>
+<p><code>hide_below(Breakpoint::Sm | Md | Lg)</code> drops a column from tables (lists
+and relation tables) on narrower screens, with static CSS classes of the
+panel’s build (no inline style): the records still carry the value, and it
+is shown on the record’s page. The Media page hides its type, size and date
+columns this way.</p>
 <h2 id="search-and-sorting"><a class="header" href="#search-and-sorting">Search and sorting</a></h2>
 <p>Search covers the <code>.searchable()</code> fields (case-insensitive; on SQLite only for
 ASCII). Columns of <code>.sortable()</code> fields can be sorted; <code>default_sort("-field")</code>
@@ -3041,8 +3108,8 @@ sorts descending. Search, sort, filters and the page are kept in the URL.</p>
 rows are selected.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="actions"><a class="header" href="#actions">Actions</a></h1>
-<p>Actions run on one record (row actions) or on the selected records (bulk
-actions), with the same authorization as any write.</p>
+<p>Actions run on one record (row actions) or, when <code>.bulk()</code>, also on the
+selected records, with the same authorization as any write.</p>
 <pre><code class="language-rust ignore">fn actions() -&gt; Vec&lt;Action&lt;post::Entity&gt;&gt; {
     vec![Action::&lt;post::Entity&gt;::new("publish", |_ctx, txn, posts, _data| {
         Box::pin(async move {
@@ -3064,6 +3131,81 @@ ability (default: its name, or <code>.ability("update")</code>); denied records 
 reported, not processed, and envelopes tell the client per record. Add
 <code>.requires_permission("posts.publish")</code> to refuse the action outright (403, and
 hidden from the schema) for users without that permission.</p>
+<h2 id="per-record-visibility"><a class="header" href="#per-record-visibility">Per-record visibility</a></h2>
+<pre><code class="language-rust ignore">Action::&lt;post::Entity&gt;::new("unpublish", unpublish)
+    .ability("update")
+    .visible_when(|_ctx, post| post.published)</code></pre>
+<p><code>visible_when(|ctx, record| …)</code> decides on the server, for each record as
+stored and for the user of <code>ctx</code>, whether the action is offered there. List
+and record answers carry the decision in each envelope’s <code>abilities</code>
+(<code>"unpublish": false</code> on drafts), together with the policy’s; the client
+never decides. Running the action decides again, on each record locked in
+the action’s transaction:</p>
+<ul>
+<li>a run on <strong>one</strong> record the action is hidden on is refused with <strong>403</strong>,
+and nothing runs;</li>
+<li>a run on <strong>several</strong> records (a selection) <strong>skips</strong> the records it is
+hidden on: they are reported in <code>denied</code>, like policy refusals, and never
+reach the handler, which runs on the others.</li>
+</ul>
+<h2 id="outcomes-a-message-a-page-to-open"><a class="header" href="#outcomes-a-message-a-page-to-open">Outcomes: a message, a page to open</a></h2>
+<p><code>Action::new</code> handlers return <code>()</code>. Declare the action with
+<code>Action::with_outcome</code> when its handler should tell the panel what to do
+next; it returns an <code>ActionOutcome</code>:</p>
+<pre><code class="language-rust ignore">Action::&lt;invoice::Entity&gt;::with_outcome("pdf", |_ctx, _txn, invoices, _data| {
+    Box::pin(async move {
+        let url = format!("https://files.example.com/invoices/{}.pdf", invoices[0].id);
+        Ok(ActionOutcome::open(url).with_message("The PDF opens in a new tab."))
+    })
+})</code></pre>
+<ul>
+<li><code>ActionOutcome::message(text)</code> / <code>.with_message(text)</code>: shown to the user
+with the action’s summary (plain text, at most 500 characters).</li>
+<li><code>ActionOutcome::open(url)</code> / <code>.with_open(url)</code>: once the action has
+committed, the panel opens the page in a new tab with <code>noopener</code> and
+<code>noreferrer</code>, and shows a link to it as well (a browser may block a tab
+opened after the request). Accepted: <code>https://</code> URLs without credentials
+(a DNS name, an IPv4 or a bracketed IPv6 address; a port of 1–65535),
+and absolute paths of this site (<code>/admin/…</code>, <code>/blog/…</code>; never <code>//…</code>, <code>..</code>,
+backslashes or whitespace), at most 2,048 bytes. Anything else
+(<code>http:</code>, <code>javascript:</code>, <code>data:</code>) fails the action with a server error and
+rolls it back. A page is opened only for a run on <strong>one</strong> record: a run
+on several records whose handler returns one is refused (422, rolled
+back). That is decided once the handler has returned, from the keys the
+request named (a request naming two records, one of them hidden, reaches
+the handler with one record and is still refused): its database writes
+roll back, not what it did elsewhere. Do work outside the database in a
+<a href="#queues">job</a> dispatched in the action’s
+transaction, so a refused run never does it.
+The panel checks the URL again before opening it.</li>
+</ul>
+<p>The keys (<code>processed</code>, <code>denied</code>, <code>missing</code>) are the framework’s: whatever
+the handler sets there is ignored. The outcome is part of the idempotency
+receipt, so a retried request answers with the same message and page, but
+only to a user who may still view every record it processed: otherwise (the
+action or someone else hid a record meanwhile) the message and page are
+left out of the answer, first or replayed. Receipts are kept for 24 hours:
+never put a secret in <code>open</code> (a presigned or bearer URL is stored and
+answered again as it was, possibly expired); link to a page of the app that
+checks the user instead.</p>
+<h2 id="placement-in-lists"><a class="header" href="#placement-in-lists">Placement in lists</a></h2>
+<p>A list row shows at most one row action with its label: the first action
+marked <code>.primary()</code> that the row offers. The other row actions are in the
+row’s <strong>⋯</strong> menu, in declaration order; destructive ones (<code>.destructive()</code>,
+which is the color <code>danger</code>) come last, after a separator. Several actions
+may be primary when <code>visible_when</code> makes them exclusive (<code>publish</code> on
+drafts, <code>unpublish</code> on published posts). A <code>.bulk()</code> action is a row action
+too (bulk means <em>also</em> offered for selections, in the bar above the table),
+on the rows the server offers it. View, Edit, Delete and Restore keep their
+buttons.</p>
+<p>A record’s page shows its actions the same way (the first primary one it
+offers labelled, the others under ⋯), and so do the rows of relation tables
+on a parent’s page, with the related resource’s actions: the server’s
+abilities for each record decide, and running one is authorized as from the
+list.</p>
+<pre><code class="language-rust ignore">Action::&lt;post::Entity&gt;::new("publish", publish).visible_when(|_ctx, p| !p.published).primary(),
+Action::&lt;post::Entity&gt;::new("unpublish", unpublish).visible_when(|_ctx, p| p.published).primary(),
+Action::&lt;post::Entity&gt;::new("purge_cache", purge).destructive(),</code></pre>
 <h2 id="actions-with-a-form"><a class="header" href="#actions-with-a-form">Actions with a form</a></h2>
 <p>An action can ask for values first, in a dialog:</p>
 <pre><code class="language-rust ignore">Action::&lt;post::Entity&gt;::new("move", |_ctx, txn, posts, data| {
@@ -3114,6 +3256,9 @@ however it was written.</li>
 may view (422 otherwise). A replay of an action that already ran reports
 that run, even if the record has gone since.</li>
 </ol>
+<p>The dialog is titled with the action’s label without a trailing ellipsis
+(<code>Move to category</code>), and its button runs the action with
+<code>.submit_label("Move")</code>, by default that same label.</p>
 <p>An action without a form refuses any <code>data</code> (422). A handler may return
 <code>ValidationErrors</code> (on a form field, or for the whole form): the action is
 rolled back and the dialog shows them. The dialog’s relationship inputs read
@@ -3522,13 +3667,13 @@ rich text fields hold documents that may embed images from it.</p>
 <pre><code class="language-rust ignore">app.provider(rustcms::storage::StorageProvider);          // `[storage]`
 app.provider(AdminProvider::new().media().resource::&lt;PostResource&gt;());</code></pre>
 <p><code>media()</code> adds the <strong>Media</strong> resource (permissions <code>media.view_any</code>, <code>media.view</code>,
-<code>media.create</code>, <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>,
+<code>media.create</code>, <code>media.update</code>, <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>,
 <code>media.view_all</code>, <code>media.manage_all</code>), the upload route and <code>media:prune</code>.</p>
 <h2 id="whose-files-a-user-sees"><a class="header" href="#whose-files-a-user-sees">Whose files a user sees</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Permission</th><th>Sees and references</th><th>Trashes, restores, deletes (with <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>)</th></tr>
+<tr><th>Permission</th><th>Sees and references</th><th>Renames, edits the alt text (with <code>media.update</code>); trashes, restores, deletes (with <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>)</th></tr>
 </thead>
 <tbody>
 <tr><td>neither</td><td>own uploads</td><td>own uploads</td></tr>
@@ -3557,11 +3702,36 @@ for them takes precedence.</p>
 <li>The type is detected from the content (magic bytes), never from the name or
 the declared type. SVG, HTML, XML and scripts are never accepted.</li>
 <li>Images must be readable (dimensions within <code>max_pixels</code>).</li>
-<li>Answer: <code>201 {data: {id, name, mime, size, width?, height?, inline}}</code>. Storage
-paths are never sent.</li>
+<li>Answer: <code>201 {data: {id, name, mime, size, width?, height?, inline, alt?}}</code>.
+Storage paths are never sent.</li>
 <li>An upload is recorded before its file is stored and committed with its row; a
 crash in between is cleaned by <code>media:prune</code> (also run every minute by <code>serve</code>).</li>
 </ul>
+<h2 id="the-media-page"><a class="header" href="#the-media-page">The Media page</a></h2>
+<p>The Media resource is shown as a grid of thumbnails: each image is its
+download URL below (so the same authorization applies), scaled by the
+browser; other files show an icon. A toggle switches to the usual table;
+the choice is kept per user in the browser. Users with <code>media.create</code> get an
+<strong>Upload files</strong> button: several files go through the panel’s upload queue
+(at most 2 at a time, files over <code>max_upload_bytes</code> refused before sending,
+a 429 sent again after <code>Retry-After</code>), each pending one with its state and
+the server’s error, and a retry (when another try can succeed) that reuses
+the file’s idempotency key, so a file is never stored twice; the grid shows
+at most 24 thumbnails a page. The media schema reports this as the <code>upload</code> ability (<code>create</code>
+stays refused: files enter the library only by upload).</p>
+<h2 id="names-and-alternative-text"><a class="header" href="#names-and-alternative-text">Names and alternative text</a></h2>
+<p>A file’s record page shows the file and what was detected (type, size,
+dimensions). Its edit form changes exactly two fields, <code>name</code> (a rename:
+cleaned as uploaded names are, at most 255 characters, never empty) and
+<code>alt</code> (alternative text, at most 500 characters, <code>null</code> when empty). Every
+other column is set by the upload and refused on update. Editing needs
+<code>media.update</code> and, for another user’s file, <code>media.manage_all</code>
+(<code>MediaPolicy</code>, as for trashing). Downloads use the new name.</p>
+<p><code>alt</code> is part of the media record (<code>GET {admin}/api/resources/media/records/{id}</code>,
+field <code>alt</code>) and of upload answers (<code>alt</code>, when set), so an editor inserting
+an image can pre-fill its alternative text. The column comes with the
+framework migration <code>m20261201_000022_add_alt_to_media</code> (nullable; existing
+files have none).</p>
 <h2 id="downloads"><a class="header" href="#downloads">Downloads</a></h2>
 <p><code>GET {admin}/api/media/{id}/file</code> serves the bytes through the application (no
 presigned URLs) to users who may view the media record (scope: own uploads
@@ -3578,6 +3748,9 @@ FileUpload::make("cover"),</code></pre>
 must exist, not be trashed, be visible to the user (<code>media.view</code> and scope), and
 match <code>accept</code> / <code>max_size</code>; the rows are locked (shared) meanwhile. Media
 trashed later shows as unavailable in records that reference it.</p>
+<p>A referenced file the user cannot load (missing, trashed, or not visible
+to them) shows as a “File unavailable” chip, in file fields and in rich
+text alike.</p>
 <p>Media and rich text columns may not declare a default on the entity (any
 <code>default_value</code>, checked when the panel starts). A default written in a
 migration is stored without these checks: do not give these columns one.</p>
@@ -3753,6 +3926,23 @@ of interrupted uploads are removed by <code>media:prune</code> after an hour.</l
 <li>Downloads are rate limited per user (600 per minute). A library page in
 the picker loads up to 24 thumbnails.</li>
 </ul>
+<h2 id="when-a-referenced-file-is-trashed-or-deleted"><a class="header" href="#when-a-referenced-file-is-trashed-or-deleted">When a referenced file is trashed or deleted</a></h2>
+<p>References are never cascaded. Trashing or deleting a file for good leaves
+its id in the records (media fields, rich text) and settings
+(<code>SettingField::media</code>, <code>media_list</code>) that reference it:</p>
+<ul>
+<li>the file is no longer served (404), so the panel shows it as unavailable;
+restoring it from the trash brings it back everywhere;</li>
+<li>a write that <strong>sets</strong> a reference to it is refused (422 “refers to a file
+that is not available”), for resource fields and settings alike;</li>
+<li>a reference <strong>kept as it was</strong> is not checked again: a resource write
+checks the media values it sends (the panel sends only the fields that
+changed), a settings save the media values that differ from the stored
+ones. So an unrelated edit still saves; to drop the reference, clear or
+replace the file.</li>
+</ul>
+<p>Applications that render references themselves (<code>rich_text::to_html</code>, their
+own pages) should treat an id they cannot resolve the same way.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="custom-fields"><a class="header" href="#custom-fields">Custom fields</a></h1>
 <p>When none of the built-in inputs fits, an application can ship its own: a
@@ -5018,6 +5208,8 @@ in <code>config/</code> and <code>.env</code>.</p>
 <tr><td><code>key_value(name)</code></td><td><code>BTreeMap&lt;String, String&gt;</code></td><td>key/value rows (<code>.max_items(n)</code>, <code>.max_length(n)</code> per value)</td></tr>
 <tr><td><code>date(name)</code></td><td><code>chrono::NaiveDate</code> (<code>Option</code> with <code>.nullable()</code>)</td><td>date picker</td></tr>
 <tr><td><code>secret(name)</code></td><td><code>Secret</code></td><td><a href="#secrets">see below</a></td></tr>
+<tr><td><code>media(name)</code></td><td><code>Option&lt;uuid::Uuid&gt;</code> (always nullable)</td><td><a href="#media-fields">media input</a>: pick or upload one file</td></tr>
+<tr><td><code>media_list(name, max)</code></td><td><code>Vec&lt;uuid::Uuid&gt;</code></td><td>up to <code>max</code> files, in order</td></tr>
 </tbody>
 </table>
 </div>
@@ -5036,6 +5228,24 @@ whose default is set, a select without options, a form input that is not a
 field or offers other values than its field, or a group registered twice.</p>
 <p>For larger numbers or decimals, store them as text and parse them where you
 read them.</p>
+<h3 id="media-settings"><a class="header" href="#media-settings">Media settings</a></h3>
+<pre><code class="language-rust ignore">SettingField::media("logo").accept(&amp;["image/*"]).max_size(500_000),   // logo: Option&lt;Uuid&gt;
+SettingField::media_list("slides", 5),                                 // slides: Vec&lt;Uuid&gt;</code></pre>
+<p>They hold ids of files of the <a href="#media-uploads--rich-text">media library</a> (it must be enabled
+with <code>AdminProvider::media()</code>; boot fails otherwise), edited with the same
+media input as resource fields (<code>FileUpload</code>): upload a file or pick one
+from the library, remove or reorder them; the page is not saved while an
+upload is on its way. Each file
+a save <strong>changes</strong> to is checked like a resource’s media field, inside the
+save and as the user is then: it exists, is not trashed, is visible to the
+user (<code>media.view_any</code> and <code>media.view</code>; their own uploads, or every file
+with <code>media.view_all</code> or <code>media.manage_all</code>), and matches <code>.accept(…)</code> and <code>.max_size(…)</code>; a list
+holds at most <code>max</code> distinct ids. The referenced rows are locked (shared)
+until the save commits. A reference kept as it was is not checked again,
+in a list too (reordering or removing files checks only those added; a
+file trashed later stays referenced until it is removed; see
+<a href="#when-a-referenced-file-is-trashed-or-deleted">when a referenced file is trashed or deleted</a>).
+Their default must be empty (<code>None</code>, <code>vec![]</code>).</p>
 <h3 id="layout-and-checks"><a class="header" href="#layout-and-checks">Layout and checks</a></h3>
 <p><code>form()</code> arranges the inputs with the usual <a href="#forms">form layouts</a>
 (sections, grids, tabs); each input names a field, and may change its label,
@@ -7167,8 +7377,8 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><td>DELETE</td><td><code>/resources/{slug}/records/{key}/force</code></td><td>204 (soft deletes; trashed records only)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}?…</code></td><td><code>{data: [Envelope], meta, pivot?}</code> of the target (list query string; <code>pivot</code>: readable belongs-to-many pivot columns by target key)</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records/{key}/relations/{relation}</code></td><td>201 <code>{data: Envelope}</code> of the target, foreign key set by the server</td></tr>
-<tr><td>POST</td><td><code>/resources/{slug}/actions/{action}</code> <code>{keys, data?}</code></td><td><code>{processed, denied, missing}</code></td></tr>
-<tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (media library enabled)</td></tr>
+<tr><td>POST</td><td><code>/resources/{slug}/actions/{action}</code> <code>{keys, data?}</code></td><td><code>{processed, denied, missing, replayed?, message?, open?}</code>: a run on one record hidden by <code>visible_when</code> is 403 (nothing runs), hidden records of a run on several are <code>denied</code>; <code>open</code> only on a run on one record (422 <code>one_record_only</code> otherwise)</td></tr>
+<tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (with <code>alt</code>, its alternative text; media library enabled; the media schema’s <code>upload</code> ability says whether the user may)</td></tr>
 <tr><td>GET</td><td><code>/media/{id}/file</code></td><td>the file (authorized, safe headers)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/fields/{field}/options?search=&amp;keys=a,b&amp;record=</code></td><td><code>{data: [{value, label}]}</code> (≤ 50)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}/options?search=&amp;keys=</code></td><td><code>{data: [{value, label, attached}]}</code>: records to attach to a record (<code>attach_{relation}</code> on it)</td></tr>
@@ -7223,7 +7433,7 @@ the policy allows <code>view</code> and <code>restore</code> or <code>force_dele
 <ul>
 <li><code>data</code> holds readable fields only, and is empty (no <code>title</code>, no <code>labels</code>) when
 the user may not view the record, e.g. the result of an update-only write.</li>
-<li><code>abilities</code> also holds one entry per action (<code>"publish": true</code>).</li>
+<li><code>abilities</code> also holds one entry per action (<code>"publish": true</code>), decided by the policy and the action’s <code>visible_when</code> on that record.</li>
 <li><code>labels</code> holds titles of related records. A related record the user may not
 see is shown as <code>#&lt;key&gt;</code>.</li>
 <li><code>trashed: true</code> marks a record in the trash (soft deletes; absent otherwise).
@@ -7242,7 +7452,8 @@ first result, not applied again: a create answers its record as the user may
 see it <strong>now</strong> (key only when no longer visible); an action answers the first
 run’s outcome with <code>"replayed": true</code>. Admission is checked again (403 if the
 user lost the ability). Action outcomes, first or replayed, list processed
-and denied keys only for records the user may view now;</li>
+and denied keys only for records the user may view now, and drop <code>message</code>
+and <code>open</code> unless the user may still view every processed record;</li>
 <li>different request → 422 on <code>idempotency_key</code>;</li>
 <li>the first request still running → the retry waits (up to 5 s), then answers
 409 <code>write_conflict</code> (nothing applied; retry later).</li>
@@ -7343,6 +7554,7 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>unknown_operator</code></td><td>unknown operator <code>{op}</code></td></tr>
 <tr><td><code>search_too_broad</code></td><td><code>matches too many records to check; refine the search</code></td></tr>
 <tr><td><code>too_many_matches</code></td><td><code>Too many matching records to check individually; narrow the search or filters.</code></td></tr>
+<tr><td><code>one_record_only</code></td><td><code>Run this action on one record at a time.</code></td></tr>
 <tr><td><code>too_many_to_export</code></td><td><code>More than {max} records to export; narrow the search or filters.</code></td></tr>
 <tr><td><code>too_large_to_export</code></td><td><code>Too large to export at once; export in the background.</code></td></tr>
 <tr><td><code>invalid_parent</code></td><td><code>invalid parent key</code></td></tr>

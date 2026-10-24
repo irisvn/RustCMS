@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-25502553.js";
+            window.path_to_searchindex_js = "searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,38 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-0100-to-0101"><a class="header" href="#from-0100-to-0101">From 0.10.0 to 0.10.1</a></h2>
+<ul>
+<li><strong>Run <code>rustcms migrate</code></strong> (<code>m20261201_000022_add_alt_to_media</code>, a nullable
+column): <code>serve</code> does not wait for it, and media queries fail until it
+has run. 0.10.0 binaries read the migrated database: to roll back, run
+them with <code>migrate --allow-newer</code> (or <code>[database] allow_newer_migrations</code>);
+leave the column in place (<code>migrate:rollback</code> would undo the application’s
+own latest migrations first).</li>
+<li><strong><code>media.update</code> now grants something</strong>: renaming one’s own files and
+editing their alternative text (before, updates were always refused); with
+<code>media.manage_all</code>, everyone’s files. Review roles that hold <code>media.*</code> as a
+whole.</li>
+<li>The navigation and the dashboard’s resource cards follow registration
+order, not slugs: use <code>ResourceMeta::sort</code> to keep an order.</li>
+<li>Every <code>.bulk()</code> action is also offered on rows where the record’s
+abilities allow it; an action offered only for a selection is not
+supported (<code>visible_when</code> also applies when the action runs, so hiding
+it on every row would leave a bulk run nothing to process).</li>
+<li>Action dialogs no longer say “Run”: their button is the action’s label
+without “…” (or <code>submit_label</code>); empty values read “Not set”. Update
+end-to-end selectors.</li>
+<li>Vocabulary 10: <code>ActionSchema.primary</code> and <code>submitLabel</code>,
+<code>ColumnSchema.hideBelow</code>; per-record <code>abilities</code> include <code>visible_when</code>.
+An older admin SPA shows the banner and every offered action as a button;
+extensions that check the vocabulary version should accept 10.</li>
+<li>Struct literals: <code>ActionOutcome</code> has <code>message</code> and <code>open</code> (add
+<code>..Default::default()</code>); <code>media::entity::Model</code> / <code>ActiveModel</code> have <code>alt</code>.
+Clients that build wire types by hand gain <code>MediaItem.alt</code>,
+<code>RecentColumn.valueType</code>, <code>options</code> and <code>column</code>, and <code>RecentRecord.data</code>.</li>
+<li><code>Action::new</code> is unchanged; handlers that return an outcome use
+<code>Action::with_outcome</code>.</li>
+</ul>
 <h2 id="from-090-to-0100"><a class="header" href="#from-090-to-0100">From 0.9.0 to 0.10.0</a></h2>
 <ul>
 <li>Rich text documents have a version 2 (tables, embeds, callouts, image

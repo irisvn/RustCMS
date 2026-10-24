@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-25502553.js";
+            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -219,7 +219,7 @@ AdminProvider::new().dashboard(
 <tbody>
 <tr><td><code>Widget::stat(name, resource)</code></td><td>how many records the user may list; with <code>compare_last_days(days, date)</code>, those whose <code>date</code> is in the last <code>days</code>, against the <code>days</code> before</td></tr>
 <tr><td><code>Widget::chart(name, resource, date)</code></td><td>records per <code>Bucket::Day</code>, <code>Week</code> (ISO, from Monday) or <code>Month</code>, the <code>last(n)</code> buckets (1–60), UTC</td></tr>
-<tr><td><code>Widget::recent(name, resource)</code></td><td>the first <code>limit</code> (1–20) records of the list in <code>sort</code> order, with <code>columns</code></td></tr>
+<tr><td><code>Widget::recent(name, resource)</code></td><td>the first <code>limit</code> (1–20) records of the list in <code>sort</code> order, with <code>columns</code>, shown as the resource shows them (option labels, the table column’s custom cell or badge, dates in the user’s language, related records by title)</td></tr>
 </tbody>
 </table>
 </div>

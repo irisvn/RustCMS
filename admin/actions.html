@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-25502553.js";
+            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -181,8 +181,8 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="actions"><a class="header" href="#actions">Actions</a></h1>
-<p>Actions run on one record (row actions) or on the selected records (bulk
-actions), with the same authorization as any write.</p>
+<p>Actions run on one record (row actions) or, when <code>.bulk()</code>, also on the
+selected records, with the same authorization as any write.</p>
 <pre><code class="language-rust ignore">fn actions() -&gt; Vec&lt;Action&lt;post::Entity&gt;&gt; {
     vec![Action::&lt;post::Entity&gt;::new("publish", |_ctx, txn, posts, _data| {
         Box::pin(async move {
@@ -204,6 +204,81 @@ ability (default: its name, or <code>.ability("update")</code>); denied records 
 reported, not processed, and envelopes tell the client per record. Add
 <code>.requires_permission("posts.publish")</code> to refuse the action outright (403, and
 hidden from the schema) for users without that permission.</p>
+<h2 id="per-record-visibility"><a class="header" href="#per-record-visibility">Per-record visibility</a></h2>
+<pre><code class="language-rust ignore">Action::&lt;post::Entity&gt;::new("unpublish", unpublish)
+    .ability("update")
+    .visible_when(|_ctx, post| post.published)</code></pre>
+<p><code>visible_when(|ctx, record| …)</code> decides on the server, for each record as
+stored and for the user of <code>ctx</code>, whether the action is offered there. List
+and record answers carry the decision in each envelope’s <code>abilities</code>
+(<code>"unpublish": false</code> on drafts), together with the policy’s; the client
+never decides. Running the action decides again, on each record locked in
+the action’s transaction:</p>
+<ul>
+<li>a run on <strong>one</strong> record the action is hidden on is refused with <strong>403</strong>,
+and nothing runs;</li>
+<li>a run on <strong>several</strong> records (a selection) <strong>skips</strong> the records it is
+hidden on: they are reported in <code>denied</code>, like policy refusals, and never
+reach the handler, which runs on the others.</li>
+</ul>
+<h2 id="outcomes-a-message-a-page-to-open"><a class="header" href="#outcomes-a-message-a-page-to-open">Outcomes: a message, a page to open</a></h2>
+<p><code>Action::new</code> handlers return <code>()</code>. Declare the action with
+<code>Action::with_outcome</code> when its handler should tell the panel what to do
+next; it returns an <code>ActionOutcome</code>:</p>
+<pre><code class="language-rust ignore">Action::&lt;invoice::Entity&gt;::with_outcome("pdf", |_ctx, _txn, invoices, _data| {
+    Box::pin(async move {
+        let url = format!("https://files.example.com/invoices/{}.pdf", invoices[0].id);
+        Ok(ActionOutcome::open(url).with_message("The PDF opens in a new tab."))
+    })
+})</code></pre>
+<ul>
+<li><code>ActionOutcome::message(text)</code> / <code>.with_message(text)</code>: shown to the user
+with the action’s summary (plain text, at most 500 characters).</li>
+<li><code>ActionOutcome::open(url)</code> / <code>.with_open(url)</code>: once the action has
+committed, the panel opens the page in a new tab with <code>noopener</code> and
+<code>noreferrer</code>, and shows a link to it as well (a browser may block a tab
+opened after the request). Accepted: <code>https://</code> URLs without credentials
+(a DNS name, an IPv4 or a bracketed IPv6 address; a port of 1–65535),
+and absolute paths of this site (<code>/admin/…</code>, <code>/blog/…</code>; never <code>//…</code>, <code>..</code>,
+backslashes or whitespace), at most 2,048 bytes. Anything else
+(<code>http:</code>, <code>javascript:</code>, <code>data:</code>) fails the action with a server error and
+rolls it back. A page is opened only for a run on <strong>one</strong> record: a run
+on several records whose handler returns one is refused (422, rolled
+back). That is decided once the handler has returned, from the keys the
+request named (a request naming two records, one of them hidden, reaches
+the handler with one record and is still refused): its database writes
+roll back, not what it did elsewhere. Do work outside the database in a
+<a href="../digging-deeper/queues.html">job</a> dispatched in the action’s
+transaction, so a refused run never does it.
+The panel checks the URL again before opening it.</li>
+</ul>
+<p>The keys (<code>processed</code>, <code>denied</code>, <code>missing</code>) are the framework’s: whatever
+the handler sets there is ignored. The outcome is part of the idempotency
+receipt, so a retried request answers with the same message and page, but
+only to a user who may still view every record it processed: otherwise (the
+action or someone else hid a record meanwhile) the message and page are
+left out of the answer, first or replayed. Receipts are kept for 24 hours:
+never put a secret in <code>open</code> (a presigned or bearer URL is stored and
+answered again as it was, possibly expired); link to a page of the app that
+checks the user instead.</p>
+<h2 id="placement-in-lists"><a class="header" href="#placement-in-lists">Placement in lists</a></h2>
+<p>A list row shows at most one row action with its label: the first action
+marked <code>.primary()</code> that the row offers. The other row actions are in the
+row’s <strong>⋯</strong> menu, in declaration order; destructive ones (<code>.destructive()</code>,
+which is the color <code>danger</code>) come last, after a separator. Several actions
+may be primary when <code>visible_when</code> makes them exclusive (<code>publish</code> on
+drafts, <code>unpublish</code> on published posts). A <code>.bulk()</code> action is a row action
+too (bulk means <em>also</em> offered for selections, in the bar above the table),
+on the rows the server offers it. View, Edit, Delete and Restore keep their
+buttons.</p>
+<p>A record’s page shows its actions the same way (the first primary one it
+offers labelled, the others under ⋯), and so do the rows of relation tables
+on a parent’s page, with the related resource’s actions: the server’s
+abilities for each record decide, and running one is authorized as from the
+list.</p>
+<pre><code class="language-rust ignore">Action::&lt;post::Entity&gt;::new("publish", publish).visible_when(|_ctx, p| !p.published).primary(),
+Action::&lt;post::Entity&gt;::new("unpublish", unpublish).visible_when(|_ctx, p| p.published).primary(),
+Action::&lt;post::Entity&gt;::new("purge_cache", purge).destructive(),</code></pre>
 <h2 id="actions-with-a-form"><a class="header" href="#actions-with-a-form">Actions with a form</a></h2>
 <p>An action can ask for values first, in a dialog:</p>
 <pre><code class="language-rust ignore">Action::&lt;post::Entity&gt;::new("move", |_ctx, txn, posts, data| {
@@ -254,6 +329,9 @@ however it was written.</li>
 may view (422 otherwise). A replay of an action that already ran reports
 that run, even if the record has gone since.</li>
 </ol>
+<p>The dialog is titled with the action’s label without a trailing ellipsis
+(<code>Move to category</code>), and its button runs the action with
+<code>.submit_label("Move")</code>, by default that same label.</p>
 <p>An action without a form refuses any <code>data</code> (422). A handler may return
 <code>ValidationErrors</code> (on a form field, or for the whole form): the action is
 rolled back and the dialog shows them. The dialog’s relationship inputs read

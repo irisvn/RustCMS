@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-25502553.js";
+            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -268,6 +268,8 @@ in <code>config/</code> and <code>.env</code>.</p>
 <tr><td><code>key_value(name)</code></td><td><code>BTreeMap&lt;String, String&gt;</code></td><td>key/value rows (<code>.max_items(n)</code>, <code>.max_length(n)</code> per value)</td></tr>
 <tr><td><code>date(name)</code></td><td><code>chrono::NaiveDate</code> (<code>Option</code> with <code>.nullable()</code>)</td><td>date picker</td></tr>
 <tr><td><code>secret(name)</code></td><td><code>Secret</code></td><td><a href="#secrets">see below</a></td></tr>
+<tr><td><code>media(name)</code></td><td><code>Option&lt;uuid::Uuid&gt;</code> (always nullable)</td><td><a href="media.html#media-fields">media input</a>: pick or upload one file</td></tr>
+<tr><td><code>media_list(name, max)</code></td><td><code>Vec&lt;uuid::Uuid&gt;</code></td><td>up to <code>max</code> files, in order</td></tr>
 </tbody>
 </table>
 </div>
@@ -286,6 +288,24 @@ whose default is set, a select without options, a form input that is not a
 field or offers other values than its field, or a group registered twice.</p>
 <p>For larger numbers or decimals, store them as text and parse them where you
 read them.</p>
+<h3 id="media-settings"><a class="header" href="#media-settings">Media settings</a></h3>
+<pre><code class="language-rust ignore">SettingField::media("logo").accept(&amp;["image/*"]).max_size(500_000),   // logo: Option&lt;Uuid&gt;
+SettingField::media_list("slides", 5),                                 // slides: Vec&lt;Uuid&gt;</code></pre>
+<p>They hold ids of files of the <a href="media.html">media library</a> (it must be enabled
+with <code>AdminProvider::media()</code>; boot fails otherwise), edited with the same
+media input as resource fields (<code>FileUpload</code>): upload a file or pick one
+from the library, remove or reorder them; the page is not saved while an
+upload is on its way. Each file
+a save <strong>changes</strong> to is checked like a resource’s media field, inside the
+save and as the user is then: it exists, is not trashed, is visible to the
+user (<code>media.view_any</code> and <code>media.view</code>; their own uploads, or every file
+with <code>media.view_all</code> or <code>media.manage_all</code>), and matches <code>.accept(…)</code> and <code>.max_size(…)</code>; a list
+holds at most <code>max</code> distinct ids. The referenced rows are locked (shared)
+until the save commits. A reference kept as it was is not checked again,
+in a list too (reordering or removing files checks only those added; a
+file trashed later stays referenced until it is removed; see
+<a href="media.html#when-a-referenced-file-is-trashed-or-deleted">when a referenced file is trashed or deleted</a>).
+Their default must be empty (<code>None</code>, <code>vec![]</code>).</p>
 <h3 id="layout-and-checks"><a class="header" href="#layout-and-checks">Layout and checks</a></h3>
 <p><code>form()</code> arranges the inputs with the usual <a href="forms.html">form layouts</a>
 (sections, grids, tabs); each input names a field, and may change its label,

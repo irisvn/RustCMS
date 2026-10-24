@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-25502553.js";
+            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -206,8 +206,8 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><td>DELETE</td><td><code>/resources/{slug}/records/{key}/force</code></td><td>204 (soft deletes; trashed records only)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}?…</code></td><td><code>{data: [Envelope], meta, pivot?}</code> of the target (list query string; <code>pivot</code>: readable belongs-to-many pivot columns by target key)</td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records/{key}/relations/{relation}</code></td><td>201 <code>{data: Envelope}</code> of the target, foreign key set by the server</td></tr>
-<tr><td>POST</td><td><code>/resources/{slug}/actions/{action}</code> <code>{keys, data?}</code></td><td><code>{processed, denied, missing}</code></td></tr>
-<tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (media library enabled)</td></tr>
+<tr><td>POST</td><td><code>/resources/{slug}/actions/{action}</code> <code>{keys, data?}</code></td><td><code>{processed, denied, missing, replayed?, message?, open?}</code>: a run on one record hidden by <code>visible_when</code> is 403 (nothing runs), hidden records of a run on several are <code>denied</code>; <code>open</code> only on a run on one record (422 <code>one_record_only</code> otherwise)</td></tr>
+<tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (with <code>alt</code>, its alternative text; media library enabled; the media schema’s <code>upload</code> ability says whether the user may)</td></tr>
 <tr><td>GET</td><td><code>/media/{id}/file</code></td><td>the file (authorized, safe headers)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/fields/{field}/options?search=&amp;keys=a,b&amp;record=</code></td><td><code>{data: [{value, label}]}</code> (≤ 50)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}/options?search=&amp;keys=</code></td><td><code>{data: [{value, label, attached}]}</code>: records to attach to a record (<code>attach_{relation}</code> on it)</td></tr>
@@ -262,7 +262,7 @@ the policy allows <code>view</code> and <code>restore</code> or <code>force_dele
 <ul>
 <li><code>data</code> holds readable fields only, and is empty (no <code>title</code>, no <code>labels</code>) when
 the user may not view the record, e.g. the result of an update-only write.</li>
-<li><code>abilities</code> also holds one entry per action (<code>"publish": true</code>).</li>
+<li><code>abilities</code> also holds one entry per action (<code>"publish": true</code>), decided by the policy and the action’s <code>visible_when</code> on that record.</li>
 <li><code>labels</code> holds titles of related records. A related record the user may not
 see is shown as <code>#&lt;key&gt;</code>.</li>
 <li><code>trashed: true</code> marks a record in the trash (soft deletes; absent otherwise).
@@ -281,7 +281,8 @@ first result, not applied again: a create answers its record as the user may
 see it <strong>now</strong> (key only when no longer visible); an action answers the first
 run’s outcome with <code>"replayed": true</code>. Admission is checked again (403 if the
 user lost the ability). Action outcomes, first or replayed, list processed
-and denied keys only for records the user may view now;</li>
+and denied keys only for records the user may view now, and drop <code>message</code>
+and <code>open</code> unless the user may still view every processed record;</li>
 <li>different request → 422 on <code>idempotency_key</code>;</li>
 <li>the first request still running → the retry waits (up to 5 s), then answers
 409 <code>write_conflict</code> (nothing applied; retry later).</li>

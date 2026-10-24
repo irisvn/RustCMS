@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-25502553.js";
+            window.path_to_searchindex_js = "searchindex-ca61da98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,30 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.10.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.10.1</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="0101"><a class="header" href="#0101">0.10.1</a></h2>
+<ul>
+<li><strong>Media page</strong>: a grid of thumbnails or the table (remembered per user)
+and an upload button for several files (<a href="admin/media.html#the-media-page">The Media page</a>);
+files can be renamed and given an alternative text, which the editor and
+the picker pre-fill (<a href="admin/media.html#names-and-alternative-text">Names and alternative text</a>).</li>
+<li><strong>Media settings</strong>: <code>SettingField::media</code> and <code>media_list</code>
+(<a href="admin/settings.html#media-settings">Media settings</a>).</li>
+<li><strong>Actions per record</strong>: <code>Action::visible_when</code>, <code>primary</code> and
+<code>destructive</code>; list rows show one labelled action and a ⋯ menu, and record
+pages and relation tables show their actions too
+(<a href="admin/actions.html#per-record-visibility">Per-record visibility</a>).</li>
+<li><strong>Action outcomes</strong>: <code>Action::with_outcome</code> returns a message and a page
+to open in a new tab (<a href="admin/actions.html#outcomes-a-message-a-page-to-open">Outcomes</a>).</li>
+<li><strong>Narrow screens</strong>: <code>TableColumn::hide_below(Breakpoint::Md)</code>
+(<a href="admin/tables.html#narrow-screens">Narrow screens</a>).</li>
+<li>Fixes: bulk actions are offered on rows too; action dialogs are titled
+without “…” and their button is the action’s label (<code>submit_label</code>);
+record pages format dates and times; the recent-records widget shows
+labels and dates; files that cannot be loaded show “File unavailable”;
+empty values read “Not set”; navigation keeps the registration order.</li>
+</ul>
 <h2 id="0100"><a class="header" href="#0100">0.10.0</a></h2>
 <ul>
 <li><strong>Rich text version 2</strong>: tables, YouTube/Vimeo embeds, callouts, image
