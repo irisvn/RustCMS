@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -199,10 +199,11 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 <tr><td><code>sqlite</code>, <code>postgres</code>, <code>mysql</code></td><td>on</td><td>database drivers</td></tr>
 <tr><td><code>redis</code></td><td>off</td><td><a href="../digging-deeper/instances.html">several instances</a></td></tr>
 <tr><td><code>s3</code></td><td>off</td><td>uploads on S3-compatible storage (<code>storage.disk = "s3"</code>)</td></tr>
+<tr><td><code>mail</code></td><td>on</td><td><a href="../digging-deeper/mail.html">mail</a>: SMTP, templates, the Mail settings page</td></tr>
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.1", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.2", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -271,7 +272,13 @@ shell history.</p>
 </ol>
 <p>To go back, roll back with the <strong>new</strong> binary first (only it knows its
 migrations): <code>./blog.new migrate:rollback --step N</code>, then start the old one.
-Migrations that drop data cannot restore it: use the backup.</p>
+<code>migrate:rollback</code> undoes migrations in the migrator’s order, last first, not
+in the order they were applied: the application’s migrations come after the
+framework’s, so <code>--step N</code> undoes the application’s newest ones first. When
+an upgrade only added framework migrations (a new rustcms version, no new
+migrations of yours), do not roll back: keep them and start the old binary
+with <code>migrate --allow-newer</code> (below). Migrations that drop data cannot
+restore it: use the backup.</p>
 <p><strong>Automatic rollbacks</strong> (a Docker Swarm or Kubernetes rollout that returns to
 the previous image, whose start runs <code>migrate</code>): the older binary finds
 migrations it does not know and <code>migrate</code> refuses to run. If your migrations

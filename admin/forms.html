@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -210,7 +210,7 @@ write are left out or disabled, and the server checks everything again.</p>
 <tr><td><code>SelectInput</code></td><td>static <code>.options([(value, label)])</code>, or the records of a <code>belongs_to</code> field</td></tr>
 <tr><td><code>Toggle</code>, <code>Checkbox</code></td><td>booleans (three states when nullable)</td></tr>
 <tr><td><code>CheckboxList</code></td><td>a JSON list of option values</td></tr>
-<tr><td><code>DatePicker</code>, <code>DateTimePicker</code></td><td>dates, local date-times and instants (edited in UTC; shown on the record’s page in the user’s language, instants in their time zone, which is named)</td></tr>
+<tr><td><code>DatePicker</code>, <code>DateTimePicker</code></td><td>dates, local date-times and instants (only instants are edited in UTC, local date-times as stored; shown on the record’s page in the user’s language, instants in their time zone, which is named)</td></tr>
 <tr><td><code>Hidden</code></td><td>a value the user does not edit</td></tr>
 <tr><td><code>KeyValue</code></td><td>a JSON object of text values (<a href="#key-value">below</a>)</td></tr>
 <tr><td><code>FileUpload</code>, <code>RichEditor</code></td><td><a href="media.html">media and rich text</a></td></tr>
@@ -250,6 +250,50 @@ when the session sends the tab elsewhere (sign-out, another user signing in).</p
 its label and must be unique among its siblings. Tabs the user cannot see
 anything in are left out. On a failed save the panel opens the first tab with
 an error and focuses its input.</p>
+<h3 id="an-editor-layout"><a class="header" href="#an-editor-layout">An editor layout</a></h3>
+<p>For long content (a post, a page), lay the form out like an editor: the
+whole width, a main column and a narrow aside with the details.</p>
+<pre><code class="language-rust ignore">Form::new().width(FormWidth::Full).schema(components![Split::make()
+    .main(components![
+        TextInput::make("title"),
+        TextInput::make("slug").prefix("/posts/"),
+        RichEditor::make("body"),
+        Section::make("SEO").collapsible(true).schema(components![
+            TextInput::make("meta_title"),
+            Textarea::make("meta_description"),
+        ]),
+    ])
+    .aside(components![
+        Section::make("Publishing").compact().schema(components![
+            SelectInput::make("status"),
+            DateTimePicker::make("published_at"),
+        ]),
+        FileUpload::make("cover"),
+        BelongsToManySelect::make("tags"),
+    ])])</code></pre>
+<ul>
+<li><code>Form::width(FormWidth::Default | Wide | Full)</code>: how wide the record’s
+page is (create, edit and view; settings pages too): about 56rem (the
+default), 72rem, or the whole page.</li>
+<li><code>Split::make().main(…).aside(…)</code>: from the <code>lg</code> breakpoint (1024px) the
+aside is 20rem wide on the right and stays in view while the main column
+scrolls; narrower screens show one column, the aside after the main one
+(<code>.aside_first_on_mobile()</code> puts it first). One split at most, at the
+form’s top level; both columns hold inputs and layouts (sections, grids,
+tabs). A column the user cannot see anything in is left out. The view
+page lays the record out the same way.</li>
+<li><code>Section::make(…).collapsible(collapsed)</code>: the user folds and unfolds the
+section with its title (a button with <code>aria-expanded</code>), starting folded
+when <code>collapsed</code> is true. Its inputs stay in the form while folded, and it
+opens by itself when one of them has an error. Nothing is remembered.</li>
+<li><code>Section::make(…).compact()</code>: less padding and spacing, for the aside.</li>
+<li><code>TextInput::make(…).prefix(text)</code> and <code>.suffix(text)</code>: fixed text inside
+the input’s border (<code>/posts/</code> before a slug, <code>.html</code> after it), shown as
+written, never part of the value, and read by screen readers with the
+input. Text inputs only.</li>
+</ul>
+<p>Misusing them (a split inside a section, two splits, a grid that folds, a
+prefix on a number input) panics when the application starts.</p>
 <p>Misconfiguration (an input for an unknown field, a filter on a field that is
 not <code>.filterable()</code>, a default sort on a field that is not <code>.sortable()</code>)
 panics when the application starts.</p>

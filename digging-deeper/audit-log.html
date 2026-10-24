@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -193,12 +193,15 @@ auditors, and each record’s history to those who may view the record
 </thead>
 <tbody>
 <tr><td>Resources (admin panel)</td><td><code>created</code>, <code>updated</code>, <code>trashed</code>, <code>deleted</code>, <code>restored</code>, <code>force_deleted</code>, <code>action:&lt;name&gt;</code></td><td>the resource slug and record key</td></tr>
-<tr><td>Media library</td><td><code>uploaded</code> (meta <code>{mime, size}</code>)</td><td><code>media</code>, the media id</td></tr>
+<tr><td>Belongs-to-many relations</td><td><code>attached</code>, <code>detached</code>, <code>pivot_updated</code> (meta <code>{relation, targets, pivot?}</code>)</td><td>the parent’s resource slug and key</td></tr>
+<tr><td>Import and export</td><td><code>imported</code> (meta <code>{import, rows, created, updated, failed}</code>), <code>exported</code> (meta <code>{rows, query}</code>: the query’s shape, never its values)</td><td>the resource slug</td></tr>
+<tr><td>Media library</td><td><code>uploaded</code> (meta <code>{mime, size}</code>); a rename or new alt text is <code>updated</code></td><td><code>media</code>, the media id</td></tr>
 <tr><td>Roles</td><td><code>role.created</code>, <code>role.permissions_changed</code>, <code>role.deleted</code></td><td><code>role</code>, its id</td></tr>
-<tr><td>Users</td><td><code>user.created</code>, <code>user.updated</code>, <code>user.deleted</code>, <code>user.activated</code>, <code>user.deactivated</code>, <code>user.roles_changed</code>, <code>user.permissions_changed</code>, <code>user.password_reset</code></td><td><code>user</code>, its id</td></tr>
+<tr><td>Users</td><td><code>user.created</code>, <code>user.invited</code>, <code>user.invitation_resent</code>, <code>user.updated</code>, <code>user.deleted</code>, <code>user.activated</code>, <code>user.deactivated</code>, <code>user.roles_changed</code>, <code>user.permissions_changed</code>, <code>user.password_reset</code></td><td><code>user</code>, its id</td></tr>
 <tr><td>Permissions</td><td><code>permission.synced</code> (meta <code>{created, orphaned, restored, regrouped}</code>)</td><td><code>permission</code></td></tr>
-<tr><td>Settings</td><td><code>settings.updated</code> (secrets as <code>"[redacted]"</code>)</td><td><code>settings</code>, the group</td></tr>
-<tr><td>Account</td><td><code>auth.password_changed</code>, <code>auth.signed_out_everywhere</code>, <code>token.created</code>, <code>token.revoked</code></td><td><code>user</code>, its id</td></tr>
+<tr><td>Settings</td><td><code>settings.updated</code> (secrets as <code>"[redacted]"</code>); <code>mail.test_sent</code> (meta <code>{to, ok, code}</code>, the address masked)</td><td><code>settings</code>, the group (none for <code>mail.test_sent</code>)</td></tr>
+<tr><td>Queue and schedules</td><td><code>queue.retried</code>, <code>queue.forgotten</code>, <code>queue.cancelled</code> (meta <code>{kind, queue}</code>); <code>schedule.run</code> (meta <code>{run}</code>)</td><td><code>job</code>, its id; <code>schedule</code>, its name</td></tr>
+<tr><td>Account</td><td><code>auth.password_changed</code>, <code>auth.password_reset</code>, <code>auth.invitation_accepted</code>, <code>auth.signed_out_everywhere</code>, <code>token.created</code>, <code>token.revoked</code></td><td><code>user</code>, its id</td></tr>
 <tr><td>Sign-ins</td><td><code>auth.signed_in</code>, <code>auth.signed_out</code>, <code>auth.sign_in_failed</code>, <code>auth.sign_in_failed_burst</code>, <code>jwt.signed_in</code>, <code>jwt.signed_out</code>, <code>jwt.reuse_detected</code></td><td><code>user</code> (<code>session</code> for failures)</td></tr>
 </tbody>
 </table>
@@ -335,7 +338,7 @@ secrets in them.</p>
 </div>
 <p>A record’s history lists what the engine recorded about that record
 (<code>created</code>, <code>updated</code>, <code>trashed</code>, <code>deleted</code>, <code>restored</code>, <code>force_deleted</code>,
-<code>action:&lt;name&gt;</code>), with only the fields the user may read now; entries your
+<code>attached</code>, <code>detached</code>, <code>pivot_updated</code>, <code>action:&lt;name&gt;</code>), with only the fields the user may read now; entries your
 code wrote with <code>ctx.audit</code> are not in it (they are in the full log).
 Actors appear by name to users who may list users (<code>users.view_any</code>),
 otherwise by id; credentials appear by kind only (<code>session</code>, <code>token</code>, <code>jwt</code>,

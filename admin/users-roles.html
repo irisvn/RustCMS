@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -223,8 +223,9 @@ or delete the user.</p>
 <p><strong>Protected accounts.</strong> Users holding a protected role (system or privileged) or
 a super-admin role in <em>any</em> guard are disabled, renamed, re-addressed or deleted
 only by super admins of every guard.</p>
-<p>The <strong>Account</strong> page changes your password (current password required; other
-sessions end) and signs out your other sessions (also revoking API tokens).</p>
+<p>The <strong>Account</strong> page sets your <a href="i18n.html">language</a>, changes your password
+(current password required; other sessions end) and signs out your other
+sessions (also revoking API tokens).</p>
 <h2 id="api"><a class="header" href="#api">API</a></h2>
 <p>Under <code>&lt;admin_path&gt;/api/system</code> (same session, CSRF and <code>no-store</code> rules as
 the rest of the admin API):</p>
@@ -236,6 +237,8 @@ the rest of the admin API):</p>
 <tbody>
 <tr><td>GET</td><td><code>/users?search=&amp;page=&amp;per_page=</code></td><td></td><td><code>UserPage</code></td></tr>
 <tr><td>POST</td><td><code>/users</code></td><td><code>{name, email, password, roleIds?}</code></td><td>201 <code>SystemUser</code>*</td></tr>
+<tr><td>POST</td><td><code>/users/invitations</code></td><td><code>{name, email, roleIds?}</code> (<code>users.create</code> + <code>users.invite</code>, mail on; 20 per minute)</td><td>201 <code>SystemUser</code>*</td></tr>
+<tr><td>POST</td><td><code>/users/{id}/invitation</code></td><td>(<code>users.invite</code> + <code>users.view</code>; 5 per minute)</td><td><code>SystemUser</code>*</td></tr>
 <tr><td>GET / PATCH / DELETE</td><td><code>/users/{id}</code></td><td>PATCH: <code>{name, email, expected: {name, email}, currentPassword?}</code></td><td><code>SystemUser</code> / <code>SystemUser</code>* / 204</td></tr>
 <tr><td>PUT</td><td><code>/users/{id}/roles</code></td><td><code>{roleIds, expectedRoleIds}</code></td><td><code>SystemUser</code>*</td></tr>
 <tr><td>PUT</td><td><code>/users/{id}/active</code></td><td><code>{active, expected}</code></td><td><code>SystemUser</code>*</td></tr>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -264,7 +264,8 @@ rustcms queue:forget &lt;id&gt;     # or --all: delete
 <p>Failed jobs are deleted after <code>queue.failed_retention_days</code> (30).</p>
 <p>The table keeps a safe message only. Return a <code>queue::Failure</code> to choose it:</p>
 <pre><code class="language-rust ignore">return Err(Failure::new("smtp_rejected", "the mail server refused the message").into());</code></pre>
-<p>Any other error is kept as “failed (see the logs for job …)”, and its full
+<p>It is kept as <code>code: message</code> (<code>smtp_rejected: the mail server refused the message</code>, at most 500 characters). Any other error is kept as “failed (see the
+logs)”, and its full
 text goes to the application log only, so a secret in an error message never
 reaches the table. Do not put secrets in errors anyway: logs are kept too.
 A <code>Failure</code> is logged by its code only.</p>

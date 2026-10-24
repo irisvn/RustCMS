@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -187,6 +187,7 @@ application: the same folder names, inside <code>src/</code> (Rust modules live 
 <pre><code class="language-text">blog/
 ├── Cargo.toml / Cargo.lock      # dependencies (≈ composer.json / composer.lock)
 ├── .env, .env.example           # secrets and per-machine values (.env is git-ignored)
+├── .github/workflows/ci.yml     # CI: formatting, lints and the tests on SQLite
 ├── config/                      # app.toml, auth.toml, http.toml, log.toml
 ├── lang/vi.toml                 # translations of your admin labels and messages
 ├── resources/                   # views/admin (page templates), admin/{js,css} (extensions), logo
@@ -202,15 +203,12 @@ application: the same folder names, inside <code>src/</code> (Rust modules live 
 │   │   └── app_service_provider.rs    # jobs, seeders, console commands
 │   ├── routes/api.rs            # every API route and its access (≈ routes/api.php)
 │   ├── http/                    # (≈ app/Http)
-│   │   ├── controllers/         #   handlers                       (make:api)
-│   │   ├── requests/            #   validated input (≈ form requests)
-│   │   └── resources/           #   records as JSON (≈ API resources) (make:api)
+│   │   └── controllers/         #   handlers                       (make:api)
 │   ├── models/                  # SeaORM entities and query scopes (make:model)
 │   ├── policies/                # who may do what                  (make:policy)
 │   ├── admin/                   # the admin panel (≈ app/Filament)
 │   │   ├── resources/           #   one resource per model         (make:resource)
-│   │   ├── pages/               #   custom and settings pages      (make:page, make:settings)
-│   │   └── slots/               #   content beside records
+│   │   └── pages/               #   custom and settings pages      (make:page, make:settings)
 │   └── database/
 │       ├── migrations/          # your migrations, after the framework's (make:migration)
 │       └── seeders/             # DatabaseSeeder and the others     (make:seeder)
@@ -218,7 +216,7 @@ application: the same folder names, inside <code>src/</code> (Rust modules live 
     ├── support/mod.rs           # helpers shared by the suites
     └── feature/                 # tests through HTTP, one binary    (make:test)
 </code></pre>
-<p>More folders appear when a generator first needs them:</p>
+<p>More folders appear when a generator first needs them, or when you add them:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -229,6 +227,9 @@ application: the same folder names, inside <code>src/</code> (Rust modules live 
 <tr><td><code>src/jobs/</code></td><td>background jobs (<a href="../digging-deeper/queues.html">Queues</a>)</td><td><code>make:job</code></td></tr>
 <tr><td><code>src/settings/</code></td><td>settings stored in the database (<a href="../admin/settings.html">Settings</a>)</td><td><code>make:settings</code></td></tr>
 <tr><td><code>src/console/</code></td><td>console commands</td><td><code>make:command</code></td></tr>
+<tr><td><code>src/http/resources/</code></td><td>records as JSON (≈ API resources)</td><td><code>make:api</code></td></tr>
+<tr><td><code>src/http/requests/</code></td><td>validated input (≈ form requests)</td><td>by hand</td></tr>
+<tr><td><code>src/admin/slots/</code></td><td>content beside records (<a href="../admin/customizing.html">Customizing</a>)</td><td>by hand</td></tr>
 <tr><td><code>src/database/factories/</code></td><td>model factories for seeders and tests</td><td><code>make:factory</code></td></tr>
 <tr><td><code>resources/views/admin/</code></td><td>templates of custom pages and slots (<a href="../admin/customizing.html">Customizing</a>)</td><td><code>make:page</code></td></tr>
 <tr><td><code>resources/admin/</code></td><td>extension scripts (<code>js/</code>), stylesheets (<code>css/</code>), logo and favicon</td><td><code>make:widget</code>, <code>make:page --script</code></td></tr>

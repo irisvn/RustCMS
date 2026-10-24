@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -262,8 +262,9 @@ yours (one file per change, <code>rustcms make:migration &lt;name&gt;</code>):</
 </thead>
 <tbody>
 <tr><td><code>rustcms migrate</code></td><td>apply pending migrations</td></tr>
-<tr><td><code>rustcms migrate:status</code></td><td>list applied / pending</td></tr>
-<tr><td><code>rustcms migrate:rollback --step N</code></td><td>undo the last N</td></tr>
+<tr><td><code>rustcms migrate --allow-newer</code></td><td>also accept migrations applied by a newer binary</td></tr>
+<tr><td><code>rustcms migrate:status</code></td><td>list applied / pending / <code>Newer</code> (unknown to this binary)</td></tr>
+<tr><td><code>rustcms migrate:rollback --step N</code></td><td>undo the last N, in the migrator’s order</td></tr>
 <tr><td><code>rustcms migrate:refresh</code></td><td>undo all, apply all (<code>--force</code> in production)</td></tr>
 <tr><td><code>rustcms migrate:fresh</code></td><td>drop all tables, apply all (<code>--force</code> in production)</td></tr>
 </tbody>
@@ -278,6 +279,12 @@ migrations that can run again (see above). Keep <code>Some(true)</code> in your 
 migrations unless a statement cannot run in a transaction.</p>
 <p>Never edit a migration that has run in production; add a new one. A migration
 that cannot be reversed must say so in its <code>down</code> and in its doc comment.</p>
+<p><code>migrate:rollback</code> undoes applied migrations last first in the migrator’s
+order (the framework’s, then yours), not in the order they were applied: after
+a rustcms upgrade that added framework migrations, <code>--step 1</code> undoes your
+newest migration, not the framework’s. To run an older binary on a newer
+schema, keep the migrations and use <code>migrate --allow-newer</code>: see
+<a href="../getting-started/deployment.html#upgrading">Upgrading</a>.</p>
 <h2 id="seeding"><a class="header" href="#seeding">Seeding</a></h2>
 <p>Seeders fill the database with the records an application needs, or shows
 off. They live in <code>src/database/seeders/</code>: <code>DatabaseSeeder</code> (named

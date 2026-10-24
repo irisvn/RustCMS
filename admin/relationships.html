@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -209,8 +209,11 @@ the fix.</p>
 <h2 id="what-users-see"><a class="header" href="#what-users-see">What users see</a></h2>
 <p>On the parent’s view page, each relation is a section with a compact table of
 the children: the target’s table columns (without the foreign key), search and
-paging, and a <strong>View</strong> link per row. Edits and deletes happen on the child’s
-own pages. <strong>New</strong> opens the child’s create form for this parent: the foreign
+paging, and a <strong>View</strong> link per row. Rows also offer the child resource’s
+<a href="actions.html#placement-in-lists">actions</a> (the first primary one labelled, the
+others under <strong>⋯</strong>): the server’s abilities for each record decide, and running
+one is authorized as from the child’s list. Edits and deletes happen on the
+child’s own pages. <strong>New</strong> opens the child’s create form for this parent: the foreign
 key input is not shown, the server sets it, and the form returns to the parent
 when saved.</p>
 <h2 id="authorization"><a class="header" href="#authorization">Authorization</a></h2>
@@ -279,6 +282,9 @@ on new links. Attaching a record already linked keeps that link as it is.</li>
 never touched.</li>
 <li><strong>Edit link</strong>: the pivot columns the user may update.</li>
 </ul>
+<p>Rows also offer the target resource’s <a href="actions.html#placement-in-lists">actions</a>,
+as in has-many tables: the server’s abilities for each record decide, and
+running one is authorized as from the target’s list.</p>
 <h3 id="permissions"><a class="header" href="#permissions">Permissions</a></h3>
 <p>Writes need an ability of the <strong>parent</strong> record:
 <code>attach_{relation}</code>, <code>detach_{relation}</code> and <code>update_pivot_{relation}</code> (only
@@ -378,9 +384,6 @@ attach or detach on the record, and never on the record’s page (the
 relation manager is there). The create form searches
 <code>GET {admin}/api/resources/{slug}/relations/{relation}/options</code>, which
 serves only relations the form links.</li>
-<li>The current links are read with the target’s page size: give the target
-a <code>per_page</code> limit of at least 100, or a record with more links than one
-page holds is changed on its page only.</li>
 <li>Not for the media library (link files with a
 <a href="media.html#media-fields"><code>Field::media_list</code></a> field instead).</li>
 <li>New links take the pivot columns’ database defaults: a relation with a

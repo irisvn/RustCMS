@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -198,6 +198,8 @@ instance runs the pass. Each deletion is safe to repeat. The commands do the sam
 <tr><td>Idempotency receipts</td><td>24 hours</td><td><code>serve</code>, <code>idempotency:prune</code></td></tr>
 <tr><td>Schedule claims (<code>schedule_slots</code>)</td><td>7 days (<code>schedule_states</code> are kept)</td><td><code>serve</code> hourly, while schedules are registered and <code>[schedule] enabled</code></td></tr>
 <tr><td>Failed jobs, <code>once</code> receipts</td><td><code>queue.failed_retention_days</code> (30)</td><td>the workers</td></tr>
+<tr><td>Job history (<code>job_runs</code>)</td><td><code>queue.history_retention_days</code> (7; 0 keeps no history)</td><td>the workers</td></tr>
+<tr><td>Schedule runs (<code>schedule_runs</code>)</td><td><code>schedule.history_retention_days</code> (7)</td><td><code>serve</code> hourly, and the workers</td></tr>
 <tr><td>Background exports (file and row)</td><td>24 hours, removed an hour later</td><td><code>serve</code></td></tr>
 <tr><td>Imports (file, row, report, receipts)</td><td>24 hours from upload, or from the start of the run</td><td><code>serve</code></td></tr>
 <tr><td>Media files of deleted media records, interrupted uploads</td><td>removed within minutes (queued deletions), an hour (abandoned uploads)</td><td><code>serve</code> every minute, <code>media:prune</code></td></tr>

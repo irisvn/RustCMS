@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -202,8 +202,13 @@ rule, <code>storage.root</code> writable by the app only (uploads are staged the
 <li><input disabled="" type="checkbox"> Password-hashing and upload concurrency limits are per instance (each bounds its own CPU and disk).</li>
 <li><input disabled="" type="checkbox"> Queue workers: decide where they run (<code>serve</code>, or <code>queue:work</code> processes with <code>queue.enabled = false</code> on
 web instances); clocks synchronized (NTP); <code>queue:failed</code> watched; job payloads and error messages carry
-no secrets (<a href="../digging-deeper/queues.html">Queues</a>); <code>queue.manage</code> (retry, forget, cancel jobs) only for
-operators.</li>
+no secrets (<a href="../digging-deeper/queues.html">Queues</a>); <code>queue.manage</code> (retry, forget, cancel jobs) and
+<code>schedules.manage</code> (run a schedule now) only for operators.</li>
+<li><input disabled="" type="checkbox"> <code>settings.mail.update</code> (SMTP settings, test mails) only for administrators.</li>
+<li><input disabled="" type="checkbox"> <code>storage.max_upload_bytes</code> at or below the proxy’s request body limit.</li>
+<li><input disabled="" type="checkbox"> Migrations run once per deploy (<code>migrate</code>, then <code>permission:sync</code>), with a backup taken first; you know how
+to go back: <code>migrate:rollback</code> with the new binary for your migrations, or the old binary with
+<code>migrate --allow-newer</code> (<a href="../getting-started/deployment.html#upgrading">Upgrading</a>).</li>
 <li><input disabled="" type="checkbox"> First super admin created with <code>make:user --super-admin</code>; <code>permission:sync</code> run after each deploy.</li>
 <li><input disabled="" type="checkbox"> TLS terminates before the app; HTTP redirects to HTTPS at the proxy.</li>
 <li><input disabled="" type="checkbox"> Rotating <code>APP_KEY</code> with <a href="../digging-deeper/encryption.html">encrypted columns</a>: old key in <code>APP_PREVIOUS_KEYS</code>,

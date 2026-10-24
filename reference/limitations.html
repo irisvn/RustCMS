@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -189,15 +189,16 @@ the pivot’s database defaults; edit pivot columns in the relation manager),
 and a <code>BelongsToManySelect</code> for relations with required pivot fields or
 records with more than 100 links; belongs-to-many to the same resource, two
 relations over one pivot table, or to a resource declaring <code>lock_parent</code>.</li>
-<li>Excel files; dashboard widgets other than counts (no sums or averages), charts in time zones other than UTC.</li>
+<li>Excel files; dashboard widgets with sums or averages (widgets count or list records); charts in time zones other than UTC.</li>
 <li>Email verification flows (invitations mark the address verified).</li>
 <li>Mail rate limits shared between instances (<code>max_per_minute</code> counts per process); DKIM signing; attachments.</li>
-<li>Settings of kinds other than text, integer (<code>i32</code>), boolean, select, key/value,
-date and secret (store larger numbers or decimals as text).</li>
+<li>Settings of kinds other than text, textarea, integer (<code>i32</code>), boolean, select,
+key/value, date, secret and media (one file, or a list) (store larger numbers
+or decimals as text).</li>
 <li>Translations of content (only the interface is translated: English, Vietnamese).</li>
 <li>Composite primary keys; sorting by related columns.</li>
-<li>Image resizing and thumbnails, range requests, public media URLs (add your
-own route).</li>
+<li>Server-side image resizing (the Media grid scales the originals in the
+browser), range requests, public media URLs (add your own route).</li>
 <li>MariaDB; Redis Cluster.</li>
 <li>Idempotency keys outside resource creates (relation creates included), actions, media uploads,
 CSV import uploads and background export requests.</li>

@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,18 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-0101-to-0102"><a class="header" href="#from-0101-to-0102">From 0.10.1 to 0.10.2</a></h2>
+<ul>
+<li>Vocabulary 11: layouts <code>split</code> and <code>pane</code>, <code>collapsed</code> and <code>compact</code> on
+sections, <code>prefix</code> and <code>suffix</code> on text inputs, <code>FormSchema.width</code>. An older
+admin SPA shows the banner and lays such forms out as plain groups;
+extensions that check the vocabulary version should accept 11. Exhaustive
+matches on <code>LayoutType</code> and clients that build <code>LayoutSchema</code>,
+<code>InputSchema</code> or <code>FormSchema</code> values by hand need the new members.</li>
+<li>The default theme’s <code>success</code> and <code>warning</code> colors are green and amber
+(they were grays): set them with <code>Theme::color</code> to keep the old look.</li>
+<li>No migration.</li>
+</ul>
 <h2 id="from-0100-to-0101"><a class="header" href="#from-0100-to-0101">From 0.10.0 to 0.10.1</a></h2>
 <ul>
 <li><strong>Run <code>rustcms migrate</code></strong> (<code>m20261201_000022_add_alt_to_media</code>, a nullable
@@ -296,7 +308,7 @@ refuses). Run migrations once per deployment, not in every replica
 (<a href="getting-started/deployment.html#upgrading">Deployment</a>).</p>
 <h2 id="from-071-to-080"><a class="header" href="#from-071-to-080">From 0.7.1 to 0.8.0</a></h2>
 <p>Run <code>rustcms migrate</code>: it adds <code>jobs.started_at</code>, <code>jobs.description</code> and the
-<code>job_runs</code> and <code>schedule_runs</code> tables. Then nothing else needs to change.</p>
+<code>job_runs</code> and <code>schedule_runs</code> tables. Then:</p>
 <ul>
 <li>Grant <code>schedules.view</code> (and <code>schedules.manage</code> for Run now) to the roles
 that should see System → Schedules (<code>rustcms permission:sync</code> declares them).</li>

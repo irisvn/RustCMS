@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -233,7 +233,8 @@ next; it returns an <code>ActionOutcome</code>:</p>
 })</code></pre>
 <ul>
 <li><code>ActionOutcome::message(text)</code> / <code>.with_message(text)</code>: shown to the user
-with the action’s summary (plain text, at most 500 characters).</li>
+with the action’s summary (plain text, at most 500 characters), as
+written: translate it with <code>ctx.t("…")</code> (<a href="i18n.html">i18n</a>).</li>
 <li><code>ActionOutcome::open(url)</code> / <code>.with_open(url)</code>: once the action has
 committed, the panel opens the page in a new tab with <code>noopener</code> and
 <code>noreferrer</code>, and shows a link to it as well (a browser may block a tab
@@ -271,6 +272,9 @@ drafts, <code>unpublish</code> on published posts). A <code>.bulk()</code> actio
 too (bulk means <em>also</em> offered for selections, in the bar above the table),
 on the rows the server offers it. View, Edit, Delete and Restore keep their
 buttons.</p>
+<p><code>.color(…)</code> only has an effect as <code>"danger"</code> (what <code>.destructive()</code> sets):
+the action goes last in the <strong>⋯</strong> menu and its bulk button is the
+destructive variant. <code>.icon(…)</code> is accepted but not shown yet.</p>
 <p>A record’s page shows its actions the same way (the first primary one it
 offers labelled, the others under ⋯), and so do the rows of relation tables
 on a parent’s page, with the related resource’s actions: the server’s

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -201,10 +201,10 @@ app.provider(
 <tr><th>Path</th><th>Serves</th></tr>
 </thead>
 <tbody>
-<tr><td><code>/admin</code>, <code>/admin/…</code></td><td>the panel (<code>/admin/login</code>, <code>/admin/r/&lt;slug&gt;</code>, <code>…/create</code>, <code>…/records/&lt;key&gt;</code>, <code>…/edit</code>)</td></tr>
+<tr><td><code>/admin</code>, <code>/admin/…</code></td><td>the panel (<code>/admin/login</code>, <code>/admin/r/&lt;slug&gt;</code>, <code>…/create</code>, <code>…/import</code>, <code>…/records/&lt;key&gt;</code>, <code>…/edit</code>; <code>/admin/p/&lt;slug&gt;</code>, <code>/admin/settings/&lt;group&gt;</code>, <code>/admin/system/{users,roles,audit,queue,schedules}</code>, <code>/admin/account</code>)</td></tr>
 <tr><td><code>/admin/assets/…</code></td><td>the panel’s JS and CSS</td></tr>
 <tr><td><code>/admin/assets/ext/…</code></td><td>your <a href="custom-fields.html">extension</a> scripts and styles</td></tr>
-<tr><td><code>/admin/assets/brand/{theme.css,logo,logo-dark,favicon}?v=…</code></td><td>the theme’s stylesheet and images, static or <a href="customizing.html#runtime-branding">runtime branding</a></td></tr>
+<tr><td><code>/admin/assets/brand/{theme.css,logo,favicon}?v=…</code></td><td>the <a href="customizing.html#theme">theme</a>’s stylesheet and images; also <code>logo-dark</code> with <a href="customizing.html#runtime-branding">runtime branding</a></td></tr>
 <tr><td><code>/admin/api/…</code></td><td>the panel’s JSON API (used by the panel itself)</td></tr>
 </tbody>
 </table>
@@ -260,7 +260,8 @@ write are editable, edits send changed fields only, server validation
 messages appear under each input. A write whose outcome is unknown (a
 timeout, a cut connection) pauses further writes on that resource, and
 creates and actions can be retried safely.</li>
-<li><strong>Record pages</strong> with their <a href="relationships.html">relations</a>.</li>
+<li><strong>Record pages</strong> with their <a href="actions.html#placement-in-lists">actions</a>,
+<a href="relationships.html">relations</a> and <a href="customizing.html#slots-beside-records">slots</a>.</li>
 <li><strong>Languages</strong>: English and Vietnamese, chosen per user (<a href="i18n.html">i18n</a>).</li>
 <li><strong>Roles</strong> (System → Roles): permissions by area with a search box, the
 labels and presets the application declares
@@ -268,8 +269,10 @@ labels and presets the application declares
 <li>Someone who may update a record but not view it gets an empty edit form;
 records outside a user’s scope show “Not found”, forbidden pages “Access denied”.</li>
 </ul>
-<p>The theme follows the operating system (light or dark). The layout works from
-phones to wide screens and from the keyboard.</p>
+<p>The color scheme is the app’s <code>ColorScheme</code> (default <code>System</code>: follows the
+operating system) until a user chooses Light, Dark or System for themselves
+(<a href="customizing.html#theme">theme</a>). The layout works from phones to wide screens
+and from the keyboard.</p>
 <h2 id="security"><a class="header" href="#security">Security</a></h2>
 <ul>
 <li>Content Security Policy <code>default-src 'self'</code>, <code>script-src 'self'</code>,

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -190,10 +190,13 @@ deployment still offers it;</li>
 <li>else the browser’s language (<code>Accept-Language</code>), if offered;</li>
 <li>else <code>app.locale</code>.</li>
 </ol>
-<p><code>GET /auth/me</code> returns that language and the panel switches to it. The panel
+<p><code>GET {admin}/api/auth/me</code> returns that language and the panel switches to it. The panel
 then sends the language it shows (<code>X-Rustcms-Locale</code>) with every request, and
 labels come back in that language, so what a tab caches always matches what it
-shows (another tab may have just switched).</p>
+shows (another tab may have just switched). Record pages and the dashboard’s
+recent-records widget format dates in that language too: instants in the
+browser’s time zone, which is named; dates and local date-times as stored
+(<a href="forms.html#inputs">inputs</a>).</p>
 <pre><code class="language-toml"># config/app.toml
 locale = "en"              # default
 locales = ["en", "vi"]     # what users may choose; a subset of what the panel ships
@@ -243,8 +246,9 @@ parameters (text), which the panel translates:</p>
  "formErrors": [], "formIssues": []}
 </code></pre>
 <p>A message that follows none of the framework’s templates (your own text) has
-the code <code>custom</code> and is shown as written. Conflicts (409) carry a <code>reason</code>
-(<code>busy</code>, <code>upload_expired</code>, <code>receipt_expired</code>).</p>
+the code <code>custom</code> and is shown as written. Conflicts (409) carry a <code>reason</code>,
+for example <code>busy</code>, <code>upload_expired</code> or <code>receipt_expired</code>
+(<a href="../reference/error-codes.html">Error codes</a>).</p>
 <p>The codes and their English templates are listed in
 <a href="../reference/error-codes.html">Error codes</a>.</p>
 <h2 id="extensions"><a class="header" href="#extensions">Extensions</a></h2>

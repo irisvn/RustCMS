@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -234,6 +234,12 @@ record into it.</p>
 <p><strong>S3:</strong> <code>rustcms_testing::TestS3::from_env()</code> reads <code>RUSTCMS_TEST_S3</code>
 (<code>http://host:port/bucket</code>, e.g. S3Mock: <code>docker run -p 59000:9090 -e COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS=test adobe/s3mock:5.2.3</code>)
 and <code>TestS3::configure(config)</code> points <code>[storage]</code> at it.</p>
+</li>
+<li>
+<p><strong>Redis:</strong> RustCMS’s own tests of several instances (shared rate limits,
+periodic jobs) read <code>RUSTCMS_TEST_REDIS</code> (e.g. <code>redis://localhost:56379</code>)
+and need <code>--features rustcms/redis</code>; without it they print a skip notice
+and pass, unless <code>RUSTCMS_TEST_REQUIRE</code> lists <code>redis</code>.</p>
 </li>
 </ul>
 <p>Without <code>RUSTCMS_TEST_PG</code> / <code>RUSTCMS_TEST_MYSQL</code>, those variants print a skip

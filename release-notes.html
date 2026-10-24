@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,9 +181,21 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.10.1</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.10.2</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="0102"><a class="header" href="#0102">0.10.2</a></h2>
+<ul>
+<li><strong>An editor layout</strong>: <code>Form::width(FormWidth::Full)</code>, a main column with a
+sticky aside (<code>Split</code>), sections that fold or are compact, and text inputs
+with a fixed prefix or suffix (<code>/posts/</code> before a slug)
+(<a href="admin/forms.html#an-editor-layout">An editor layout</a>).</li>
+<li>Badge columns show all five colors; the default theme’s <code>success</code> and
+<code>warning</code> are green and amber. The media picker keeps a page chosen right
+after opening.</li>
+</ul>
 <h2 id="0101"><a class="header" href="#0101">0.10.1</a></h2>
+<p>Run <code>rustcms migrate</code>; <code>media.update</code> now grants renaming and alt text (see
+the <a href="upgrade.html#from-0100-to-0101">upgrade guide</a>).</p>
 <ul>
 <li><strong>Media page</strong>: a grid of thumbnails or the table (remembered per user)
 and an upload button for several files (<a href="admin/media.html#the-media-page">The Media page</a>);
@@ -419,6 +431,27 @@ opens WebSocket connections (<a href="basics/testing.html">Testing</a>).</li>
 <li><strong>Tooling</strong>: the test servers run in memory (the matrix is about twice as
 fast), and <code>just test-fast</code> runs every test on SQLite only.</li>
 </ul>
+<h2 id="032"><a class="header" href="#032">0.3.2</a></h2>
+<ul>
+<li>The command checks and updates itself and applications: <code>rustcms doctor</code>,
+<code>rustcms upgrade [--dry-run]</code> (Core tag, SeaORM pins; comments and
+features kept), <code>rustcms self-update</code>, and <code>rustcms docs</code> (the guide,
+offline in release builds) (<a href="upgrade.html#upgrading-the-command-and-an-application">Upgrading</a>).</li>
+<li><code>make:command</code> refuses the names of the command’s own commands.</li>
+</ul>
+<h2 id="031"><a class="header" href="#031">0.3.1</a></h2>
+<ul>
+<li><strong>Distribution</strong>: each tag publishes the <code>rustcms</code> command (macOS on Apple
+silicon, Linux x86_64 and arm64), the guide and <code>install.sh</code>
+(<a href="getting-started/installation.html">Installation</a>).</li>
+<li><code>rustcms new</code> depends on the RustCMS-Core Git tag of its version, writes a
+CI workflow (<code>.github/workflows/ci.yml</code>) and resolves dependencies
+(<code>--no-fetch</code> to skip).</li>
+<li>Fixes: local storage on Linux (every upload, import and export failed with
+<code>Bad file descriptor</code>); migrations run on one connection; a refused TLS
+handshake is reported as <code>smtp_tls</code>; security updates of ammonia and
+rustls.</li>
+</ul>
 <h2 id="030"><a class="header" href="#030">0.3.0</a></h2>
 <ul>
 <li><strong>Admin panel</strong>: soft deletes with a trash; tabs and key/value inputs;
@@ -481,22 +514,21 @@ invite users who choose their own password; sign-in can be remembered for
 <li><strong>Dashboard widgets</strong>: counts (compared with the period before), charts per
 day, week or month, and the latest records of a resource, each with its own
 permission and computed as the list shows records (<a href="admin/dashboard.html">Dashboard</a>).</li>
-<li><strong>Example</strong>: <code>examples/lms</code> grows news (categories, tags, scheduled
+<li><strong>Example</strong>: <code>examples/lms</code>, a small LMS back office: seats under a lock,
+instructor scopes, a job per enrollment, news (categories, tags, scheduled
 articles), editor and viewer roles, lessons moved up and down, a dashboard,
 welcome mails and instructor invitations (<a href="examples/lms.html">An LMS back office</a>).</li>
 <li><strong>Operations</strong>: running the queue, retention, backup and restore,
-rotating <code>APP_KEY</code>, running mail (<a href="operations/queue.html">Operations</a>).</li>
+rotating <code>APP_KEY</code>, running mail (<a href="operations/queue.html">Operations</a>);
+several instances with Redis (shared rate limits, periodic jobs mostly on
+one instance); S3-compatible storage tested against a real server,
+Cloudflare R2 setup, bounded bucket timeouts
+(<a href="digging-deeper/storage.html">File storage</a>).</li>
 <li><strong>Permission matrix</strong>: the role page lays resource permissions out as
 resource × ability (<a href="admin/users-roles.html">Users and roles</a>).</li>
-<li><strong>Example</strong>: <code>examples/lms</code>, a small LMS back office (seats under a lock,
-instructor scopes, a job per enrollment) (<a href="examples/lms.html">Example</a>).</li>
 <li><strong>Databases</strong>: MySQL 8.4 alongside SQLite and PostgreSQL.</li>
 <li><strong>APIs</strong>: <code>ApiRoutes</code> with declared access, <code>Validated&lt;T&gt;</code>, <code>Pagination</code>,
 <code>Throttle&lt;N&gt;</code>, <code>make:api</code>; JWT access tokens with rotating refresh tokens.</li>
-<li><strong>Operations</strong>: several instances with Redis (shared rate limits, periodic
-jobs mostly on one instance); S3-compatible storage tested against a real
-server, Cloudflare R2 setup, bounded bucket timeouts
-(<a href="digging-deeper/storage.html">File storage</a>).</li>
 </ul>
 <h2 id="010-alpha0"><a class="header" href="#010-alpha0">0.1.0-alpha.0</a></h2>
 <ul>

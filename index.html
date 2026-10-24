@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -207,9 +207,14 @@ complete admin panel).</p>
 one binary: no Node, PHP or separate frontend to deploy.</p>
 <h2 id="what-you-get"><a class="header" href="#what-you-get">What you get</a></h2>
 <ul>
-<li><strong>Admin panel</strong>: lists with search, filters, sorting and bulk actions; forms
-with sections, tabs, relationships, file uploads, rich text and key/value
-inputs; soft deletes; has-many relation managers; custom field widgets;
+<li><strong>Admin panel</strong>: lists with search, filters, sorting, and
+<a href="admin/actions.html">row and bulk actions</a>; forms with sections, tabs,
+relationships, file uploads, rich text and key/value inputs; soft deletes;
+has-many and belongs-to-many relations; custom field widgets;
+<a href="admin/dashboard.html">dashboard widgets</a>;
+<a href="admin/import-export.html">CSV import and export</a>;
+<a href="admin/react-pages.html">React pages</a> and <a href="admin/realtime.html">realtime</a>
+events and sockets; <a href="admin/settings.html">settings</a> edited in the panel;
 users, roles and account pages; English and Vietnamese.</li>
 <li><strong>Security by default</strong>: deny-by-default permissions per resource, record and
 field; scopes (tenancy, ownership) applied on every path; admin sessions with
@@ -219,6 +224,10 @@ limits.</li>
 container, an HTTP stack with sane limits, JSON APIs with declared access,
 validation and pagination, SQLite, PostgreSQL and MySQL, file storage (local
 or S3-compatible), several instances with Redis.</li>
+<li><strong>Background work and records</strong>: <a href="digging-deeper/queues.html">queues and jobs</a>,
+<a href="digging-deeper/scheduling.html">schedules</a>, <a href="digging-deeper/mail.html">mail</a>,
+an <a href="digging-deeper/audit-log.html">audit log</a> of every change, and
+<a href="digging-deeper/encryption.html">encrypted columns</a> for your secrets.</li>
 <li><strong>Tooling</strong>: <code>rustcms new</code>, generators (<code>make:model</code>, <code>make:resource</code>,
 <code>make:api</code>, …), migrations, and a testing kit that runs every database test
 on all three databases.</li>
@@ -238,7 +247,7 @@ on all three databases.</li>
 <tr><td>Eloquent models, migrations</td><td>SeaORM entities, migrations (<code>make:model</code>, <code>make:migration</code>)</td></tr>
 <tr><td>Gates, policies, Spatie permissions</td><td><code>Gate</code>, <code>Policy</code>, roles and permissions per guard</td></tr>
 <tr><td>Filament resources, forms, tables, actions</td><td><code>Resource</code>, <code>Form</code>, <code>Table</code>, <code>Action</code></td></tr>
-<tr><td>Filament relation managers</td><td><code>Relation::has_many</code></td></tr>
+<tr><td>Filament relation managers</td><td><code>Relation::has_many</code>, <code>Relation::belongs_to_many</code> (and <code>BelongsToManySelect</code>)</td></tr>
 <tr><td><code>Illuminate\Testing</code></td><td><code>rustcms-testing</code> (<code>TestApp</code>, <code>db_test!</code>, factories)</td></tr>
 </tbody>
 </table>

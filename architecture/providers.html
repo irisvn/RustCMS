@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -251,6 +251,11 @@ let stripe = state.service::&lt;Stripe&gt;();     // Option&lt;Arc&lt;Stripe&gt;
 <tr><td><code>app.describe_routes(group, routes)</code></td><td>lists routes for <code>route:list</code></td></tr>
 <tr><td><code>app.body_limit(method, path, bytes)</code></td><td>a larger body limit for one route</td></tr>
 <tr><td><code>app.command(cmd)</code></td><td>a console command (<a href="../basics/console.html">Console</a>)</td></tr>
+<tr><td><code>app.job::&lt;J&gt;()</code></td><td>a job the queue’s workers run (<a href="../digging-deeper/queues.html">Queues</a>)</td></tr>
+<tr><td><code>app.schedule(schedule)</code></td><td>periodic work, run only by <code>serve</code> (<a href="../digging-deeper/scheduling.html">Scheduling</a>)</td></tr>
+<tr><td><code>app.seeder(seeder)</code></td><td>a seeder for <code>db:seed</code> (<a href="../basics/database.html#seeding">Seeding</a>)</td></tr>
+<tr><td><code>app.encrypted_column::&lt;E&gt;(column, binding)</code></td><td>an encrypted column for <code>key:reencrypt</code> (<a href="../digging-deeper/encryption.html">Encrypted columns</a>)</td></tr>
+<tr><td><code>app.mail_template(template)</code></td><td>a mail template, <code>mail</code> feature (<a href="../digging-deeper/mail.html#templates">Mail</a>)</td></tr>
 <tr><td><code>app.config()</code></td><td>the configuration</td></tr>
 </tbody>
 </table>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -204,7 +204,7 @@
 </thead>
 <tbody>
 <tr><td><code>TextColumn</code></td><td>text, numbers, relationship titles</td></tr>
-<tr><td><code>BadgeColumn</code></td><td>a badge, <code>.color(value, color)</code> per value</td></tr>
+<tr><td><code>BadgeColumn</code></td><td>a badge, <code>.color(value, color)</code> per value (<code>primary</code>, <code>success</code>, <code>warning</code>, <code>danger</code>, <code>gray</code>; any other name shows gray)</td></tr>
 <tr><td><code>BooleanColumn</code></td><td>a check mark</td></tr>
 <tr><td><code>DateColumn</code></td><td>dates and times</td></tr>
 </tbody>
@@ -216,12 +216,16 @@
 <tr><th>Filters</th><th>Field must be <code>.filterable()</code></th></tr>
 </thead>
 <tbody>
-<tr><td><code>SelectFilter</code></td><td>one of the options (static or the <code>belongs_to</code> records)</td></tr>
+<tr><td><code>SelectFilter</code></td><td>one of the options: <code>.options([(value, "Label"), …])</code>, or the <code>belongs_to</code> records</td></tr>
 <tr><td><code>TernaryFilter</code></td><td>yes / no / any</td></tr>
 <tr><td><code>DateRangeFilter</code></td><td>from / until</td></tr>
 </tbody>
 </table>
 </div>
+<p>Columns and filters take <code>.label("…")</code> (default: the field’s label, or its
+name in words). A column can be drawn by a script of the application with
+<code>.cell("vendor/name")</code> and <code>.props(json!(…))</code>
+(<a href="customizing.html#custom-cells">custom cells</a>).</p>
 <p>Columns and filters for fields the user may not read are left out.</p>
 <h2 id="narrow-screens"><a class="header" href="#narrow-screens">Narrow screens</a></h2>
 <pre><code class="language-rust ignore">use rustcms::admin::Breakpoint;
@@ -239,8 +243,9 @@ columns this way.</p>
 ASCII). Columns of <code>.sortable()</code> fields can be sorted; <code>default_sort("-field")</code>
 sorts descending. Search, sort, filters and the page are kept in the URL.</p>
 <p>Lists only show records the user may view: <code>scope()</code> and the policy apply
-(<a href="authorization.html">Authorization</a>). Bulk <a href="actions.html">actions</a> appear when
-rows are selected.</p>
+(<a href="authorization.html">Authorization</a>). Rows offer the resource’s
+<a href="actions.html#placement-in-lists">actions</a>; bulk ones also appear when rows are
+selected.</p>
 
                     </main>
 

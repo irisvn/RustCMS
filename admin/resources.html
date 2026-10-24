@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ca61da98.js";
+            window.path_to_searchindex_js = "../searchindex-62a9ded5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -234,6 +234,7 @@ or written</strong> by the panel or its API. Each field sets what the column all
 <tr><td><code>.media()</code>, <code>.media_list(n)</code>, <code>.accept(…)</code>, <code>.max_size(…)</code></td><td><a href="media.html">media</a> fields</td></tr>
 <tr><td><code>.rich_text()</code></td><td>a <a href="media.html#rich-text">rich text</a> document</td></tr>
 <tr><td><code>.key_value()</code>, <code>.max_items(n)</code></td><td>a <a href="forms.html#key-value">key/value</a> object</td></tr>
+<tr><td><code>.encrypted()</code>, <code>.encrypted_map()</code></td><td>a secret, or named secrets, sealed at rest and never shown (<a href="forms.html#encrypted-fields">encrypted fields</a>)</td></tr>
 <tr><td><code>.audit_redact()</code></td><td>its values never reach the <a href="../digging-deeper/audit-log.html">audit log</a> (only that it changed)</td></tr>
 </tbody>
 </table>
@@ -257,6 +258,8 @@ fields as columns.</p>
 <tr><td><code>.unique(constraint, &amp;[columns], message)</code></td><td>maps a unique constraint to a field error</td></tr>
 <tr><td><code>.soft_deletes()</code>, <code>.soft_deletes_column("removed_at")</code></td><td><a href="#soft-deletes">soft deletes</a></td></tr>
 <tr><td><code>.lock_parent("course_id", "courses")</code></td><td>writes lock the parent record first (<a href="#parent-locks">parent locks</a>)</td></tr>
+<tr><td><code>.exportable()</code>, <code>.importable()</code></td><td>CSV <a href="import-export.html">export and import</a> (abilities <code>export</code>, <code>import</code>)</td></tr>
+<tr><td><code>.import_key(field)</code></td><td>imported rows matching a record by <code>field</code> update it (<a href="import-export.html#importing">import</a>)</td></tr>
 <tr><td><code>.audit(false)</code></td><td>writes are not recorded in the <a href="../digging-deeper/audit-log.html">audit log</a> (on by default)</td></tr>
 </tbody>
 </table>
@@ -266,13 +269,22 @@ fields as columns.</p>
 <code>#[async_trait]</code> on the <code>impl</code>; an attribute path cannot start with <code>rustc…</code>). Every write runs in one transaction:</p>
 <ol>
 <li>reject undeclared or non-writable keys (422),</li>
-<li>type-check values against the <a href="../reference/wire-format.html">wire format</a>,</li>
-<li>check relationship keys against the target scope,</li>
+<li>type-check values against the <a href="../reference/wire-format.html">wire format</a>
+and check <code>.required()</code>,</li>
+<li>lock the parent record (<a href="#parent-locks">parent locks</a>),</li>
 <li><code>mutate_before_create</code> / <code>mutate_before_update</code> hooks,</li>
-<li>re-check limits (<code>max_length</code>) on the final values, so hooks cannot bypass them,</li>
+<li>check the final values, hooks’ changes included: <code>belongs_to</code> keys must be
+records the user can see, and media (rich text images included) files the
+user can see (422); limits (<code>max_length</code>, …) are re-checked as the values
+are written, so hooks cannot bypass them,</li>
 <li>write (database constraints are mapped to field errors with <code>ResourceMeta::unique</code>),</li>
+<li>write the links of <a href="relationships.html#choosing-links-in-the-records-form">belongs-to-many selects</a>,
+then <code>after_relation_change</code> for each relation whose links changed,</li>
 <li><code>after_save</code> hook — an error rolls everything back.</li>
 </ol>
+<p>Hooks see foreign keys <strong>before</strong> they are checked: do not trust a
+<code>belongs_to</code> value read in <code>mutate_before_*</code> (look the record up under your
+own rules, or wait for <code>after_save</code>).</p>
 <pre><code class="language-rust ignore">async fn mutate_before_create(ctx: &amp;Ctx, _txn: &amp;DatabaseTransaction, mut data: Data) -&gt; AppResult&lt;Data&gt; {
     data.insert("author_id".into(), json!(ctx.principal.id));     // guarded fields may be set here
     Ok(data)
@@ -305,8 +317,8 @@ publish and unpublish it. Trashing does not call <code>after_delete</code>. The 
 <code>after_restore</code> calls <code>after_save</code>, so applications written before it existed
 behave as before; overriding <code>after_restore</code> replaces that call (call
 <code>Self::after_save(ctx, txn, record).await</code> from it to keep both).
-Bulk <a href="actions.html">actions</a> write through their handler: they call none of
-these hooks. A message a hook returns is
+<a href="actions.html">Actions</a> (row or bulk) write through their handler: they call
+none of these hooks. A message a hook returns is
 shown as written: translate it with <code>ctx.t("…")</code> (<a href="i18n.html">i18n</a>).</p>
 <h2 id="parent-locks"><a class="header" href="#parent-locks">Parent locks</a></h2>
 <p>A rule over a parent’s children (at most <code>capacity</code> active enrollments per
