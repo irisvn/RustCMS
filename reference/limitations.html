@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -184,9 +184,11 @@
 <p>What RustCMS does not do yet, and behaviours to know before relying on it.</p>
 <h2 id="not-supported-yet"><a class="header" href="#not-supported-yet">Not supported yet</a></h2>
 <ul>
-<li>Choosing belongs-to-many links in the record’s own form (use the relation
-manager on its page); belongs-to-many to the same resource, two relations
-over one pivot table, or to a resource declaring <code>lock_parent</code>.</li>
+<li>Pivot columns in the record’s own form (a <code>BelongsToManySelect</code> links with
+the pivot’s database defaults; edit pivot columns in the relation manager),
+and a <code>BelongsToManySelect</code> for relations with required pivot fields or
+records with more than 100 links; belongs-to-many to the same resource, two
+relations over one pivot table, or to a resource declaring <code>lock_parent</code>.</li>
 <li>Excel files; dashboard widgets other than counts (no sums or averages), charts in time zones other than UTC.</li>
 <li>Email verification flows (invitations mark the address verified).</li>
 <li>Mail rate limits shared between instances (<code>max_per_minute</code> counts per process); DKIM signing; attachments.</li>

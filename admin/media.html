@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -188,7 +188,30 @@ rich text fields hold documents that may embed images from it.</p>
 app.provider(AdminProvider::new().media().resource::&lt;PostResource&gt;());</code></pre>
 <p><code>media()</code> adds the <strong>Media</strong> resource (permissions <code>media.view_any</code>, <code>media.view</code>,
 <code>media.create</code>, <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>,
-<code>media.manage_all</code>), the upload route and <code>media:prune</code>.</p>
+<code>media.view_all</code>, <code>media.manage_all</code>), the upload route and <code>media:prune</code>.</p>
+<h2 id="whose-files-a-user-sees"><a class="header" href="#whose-files-a-user-sees">Whose files a user sees</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Permission</th><th>Sees and references</th><th>Trashes, restores, deletes (with <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td>neither</td><td>own uploads</td><td>own uploads</td></tr>
+<tr><td><code>media.view_all</code></td><td>every file</td><td>own uploads</td></tr>
+<tr><td><code>media.manage_all</code></td><td>every file</td><td>every file</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>media.view_all</code> suits editors who put other people’s images in their
+records (covers, galleries, images in rich text) and readers of those
+records, without the right to remove them. The scope decides what is listed,
+downloaded and accepted as a reference; the policy refuses the trash,
+restore and delete of another user’s file (403) unless <code>media.manage_all</code>,
+and the trash lists only the files the user may restore or delete.
+<code>media.manage_all</code> includes everything <code>media.view_all</code> grants. The Roles
+page shows them as <em>See every file</em> and <em>Manage every file</em> (under
+Resources, in English and Vietnamese); an application’s <code>permission_meta</code>
+for them takes precedence.</p>
 <p>Files are kept on the configured <a href="../digging-deeper/storage.html">storage</a>
 (local disk or S3-compatible).</p>
 <h2 id="uploads"><a class="header" href="#uploads">Uploads</a></h2>
@@ -207,7 +230,7 @@ crash in between is cleaned by <code>media:prune</code> (also run every minute b
 <h2 id="downloads"><a class="header" href="#downloads">Downloads</a></h2>
 <p><code>GET {admin}/api/media/{id}/file</code> serves the bytes through the application (no
 presigned URLs) to users who may view the media record (scope: own uploads
-unless <code>media.manage_all</code>). Trashed media is not served. Headers:
+unless <code>media.view_all</code> or <code>media.manage_all</code>). Trashed media is not served. Headers:
 <code>X-Content-Type-Options: nosniff</code>, <code>Content-Security-Policy: sandbox; default-src 'none'</code>, <code>Cache-Control: private, no-store</code>, and
 <code>Content-Disposition: inline</code> for png/jpeg/gif/webp, <code>attachment</code> otherwise.</p>
 <p>Deleting media for good queues its file’s removal in the same transaction; the
@@ -232,7 +255,10 @@ marks bold, italic, strike, code and link (<code>http</code>, <code>https</code>
 else is refused (422); documents are limited to 256 KiB, 10,000 elements,
 16 levels and 100 images. Images follow the media rules above (images only).</p>
 <p>The panel edits it with TipTap (no injected styles) and shows it with React
-elements. Headless apps render it with <code>rustcms::admin::rich_text::parse</code> and
+elements. The toolbar’s <strong>Link</strong> button opens a dialog for the address of
+the selected text (or of the link at the cursor, which it can also remove;
+with nothing selected, the address is inserted as linked text); it accepts
+<code>http</code>, <code>https</code> and <code>mailto</code> addresses, as the server does. Headless apps render it with <code>rustcms::admin::rich_text::parse</code> and
 <code>to_html(&amp;doc, &amp;|id| Some(my_public_url(id)))</code>, which escapes all text and
 attributes.</p>
 <h2 id="limits-and-operations"><a class="header" href="#limits-and-operations">Limits and operations</a></h2>

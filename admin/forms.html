@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -216,11 +216,19 @@ write are left out or disabled, and the server checks everything again.</p>
 <tr><td><code>FileUpload</code>, <code>RichEditor</code></td><td><a href="media.html">media and rich text</a></td></tr>
 <tr><td><code>CustomInput::make(field, "vendor/widget")</code></td><td>a <a href="custom-fields.html">custom widget</a></td></tr>
 <tr><td><code>SecretInput</code>, <code>SecretMapInput</code></td><td><a href="#encrypted-fields">encrypted fields</a> (chosen for them by default)</td></tr>
+<tr><td><code>BelongsToManySelect::make(relation)</code></td><td>the links of a <a href="relationships.html#choosing-links-in-the-records-form">belongs-to-many relation</a></td></tr>
 </tbody>
 </table>
 </div>
 <p>Common options: <code>.label(…)</code>, <code>.placeholder(…)</code>, <code>.help(…)</code>, <code>.column_span(n)</code>.
 <code>SelectInput</code> is named so it does not clash with <code>sea_orm::Select</code>.</p>
+<h2 id="leaving-with-unsaved-changes"><a class="header" href="#leaving-with-unsaved-changes">Leaving with unsaved changes</a></h2>
+<p>A create or edit form with changes not saved asks before the user leaves it:
+the panel’s dialog (<em>Keep editing</em> or <em>Discard changes</em>) for links and the
+browser’s Back button, the browser’s own prompt for closing or reloading the
+tab. It does not ask after a save, while a save is in flight or its outcome
+is unknown (the resource is paused and the retry is offered on any page), or
+when the session sends the tab elsewhere (sign-out, another user signing in).</p>
 <h2 id="layouts"><a class="header" href="#layouts">Layouts</a></h2>
 <div class="table-wrapper">
 <table>

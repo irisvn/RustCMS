@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,32 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.8.2</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.9.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="090"><a class="header" href="#090">0.9.0</a></h2>
+<ul>
+<li><strong><code>Resource::after_trash</code> and <code>after_restore</code></strong> run in the transaction of a
+trashing and of a restore, with the record; the default <code>after_restore</code>
+calls <code>after_save</code>, as restores did (<a href="#hooks">Resources</a>).</li>
+<li><strong><code>ActionField::datetime</code></strong>: a date and time in an action’s form, entered
+in UTC (<a href="#actions">Actions</a>).</li>
+<li><strong><code>SettingsPage::after_save</code></strong> runs in the save’s transaction with the old
+and new values (<a href="#reacting-to-a-save">Settings</a>).</li>
+<li><strong><code>media.view_all</code></strong>: see and use every file of the media library without
+the right to remove other users’ files (<a href="#whose-files-a-user-sees">Media</a>).</li>
+<li><strong><code>Resource::after_relation_change</code></strong> runs when links of a belongs-to-many
+relation change, in the same transaction
+(<a href="#reacting-to-link-changes">Relationships</a>).</li>
+<li><strong>Links in the record’s form</strong>: <code>BelongsToManySelect::make("tags")</code> lets
+users choose belongs-to-many links while creating or editing a record,
+with the relation manager’s permissions
+(<a href="#choosing-links-in-the-records-form">Relationships</a>).</li>
+<li>Rich text links are edited in a dialog; record forms ask before leaving
+with unsaved changes (<a href="#leaving-with-unsaved-changes">Forms</a>).</li>
+<li>Security: <code>tokio</code> 1.53.3 and <code>ctutils</code> 0.4.4 (RUSTSEC-2026-0386, 0385).
+Applications pinning their own <code>Cargo.lock</code> should run
+<code>cargo update -p tokio -p ctutils</code>.</li>
+</ul>
 <h2 id="082"><a class="header" href="#082">0.8.2</a></h2>
 <ul>
 <li>React pages: a read still in flight when a sub-path navigation remounts
@@ -546,6 +570,23 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-082-to-090"><a class="header" href="#from-082-to-090">From 0.8.2 to 0.9.0</a></h2>
+<ul>
+<li>New permission <code>media.view_all</code> (run <code>permission:sync</code> to list it). Roles
+that held <code>media.manage_all</code> only to see other users’ files can hold
+<code>media.view_all</code> instead.</li>
+<li><code>InputType</code> has a <code>BelongsToMany</code> variant, <code>InputSchema</code> a <code>links</code> field and
+<code>DynResource</code> a <code>link_options_new</code> method (exhaustive matches, struct
+literals and hand-written implementations need them). Admin clients see
+<code>vocabularyVersion</code> 9: an older admin SPA shows these inputs read-only and
+never sends them, and an extension
+that checks the vocabulary version should accept 9.</li>
+<li><code>Resource::after_relation_change</code> is new: a link write never updates the
+parent row, so touch <code>updated_at</code> there if your application needs it.</li>
+<li>Restores now call <code>after_restore</code>, whose default calls <code>after_save</code>:
+nothing changes unless you override it (then call <code>Self::after_save</code> from
+it if restores should still run your <code>after_save</code>).</li>
+</ul>
 <h2 id="from-081-to-082"><a class="header" href="#from-081-to-082">From 0.8.1 to 0.8.2</a></h2>
 <p>Nothing needs to change (no rebuild of React pages either). A workaround that
 hid <code>session_changed</code> from reads may stay or go.</p>
@@ -815,7 +856,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.8.2 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.9.0 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -826,7 +867,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.2" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.9.0" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1185,7 +1226,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.8.2", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.9.0", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -2668,12 +2709,31 @@ async fn after_save(ctx: &amp;Ctx, txn: &amp;DatabaseTransaction, post: &amp;pos
     // runs in the write's transaction: an error rolls everything back
     Ok(())
 }</code></pre>
-<p><code>mutate_before_update</code> receives the current record too. <code>after_delete</code> runs
-in the transaction that deletes a record of a resource without soft deletes,
-after the delete, with the record as it was: dispatch a job there to undo
-what the record configured (an error rolls the delete back). Trashing does
-not call it; <code>after_force_delete</code> runs when a trashed record is deleted for
-good. A message a hook returns is
+<p><code>mutate_before_update</code> receives the current record too. The other hooks run
+in the transaction of their write, after it, with the record; an error rolls
+the write back:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Hook</th><th>Runs when</th><th>Record</th></tr>
+</thead>
+<tbody>
+<tr><td><code>after_save</code></td><td>a create, an update; a restore through the default <code>after_restore</code></td><td>as stored</td></tr>
+<tr><td><code>after_delete</code></td><td>a record of a resource without soft deletes is deleted</td><td>as it was</td></tr>
+<tr><td><code>after_trash</code></td><td>a record is moved to the <a href="#soft-deletes">trash</a></td><td>as stored (marker set)</td></tr>
+<tr><td><code>after_restore</code></td><td>a trashed record is restored (default: calls <code>after_save</code>)</td><td>as stored (marker cleared)</td></tr>
+<tr><td><code>after_force_delete</code></td><td>a trashed record is deleted for good</td><td>as it was</td></tr>
+<tr><td><code>after_relation_change</code></td><td>links of a <a href="#reacting-to-link-changes">belongs-to-many</a> relation change</td><td>the parent, as stored</td></tr>
+</tbody>
+</table>
+</div>
+<p>Dispatch a job there (outbox) to undo what the record configured, or to
+publish and unpublish it. Trashing does not call <code>after_delete</code>. The default
+<code>after_restore</code> calls <code>after_save</code>, so applications written before it existed
+behave as before; overriding <code>after_restore</code> replaces that call (call
+<code>Self::after_save(ctx, txn, record).await</code> from it to keep both).
+Bulk <a href="#actions">actions</a> write through their handler: they call none of
+these hooks. A message a hook returns is
 shown as written: translate it with <code>ctx.t("…")</code> (<a href="#languages-i18n">i18n</a>).</p>
 <h2 id="parent-locks"><a class="header" href="#parent-locks">Parent locks</a></h2>
 <p>A rule over a parent’s children (at most <code>capacity</code> active enrollments per
@@ -2712,12 +2772,12 @@ do not. SQLite runs one writer at a time anyway.</li>
 <li><strong>Delete</strong> sets the marker. Trashed records disappear everywhere: lists,
 reads, writes, actions, relationship options and labels (<code>#key</code>), and
 references from other records (422). No database cascade runs: related
-records are kept.</li>
+records are kept. <code>after_trash</code> runs.</li>
 <li><strong>Restore</strong> (<code>{slug}.restore</code>) clears the marker. The record’s relationships
-must still point to records the user can see (422 otherwise); <code>after_save</code>
-runs.</li>
+must still point to records the user can see (422 otherwise);
+<code>after_restore</code> runs (by default, it calls <code>after_save</code>).</li>
 <li><strong>Force delete</strong> (<code>{slug}.force_delete</code>) removes a trashed record for good;
-database foreign-key actions apply then.</li>
+database foreign-key actions apply then; <code>after_force_delete</code> runs.</li>
 <li>The trash (<code>trashed=with|only</code>) needs <code>restore</code> or <code>force_delete</code>, and shows a
 record only if the policy allows <code>view</code> and one of them on it. With a custom
 policy, override <code>admits</code> for these abilities like the others.</li>
@@ -2776,11 +2836,19 @@ write are left out or disabled, and the server checks everything again.</p>
 <tr><td><code>FileUpload</code>, <code>RichEditor</code></td><td><a href="#media-uploads--rich-text">media and rich text</a></td></tr>
 <tr><td><code>CustomInput::make(field, "vendor/widget")</code></td><td>a <a href="#custom-fields">custom widget</a></td></tr>
 <tr><td><code>SecretInput</code>, <code>SecretMapInput</code></td><td><a href="#encrypted-fields">encrypted fields</a> (chosen for them by default)</td></tr>
+<tr><td><code>BelongsToManySelect::make(relation)</code></td><td>the links of a <a href="#choosing-links-in-the-records-form">belongs-to-many relation</a></td></tr>
 </tbody>
 </table>
 </div>
 <p>Common options: <code>.label(…)</code>, <code>.placeholder(…)</code>, <code>.help(…)</code>, <code>.column_span(n)</code>.
 <code>SelectInput</code> is named so it does not clash with <code>sea_orm::Select</code>.</p>
+<h2 id="leaving-with-unsaved-changes"><a class="header" href="#leaving-with-unsaved-changes">Leaving with unsaved changes</a></h2>
+<p>A create or edit form with changes not saved asks before the user leaves it:
+the panel’s dialog (<em>Keep editing</em> or <em>Discard changes</em>) for links and the
+browser’s Back button, the browser’s own prompt for closing or reloading the
+tab. It does not ask after a save, while a save is in flight or its outcome
+is unknown (the resource is paused and the retry is offered on any page), or
+when the session sends the tab elsewhere (sign-out, another user signing in).</p>
 <h2 id="layouts"><a class="header" href="#layouts">Layouts</a></h2>
 <div class="table-wrapper">
 <table>
@@ -2990,6 +3058,7 @@ hidden from the schema) for users without that permission.</p>
 <tr><td><code>integer</code></td><td>a 32-bit integer (JSON number)</td></tr>
 <tr><td><code>boolean</code></td><td><code>true</code> / <code>false</code></td></tr>
 <tr><td><code>date</code></td><td><code>"YYYY-MM-DD"</code></td></tr>
+<tr><td><code>datetime</code></td><td>a point in time, entered in UTC (the input says so) like a form’s <code>DateTimePicker</code> of an instant column; sent as RFC 3339 and given to the handler in UTC: <code>"2026-10-12T02:30:00Z"</code> (<code>chrono::DateTime::parse_from_rfc3339</code>)</td></tr>
 <tr><td><code>belongs_to(field, target)</code></td><td>the key of a record of <code>target</code> the user may view, as text (<code>"12"</code>, a UUID)</td></tr>
 </tbody>
 </table>
@@ -3210,6 +3279,31 @@ otherwise), and users who may not write it cannot attach (403). Attaching sends
 only the pivot columns the user filled in (the others keep their database
 defaults); editing a link sends only what changed, and a change to the values
 already stored writes and records nothing.</p>
+<h3 id="reacting-to-link-changes"><a class="header" href="#reacting-to-link-changes">Reacting to link changes</a></h3>
+<p><code>Resource::after_relation_change</code> runs in the transaction of every write
+that changed links of the record, after the pivot rows are written, with the
+parent record and what changed (target keys, canonical, sorted):</p>
+<pre><code class="language-rust ignore">async fn after_relation_change(
+    _ctx: &amp;Ctx,
+    txn: &amp;DatabaseTransaction,
+    post: &amp;post::Model,
+    change: &amp;RelationChange,
+) -&gt; AppResult&lt;()&gt; {
+    if change.relation == "tags" {
+        // change.attached, change.detached, change.pivot_updated: Vec&lt;String&gt;
+        let mut active = post.clone().into_active_model();
+        active.updated_at = Set(chrono::Utc::now()); // links count as an edit
+        active.update(txn).await?;
+    }
+    Ok(())
+}</code></pre>
+<p>It runs once per relation and write: an attach, a detach or a link edit from
+the relation manager, or the links chosen in the record’s own form. Writes
+that change nothing (attaching what is already linked, detaching what is not,
+a link edit to the stored values) do not call it. An error rolls the whole
+write back. The engine never updates the parent row for a link change (its
+<code>updated_at</code> included): do it here when your application needs it; the
+parent is already locked by the write.</p>
 <h3 id="rules-checked-at-boot"><a class="header" href="#rules-checked-at-boot">Rules checked at boot</a></h3>
 <ul>
 <li>The two key columns exist in the pivot with the types of the two keys.</li>
@@ -3227,8 +3321,51 @@ how many.</p>
 <p>Attach and detach send no <code>Idempotency-Key</code>: sending one again gives the same
 links. If the answer is lost, the panel pauses writes to the resource until
 the page is reloaded, then shows the links as they are.</p>
-<p>Records are linked only from the relation manager for now; a multi-select of
-links in the record’s own form is not available yet.</p>
+<h3 id="choosing-links-in-the-records-form"><a class="header" href="#choosing-links-in-the-records-form">Choosing links in the record’s form</a></h3>
+<p>A <code>BelongsToManySelect</code> puts the links in the record’s own create and edit
+form, next to its fields (tags on a post):</p>
+<pre><code class="language-rust ignore">fn form() -&gt; Form {
+    Form::new().schema(components![
+        TextInput::make("title"),
+        BelongsToManySelect::make("tags"),   // names the relation, not a field
+    ])
+}</code></pre>
+<p>The form shows the linked records (from the relation’s list: the target’s
+scope and policy) and a search over the records the user may attach. Saving
+sends what changed, never the whole set:</p>
+<pre><code class="language-json">{"title": "Hello", "tags": {"attach": ["rust"], "detach": ["sql"]}}
+</code></pre>
+<p>so links made by someone else meanwhile, and links to records the user
+cannot see, are kept. The record’s write checks them as the relation manager
+does: <code>attach_{relation}</code> and <code>detach_{relation}</code> are admitted before the keys
+are read (403), then decided on the record as the write stores it (403; the
+whole save rolls back); each record to attach must be one the user may view
+(locked and checked again, 422 on the input otherwise), records to detach the
+user cannot see are left alone. Edits also need <code>update</code>, like any field.
+The pivot rows, <code>after_relation_change</code>, then <code>after_save</code> run in the
+record’s transaction, and the history lists <code>attached</code> / <code>detached</code> after
+<code>created</code> / <code>updated</code>.</p>
+<ul>
+<li>The input appears when the user may list the target (<code>view_any</code>): on
+create when the attach ability is admitted and allowed without a record
+(<code>Policy::admits</code>, then <code>Policy::allows(…, None)</code>), on edit when they may
+attach or detach on the record, and never on the record’s page (the
+relation manager is there). The create form searches
+<code>GET {admin}/api/resources/{slug}/relations/{relation}/options</code>, which
+serves only relations the form links.</li>
+<li>The current links are read with the target’s page size: give the target
+a <code>per_page</code> limit of at least 100, or a record with more links than one
+page holds is changed on its page only.</li>
+<li>Not for the media library (link files with a
+<a href="#media-fields"><code>Field::media_list</code></a> field instead).</li>
+<li>New links take the pivot columns’ database defaults: a relation with a
+<code>.required()</code> pivot field cannot have a <code>BelongsToManySelect</code> (the panel
+refuses to start); edit pivot columns in the relation manager.</li>
+<li>At most 100 records per <code>attach</code> or <code>detach</code> (and 500 of one target
+resource per save, over all its relations). A record with more than 100
+visible links shows them read-only in the form: change them on its page.</li>
+<li>Detaching on create is refused (422).</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="import-and-export"><a class="header" href="#import-and-export">Import and export</a></h1>
 <p>A resource can be exported as CSV (the list as the user sees it, in a file a
@@ -3348,7 +3485,30 @@ rich text fields hold documents that may embed images from it.</p>
 app.provider(AdminProvider::new().media().resource::&lt;PostResource&gt;());</code></pre>
 <p><code>media()</code> adds the <strong>Media</strong> resource (permissions <code>media.view_any</code>, <code>media.view</code>,
 <code>media.create</code>, <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>,
-<code>media.manage_all</code>), the upload route and <code>media:prune</code>.</p>
+<code>media.view_all</code>, <code>media.manage_all</code>), the upload route and <code>media:prune</code>.</p>
+<h2 id="whose-files-a-user-sees"><a class="header" href="#whose-files-a-user-sees">Whose files a user sees</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Permission</th><th>Sees and references</th><th>Trashes, restores, deletes (with <code>media.delete</code>, <code>media.restore</code>, <code>media.force_delete</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td>neither</td><td>own uploads</td><td>own uploads</td></tr>
+<tr><td><code>media.view_all</code></td><td>every file</td><td>own uploads</td></tr>
+<tr><td><code>media.manage_all</code></td><td>every file</td><td>every file</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>media.view_all</code> suits editors who put other people’s images in their
+records (covers, galleries, images in rich text) and readers of those
+records, without the right to remove them. The scope decides what is listed,
+downloaded and accepted as a reference; the policy refuses the trash,
+restore and delete of another user’s file (403) unless <code>media.manage_all</code>,
+and the trash lists only the files the user may restore or delete.
+<code>media.manage_all</code> includes everything <code>media.view_all</code> grants. The Roles
+page shows them as <em>See every file</em> and <em>Manage every file</em> (under
+Resources, in English and Vietnamese); an application’s <code>permission_meta</code>
+for them takes precedence.</p>
 <p>Files are kept on the configured <a href="#file-storage">storage</a>
 (local disk or S3-compatible).</p>
 <h2 id="uploads"><a class="header" href="#uploads">Uploads</a></h2>
@@ -3367,7 +3527,7 @@ crash in between is cleaned by <code>media:prune</code> (also run every minute b
 <h2 id="downloads"><a class="header" href="#downloads">Downloads</a></h2>
 <p><code>GET {admin}/api/media/{id}/file</code> serves the bytes through the application (no
 presigned URLs) to users who may view the media record (scope: own uploads
-unless <code>media.manage_all</code>). Trashed media is not served. Headers:
+unless <code>media.view_all</code> or <code>media.manage_all</code>). Trashed media is not served. Headers:
 <code>X-Content-Type-Options: nosniff</code>, <code>Content-Security-Policy: sandbox; default-src 'none'</code>, <code>Cache-Control: private, no-store</code>, and
 <code>Content-Disposition: inline</code> for png/jpeg/gif/webp, <code>attachment</code> otherwise.</p>
 <p>Deleting media for good queues its file’s removal in the same transaction; the
@@ -3392,7 +3552,10 @@ marks bold, italic, strike, code and link (<code>http</code>, <code>https</code>
 else is refused (422); documents are limited to 256 KiB, 10,000 elements,
 16 levels and 100 images. Images follow the media rules above (images only).</p>
 <p>The panel edits it with TipTap (no injected styles) and shows it with React
-elements. Headless apps render it with <code>rustcms::admin::rich_text::parse</code> and
+elements. The toolbar’s <strong>Link</strong> button opens a dialog for the address of
+the selected text (or of the link at the cursor, which it can also remove;
+with nothing selected, the address is inserted as linked text); it accepts
+<code>http</code>, <code>https</code> and <code>mailto</code> addresses, as the server does. Headless apps render it with <code>rustcms::admin::rich_text::parse</code> and
 <code>to_html(&amp;doc, &amp;|id| Some(my_public_url(id)))</code>, which escapes all text and
 attributes.</p>
 <h2 id="limits-and-operations"><a class="header" href="#limits-and-operations">Limits and operations</a></h2>
@@ -4747,6 +4910,39 @@ one without giving the secret again clears it, so a password is never used
 with a server it was not given for.</p>
 <p><code>validate_in(state, ctx, settings)</code> is <code>validate</code> with the application (its
 configuration and services), for checks that depend on them.</p>
+<h3 id="reacting-to-a-save"><a class="header" href="#reacting-to-a-save">Reacting to a save</a></h3>
+<p><code>after_save</code> runs in the save’s transaction once the new values are written
+(and the audit entry recorded), before the commit, with the group as it was
+and as saved; an error rolls the save back. Use it to react to a change in
+the same transaction, e.g. dispatch a job that rebuilds what depends on the
+setting:</p>
+<pre><code class="language-rust ignore">async fn after_save(
+    _state: &amp;AppState,
+    _ctx: &amp;Ctx,
+    txn: &amp;DatabaseTransaction,
+    before: &amp;Self,
+    after: &amp;Self,
+) -&gt; AppResult&lt;()&gt; {
+    if before.site_name != after.site_name {
+        rustcms::queue::dispatch(txn, &amp;RebuildSitemap).await?; // committed with the save
+    }
+    Ok(())
+}</code></pre>
+<p><code>before</code> holds the defaults when the group was never saved; a secret that
+could not be decrypted (which the save replaced or cleared) reads as unset
+there, and a stored value that no longer fits the struct (its declaration
+changed) reads as its default, so the save that replaces it still succeeds. A save that changes nothing writes nothing and does not call it.
+<code>before</code> and <code>after</code> hold secrets in plain text: never log them or put them in
+a job’s payload. Secrets of either version are replaced by <code>[redacted]</code> in the
+messages of the errors it returns (validation, bad request and internal).
+Secrets quoted in a <code>ValidationErrors</code> it returns, as they were or as
+saved, are redacted like <code>validate</code>’s.</p>
+<p>The hook sees secrets as values: <code>before.smtp_password.expose()</code> and
+<code>after.smtp_password.expose()</code> are the plaintext (an unset or unreadable one
+is <code>None</code>). Compare them, or hand them to the service that needs them, but
+never write them to logs, the audit log, a job’s description, an error
+message or anything sent to the browser (ADR 0030’s rule for secrets): a
+job that needs the secret reads the settings itself when it runs.</p>
 <h2 id="mail-1"><a class="header" href="#mail-1">Mail</a></h2>
 <p><code>AdminProvider::mail_settings()</code> adds the <strong>Mail</strong> page: the SMTP server of
 <a href="#mail-2"><code>MailSettings</code></a> (host, port, encryption, user
@@ -6796,6 +6992,8 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (media library enabled)</td></tr>
 <tr><td>GET</td><td><code>/media/{id}/file</code></td><td>the file (authorized, safe headers)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/fields/{field}/options?search=&amp;keys=a,b&amp;record=</code></td><td><code>{data: [{value, label}]}</code> (≤ 50)</td></tr>
+<tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}/options?search=&amp;keys=</code></td><td><code>{data: [{value, label, attached}]}</code>: records to attach to a record (<code>attach_{relation}</code> on it)</td></tr>
+<tr><td>GET</td><td><code>/resources/{slug}/relations/{relation}/options?search=&amp;keys=</code></td><td><code>{data: [{value, label, attached: false}]}</code>: records to attach in a create form’s <a href="#choosing-links-in-the-records-form"><code>BelongsToManySelect</code></a> (<code>create</code> and <code>attach_{relation}</code>)</td></tr>
 <tr><td>…</td><td><code>/system/…</code></td><td>users, roles and permissions, see <a href="#users-roles--your-account">Users, roles &amp; account</a></td></tr>
 <tr><td>GET</td><td><code>/system/permission-presets</code></td><td><code>[{id, label, description?, permissions}]</code> (<code>roles.view_any</code> or <code>permissions.view_any</code>); <code>/system/permissions</code> items carry <code>area</code>, <code>areaLabel</code>, <code>areaSort</code>, and <code>label</code>/<code>description</code> when declared</td></tr>
 <tr><td>GET / PUT</td><td><code>/settings/{group}</code></td><td>settings pages, see <a href="#api-2">Settings</a></td></tr>
@@ -7086,9 +7284,11 @@ store large identifiers as strings.</p>
 <p>What RustCMS does not do yet, and behaviours to know before relying on it.</p>
 <h2 id="not-supported-yet"><a class="header" href="#not-supported-yet">Not supported yet</a></h2>
 <ul>
-<li>Choosing belongs-to-many links in the record’s own form (use the relation
-manager on its page); belongs-to-many to the same resource, two relations
-over one pivot table, or to a resource declaring <code>lock_parent</code>.</li>
+<li>Pivot columns in the record’s own form (a <code>BelongsToManySelect</code> links with
+the pivot’s database defaults; edit pivot columns in the relation manager),
+and a <code>BelongsToManySelect</code> for relations with required pivot fields or
+records with more than 100 links; belongs-to-many to the same resource, two
+relations over one pivot table, or to a resource declaring <code>lock_parent</code>.</li>
 <li>Excel files; dashboard widgets other than counts (no sums or averages), charts in time zones other than UTC.</li>
 <li>Email verification flows (invitations mark the address verified).</li>
 <li>Mail rate limits shared between instances (<code>max_per_minute</code> counts per process); DKIM signing; attachments.</li>

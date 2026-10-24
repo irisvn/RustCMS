@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -304,6 +304,31 @@ otherwise), and users who may not write it cannot attach (403). Attaching sends
 only the pivot columns the user filled in (the others keep their database
 defaults); editing a link sends only what changed, and a change to the values
 already stored writes and records nothing.</p>
+<h3 id="reacting-to-link-changes"><a class="header" href="#reacting-to-link-changes">Reacting to link changes</a></h3>
+<p><code>Resource::after_relation_change</code> runs in the transaction of every write
+that changed links of the record, after the pivot rows are written, with the
+parent record and what changed (target keys, canonical, sorted):</p>
+<pre><code class="language-rust ignore">async fn after_relation_change(
+    _ctx: &amp;Ctx,
+    txn: &amp;DatabaseTransaction,
+    post: &amp;post::Model,
+    change: &amp;RelationChange,
+) -&gt; AppResult&lt;()&gt; {
+    if change.relation == "tags" {
+        // change.attached, change.detached, change.pivot_updated: Vec&lt;String&gt;
+        let mut active = post.clone().into_active_model();
+        active.updated_at = Set(chrono::Utc::now()); // links count as an edit
+        active.update(txn).await?;
+    }
+    Ok(())
+}</code></pre>
+<p>It runs once per relation and write: an attach, a detach or a link edit from
+the relation manager, or the links chosen in the record’s own form. Writes
+that change nothing (attaching what is already linked, detaching what is not,
+a link edit to the stored values) do not call it. An error rolls the whole
+write back. The engine never updates the parent row for a link change (its
+<code>updated_at</code> included): do it here when your application needs it; the
+parent is already locked by the write.</p>
 <h3 id="rules-checked-at-boot"><a class="header" href="#rules-checked-at-boot">Rules checked at boot</a></h3>
 <ul>
 <li>The two key columns exist in the pivot with the types of the two keys.</li>
@@ -321,8 +346,51 @@ how many.</p>
 <p>Attach and detach send no <code>Idempotency-Key</code>: sending one again gives the same
 links. If the answer is lost, the panel pauses writes to the resource until
 the page is reloaded, then shows the links as they are.</p>
-<p>Records are linked only from the relation manager for now; a multi-select of
-links in the record’s own form is not available yet.</p>
+<h3 id="choosing-links-in-the-records-form"><a class="header" href="#choosing-links-in-the-records-form">Choosing links in the record’s form</a></h3>
+<p>A <code>BelongsToManySelect</code> puts the links in the record’s own create and edit
+form, next to its fields (tags on a post):</p>
+<pre><code class="language-rust ignore">fn form() -&gt; Form {
+    Form::new().schema(components![
+        TextInput::make("title"),
+        BelongsToManySelect::make("tags"),   // names the relation, not a field
+    ])
+}</code></pre>
+<p>The form shows the linked records (from the relation’s list: the target’s
+scope and policy) and a search over the records the user may attach. Saving
+sends what changed, never the whole set:</p>
+<pre><code class="language-json">{"title": "Hello", "tags": {"attach": ["rust"], "detach": ["sql"]}}
+</code></pre>
+<p>so links made by someone else meanwhile, and links to records the user
+cannot see, are kept. The record’s write checks them as the relation manager
+does: <code>attach_{relation}</code> and <code>detach_{relation}</code> are admitted before the keys
+are read (403), then decided on the record as the write stores it (403; the
+whole save rolls back); each record to attach must be one the user may view
+(locked and checked again, 422 on the input otherwise), records to detach the
+user cannot see are left alone. Edits also need <code>update</code>, like any field.
+The pivot rows, <code>after_relation_change</code>, then <code>after_save</code> run in the
+record’s transaction, and the history lists <code>attached</code> / <code>detached</code> after
+<code>created</code> / <code>updated</code>.</p>
+<ul>
+<li>The input appears when the user may list the target (<code>view_any</code>): on
+create when the attach ability is admitted and allowed without a record
+(<code>Policy::admits</code>, then <code>Policy::allows(…, None)</code>), on edit when they may
+attach or detach on the record, and never on the record’s page (the
+relation manager is there). The create form searches
+<code>GET {admin}/api/resources/{slug}/relations/{relation}/options</code>, which
+serves only relations the form links.</li>
+<li>The current links are read with the target’s page size: give the target
+a <code>per_page</code> limit of at least 100, or a record with more links than one
+page holds is changed on its page only.</li>
+<li>Not for the media library (link files with a
+<a href="media.html#media-fields"><code>Field::media_list</code></a> field instead).</li>
+<li>New links take the pivot columns’ database defaults: a relation with a
+<code>.required()</code> pivot field cannot have a <code>BelongsToManySelect</code> (the panel
+refuses to start); edit pivot columns in the relation manager.</li>
+<li>At most 100 records per <code>attach</code> or <code>detach</code> (and 500 of one target
+resource per save, over all its relations). A record with more than 100
+visible links shows them read-only in the form: change them on its page.</li>
+<li>Detaching on create is refused (422).</li>
+</ul>
 
                     </main>
 

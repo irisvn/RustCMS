@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -210,6 +210,8 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><td>POST</td><td><code>/media</code> (multipart, one <code>file</code> part)</td><td>201 <code>{data: MediaItem}</code> (media library enabled)</td></tr>
 <tr><td>GET</td><td><code>/media/{id}/file</code></td><td>the file (authorized, safe headers)</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/fields/{field}/options?search=&amp;keys=a,b&amp;record=</code></td><td><code>{data: [{value, label}]}</code> (≤ 50)</td></tr>
+<tr><td>GET</td><td><code>/resources/{slug}/records/{key}/relations/{relation}/options?search=&amp;keys=</code></td><td><code>{data: [{value, label, attached}]}</code>: records to attach to a record (<code>attach_{relation}</code> on it)</td></tr>
+<tr><td>GET</td><td><code>/resources/{slug}/relations/{relation}/options?search=&amp;keys=</code></td><td><code>{data: [{value, label, attached: false}]}</code>: records to attach in a create form’s <a href="../admin/relationships.html#choosing-links-in-the-records-form"><code>BelongsToManySelect</code></a> (<code>create</code> and <code>attach_{relation}</code>)</td></tr>
 <tr><td>…</td><td><code>/system/…</code></td><td>users, roles and permissions, see <a href="../admin/users-roles.html">Users, roles &amp; account</a></td></tr>
 <tr><td>GET</td><td><code>/system/permission-presets</code></td><td><code>[{id, label, description?, permissions}]</code> (<code>roles.view_any</code> or <code>permissions.view_any</code>); <code>/system/permissions</code> items carry <code>area</code>, <code>areaLabel</code>, <code>areaSort</code>, and <code>label</code>/<code>description</code> when declared</td></tr>
 <tr><td>GET / PUT</td><td><code>/settings/{group}</code></td><td>settings pages, see <a href="../admin/settings.html#api">Settings</a></td></tr>

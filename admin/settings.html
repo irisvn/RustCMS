@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -339,6 +339,39 @@ one without giving the secret again clears it, so a password is never used
 with a server it was not given for.</p>
 <p><code>validate_in(state, ctx, settings)</code> is <code>validate</code> with the application (its
 configuration and services), for checks that depend on them.</p>
+<h3 id="reacting-to-a-save"><a class="header" href="#reacting-to-a-save">Reacting to a save</a></h3>
+<p><code>after_save</code> runs in the save’s transaction once the new values are written
+(and the audit entry recorded), before the commit, with the group as it was
+and as saved; an error rolls the save back. Use it to react to a change in
+the same transaction, e.g. dispatch a job that rebuilds what depends on the
+setting:</p>
+<pre><code class="language-rust ignore">async fn after_save(
+    _state: &amp;AppState,
+    _ctx: &amp;Ctx,
+    txn: &amp;DatabaseTransaction,
+    before: &amp;Self,
+    after: &amp;Self,
+) -&gt; AppResult&lt;()&gt; {
+    if before.site_name != after.site_name {
+        rustcms::queue::dispatch(txn, &amp;RebuildSitemap).await?; // committed with the save
+    }
+    Ok(())
+}</code></pre>
+<p><code>before</code> holds the defaults when the group was never saved; a secret that
+could not be decrypted (which the save replaced or cleared) reads as unset
+there, and a stored value that no longer fits the struct (its declaration
+changed) reads as its default, so the save that replaces it still succeeds. A save that changes nothing writes nothing and does not call it.
+<code>before</code> and <code>after</code> hold secrets in plain text: never log them or put them in
+a job’s payload. Secrets of either version are replaced by <code>[redacted]</code> in the
+messages of the errors it returns (validation, bad request and internal).
+Secrets quoted in a <code>ValidationErrors</code> it returns, as they were or as
+saved, are redacted like <code>validate</code>’s.</p>
+<p>The hook sees secrets as values: <code>before.smtp_password.expose()</code> and
+<code>after.smtp_password.expose()</code> are the plaintext (an unset or unreadable one
+is <code>None</code>). Compare them, or hand them to the service that needs them, but
+never write them to logs, the audit log, a job’s description, an error
+message or anything sent to the browser (ADR 0030’s rule for secrets): a
+job that needs the secret reads the settings itself when it runs.</p>
 <h2 id="mail"><a class="header" href="#mail">Mail</a></h2>
 <p><code>AdminProvider::mail_settings()</code> adds the <strong>Mail</strong> page: the SMTP server of
 <a href="../digging-deeper/mail.html"><code>MailSettings</code></a> (host, port, encryption, user

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -282,12 +282,31 @@ async fn after_save(ctx: &amp;Ctx, txn: &amp;DatabaseTransaction, post: &amp;pos
     // runs in the write's transaction: an error rolls everything back
     Ok(())
 }</code></pre>
-<p><code>mutate_before_update</code> receives the current record too. <code>after_delete</code> runs
-in the transaction that deletes a record of a resource without soft deletes,
-after the delete, with the record as it was: dispatch a job there to undo
-what the record configured (an error rolls the delete back). Trashing does
-not call it; <code>after_force_delete</code> runs when a trashed record is deleted for
-good. A message a hook returns is
+<p><code>mutate_before_update</code> receives the current record too. The other hooks run
+in the transaction of their write, after it, with the record; an error rolls
+the write back:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Hook</th><th>Runs when</th><th>Record</th></tr>
+</thead>
+<tbody>
+<tr><td><code>after_save</code></td><td>a create, an update; a restore through the default <code>after_restore</code></td><td>as stored</td></tr>
+<tr><td><code>after_delete</code></td><td>a record of a resource without soft deletes is deleted</td><td>as it was</td></tr>
+<tr><td><code>after_trash</code></td><td>a record is moved to the <a href="#soft-deletes">trash</a></td><td>as stored (marker set)</td></tr>
+<tr><td><code>after_restore</code></td><td>a trashed record is restored (default: calls <code>after_save</code>)</td><td>as stored (marker cleared)</td></tr>
+<tr><td><code>after_force_delete</code></td><td>a trashed record is deleted for good</td><td>as it was</td></tr>
+<tr><td><code>after_relation_change</code></td><td>links of a <a href="relationships.html#reacting-to-link-changes">belongs-to-many</a> relation change</td><td>the parent, as stored</td></tr>
+</tbody>
+</table>
+</div>
+<p>Dispatch a job there (outbox) to undo what the record configured, or to
+publish and unpublish it. Trashing does not call <code>after_delete</code>. The default
+<code>after_restore</code> calls <code>after_save</code>, so applications written before it existed
+behave as before; overriding <code>after_restore</code> replaces that call (call
+<code>Self::after_save(ctx, txn, record).await</code> from it to keep both).
+Bulk <a href="actions.html">actions</a> write through their handler: they call none of
+these hooks. A message a hook returns is
 shown as written: translate it with <code>ctx.t("…")</code> (<a href="i18n.html">i18n</a>).</p>
 <h2 id="parent-locks"><a class="header" href="#parent-locks">Parent locks</a></h2>
 <p>A rule over a parent’s children (at most <code>capacity</code> active enrollments per
@@ -326,12 +345,12 @@ do not. SQLite runs one writer at a time anyway.</li>
 <li><strong>Delete</strong> sets the marker. Trashed records disappear everywhere: lists,
 reads, writes, actions, relationship options and labels (<code>#key</code>), and
 references from other records (422). No database cascade runs: related
-records are kept.</li>
+records are kept. <code>after_trash</code> runs.</li>
 <li><strong>Restore</strong> (<code>{slug}.restore</code>) clears the marker. The record’s relationships
-must still point to records the user can see (422 otherwise); <code>after_save</code>
-runs.</li>
+must still point to records the user can see (422 otherwise);
+<code>after_restore</code> runs (by default, it calls <code>after_save</code>).</li>
 <li><strong>Force delete</strong> (<code>{slug}.force_delete</code>) removes a trashed record for good;
-database foreign-key actions apply then.</li>
+database foreign-key actions apply then; <code>after_force_delete</code> runs.</li>
 <li>The trash (<code>trashed=with|only</code>) needs <code>restore</code> or <code>force_delete</code>, and shows a
 record only if the policy allows <code>view</code> and one of them on it. With a custom
 policy, override <code>admits</code> for these abilities like the others.</li>

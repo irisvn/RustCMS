@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,23 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-082-to-090"><a class="header" href="#from-082-to-090">From 0.8.2 to 0.9.0</a></h2>
+<ul>
+<li>New permission <code>media.view_all</code> (run <code>permission:sync</code> to list it). Roles
+that held <code>media.manage_all</code> only to see other users’ files can hold
+<code>media.view_all</code> instead.</li>
+<li><code>InputType</code> has a <code>BelongsToMany</code> variant, <code>InputSchema</code> a <code>links</code> field and
+<code>DynResource</code> a <code>link_options_new</code> method (exhaustive matches, struct
+literals and hand-written implementations need them). Admin clients see
+<code>vocabularyVersion</code> 9: an older admin SPA shows these inputs read-only and
+never sends them, and an extension
+that checks the vocabulary version should accept 9.</li>
+<li><code>Resource::after_relation_change</code> is new: a link write never updates the
+parent row, so touch <code>updated_at</code> there if your application needs it.</li>
+<li>Restores now call <code>after_restore</code>, whose default calls <code>after_save</code>:
+nothing changes unless you override it (then call <code>Self::after_save</code> from
+it if restores should still run your <code>after_save</code>).</li>
+</ul>
 <h2 id="from-081-to-082"><a class="header" href="#from-081-to-082">From 0.8.1 to 0.8.2</a></h2>
 <p>Nothing needs to change (no rebuild of React pages either). A workaround that
 hid <code>session_changed</code> from reads may stay or go.</p>

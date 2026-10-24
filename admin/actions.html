@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-31d0f577.js";
+            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -236,6 +236,7 @@ hidden from the schema) for users without that permission.</p>
 <tr><td><code>integer</code></td><td>a 32-bit integer (JSON number)</td></tr>
 <tr><td><code>boolean</code></td><td><code>true</code> / <code>false</code></td></tr>
 <tr><td><code>date</code></td><td><code>"YYYY-MM-DD"</code></td></tr>
+<tr><td><code>datetime</code></td><td>a point in time, entered in UTC (the input says so) like a form’s <code>DateTimePicker</code> of an instant column; sent as RFC 3339 and given to the handler in UTC: <code>"2026-10-12T02:30:00Z"</code> (<code>chrono::DateTime::parse_from_rfc3339</code>)</td></tr>
 <tr><td><code>belongs_to(field, target)</code></td><td>the key of a record of <code>target</code> the user may view, as text (<code>"12"</code>, a UUID)</td></tr>
 </tbody>
 </table>
