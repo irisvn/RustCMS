@@ -1,0 +1,444 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Resources - RustCMS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Build admin panels and headless CMS backends in Rust.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-1982832c.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-3a27c04e.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">RustCMS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/irisvn/RustCMS-Core" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/irisvn/RustCMS-Core/edit/main/docs/guide/src/admin/resources.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="resources"><a class="header" href="#resources">Resources</a></h1>
+<p>A resource exposes one SeaORM entity in the admin panel, like a Filament
+resource: its fields (data and permissions), form, table, actions, hooks and
+policy. <code>rustcms make:resource Post --generate</code> writes one from the model in
+<code>src/admin/resources/post_resource.rs</code> and registers it in
+<code>src/providers/admin_panel_provider.rs</code>:</p>
+<pre><code class="language-rust ignore">pub fn provider() -&gt; AdminProvider {
+    AdminProvider::new().brand("Blog").resource::&lt;PostResource&gt;().resource::&lt;CategoryResource&gt;()
+}</code></pre>
+<p>Each resource declares its permissions (<code>posts.view_any</code>, <code>posts.view</code>,
+<code>posts.create</code>, <code>posts.update</code>, <code>posts.delete</code>, plus action abilities) for
+<code>rustcms permission:sync</code>.</p>
+<pre><code class="language-rust ignore">use rustcms::admin::*;
+
+pub struct PostResource;
+
+impl Resource for PostResource {
+    type Entity = post::Entity;
+    const SLUG: &amp;'static str = "posts";
+
+    fn meta() -&gt; ResourceMeta {
+        ResourceMeta::new("Post")
+            .title("title")
+            .key(KeyStrategy::AppGenerated(|| Value::Uuid(Some(Uuid::now_v7()))))
+    }
+
+    fn fields() -&gt; Vec&lt;Field&gt; {
+        vec![
+            Field::column(post::Column::Title).required().searchable().sortable(),
+            Field::column(post::Column::CategoryId).belongs_to("categories").filterable(),
+            Field::column(post::Column::AuthorId).guarded().readable(|_| true),
+            Field::column(post::Column::Published).updatable(|ctx| ctx.can("posts.publish")),
+        ]
+    }
+}</code></pre>
+<h2 id="fields"><a class="header" href="#fields">Fields</a></h2>
+<p><code>fields()</code> is the contract with clients: <strong>columns not listed are never read
+or written</strong> by the panel or its API. Each field sets what the column allows:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Does</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.required()</code></td><td>must be present on create and never set to <code>null</code> (<code>""</code> is a value: check blank text in a hook)</td></tr>
+<tr><td><code>.max_length(n)</code></td><td>characters (text), checked on every write</td></tr>
+<tr><td><code>.searchable()</code>, <code>.sortable()</code>, <code>.filterable()</code></td><td>allowed in search, sort and filters</td></tr>
+<tr><td><code>.belongs_to("categories")</code></td><td>a relationship: values must be visible records of that resource</td></tr>
+<tr><td><code>.guarded()</code></td><td>never written from input (hooks may set it); not readable unless <code>.readable(…)</code></td></tr>
+<tr><td><code>.readable(|ctx| …)</code>, <code>.creatable(…)</code>, <code>.updatable(…)</code></td><td>field rules per user, checked on the server</td></tr>
+<tr><td><code>.label("…")</code></td><td>the label (default: the column name in words)</td></tr>
+<tr><td><code>.media()</code>, <code>.media_list(n)</code>, <code>.accept(…)</code>, <code>.max_size(…)</code></td><td><a href="media.html">media</a> fields</td></tr>
+<tr><td><code>.rich_text()</code></td><td>a <a href="media.html#rich-text">rich text</a> document</td></tr>
+<tr><td><code>.key_value()</code>, <code>.max_items(n)</code></td><td>a <a href="forms.html#key-value">key/value</a> object</td></tr>
+<tr><td><code>.encrypted()</code>, <code>.encrypted_map()</code></td><td>a secret, or named secrets, sealed at rest and never shown (<a href="forms.html#encrypted-fields">encrypted fields</a>)</td></tr>
+<tr><td><code>.audit_redact()</code></td><td>its values never reach the <a href="../digging-deeper/audit-log.html">audit log</a> (only that it changed)</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>form()</code> and <code>table()</code> only describe presentation (<a href="forms.html">Forms</a>,
+<a href="tables.html">Tables</a>); leave them out to get one input per field and the first
+fields as columns.</p>
+<h2 id="metadata"><a class="header" href="#metadata">Metadata</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>ResourceMeta</code></th><th>Does</th></tr>
+</thead>
+<tbody>
+<tr><td><code>::new("Post")</code></td><td>singular label</td></tr>
+<tr><td><code>.plural("Posts")</code></td><td>plural label (default: label + <code>s</code>)</td></tr>
+<tr><td><code>.title("title")</code></td><td>the field used as a record’s title</td></tr>
+<tr><td><code>.group("Content")</code>, <code>.icon("file-text")</code></td><td><a href="overview.html#navigation">navigation</a></td></tr>
+<tr><td><code>.sort(10)</code>, <code>.navigation(false)</code></td><td><a href="overview.html#order">order</a>, <a href="overview.html#hiding-a-resource">hidden from the navigation</a></td></tr>
+<tr><td><code>.key(KeyStrategy::…)</code></td><td><a href="#primary-keys">primary keys</a></td></tr>
+<tr><td><code>.unique(constraint, &amp;[columns], message)</code></td><td>maps a unique constraint to a field error</td></tr>
+<tr><td><code>.soft_deletes()</code>, <code>.soft_deletes_column("removed_at")</code></td><td><a href="#soft-deletes">soft deletes</a></td></tr>
+<tr><td><code>.lock_parent("course_id", "courses")</code></td><td>writes lock the parent record first (<a href="#parent-locks">parent locks</a>)</td></tr>
+<tr><td><code>.exportable()</code>, <code>.importable()</code></td><td>CSV <a href="import-export.html">export and import</a> (abilities <code>export</code>, <code>import</code>)</td></tr>
+<tr><td><code>.import_key(field)</code></td><td>imported rows matching a record by <code>field</code> update it (<a href="import-export.html#importing">import</a>)</td></tr>
+<tr><td><code>.audit(false)</code></td><td>writes are not recorded in the <a href="../digging-deeper/audit-log.html">audit log</a> (on by default)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="hooks"><a class="header" href="#hooks">Hooks</a></h2>
+<p>Hooks are async methods of the resource (<code>use rustcms::async_trait;</code> and put
+<code>#[async_trait]</code> on the <code>impl</code>; an attribute path cannot start with <code>rustc…</code>). Every write runs in one transaction:</p>
+<ol>
+<li>reject undeclared or non-writable keys (422),</li>
+<li>type-check values against the <a href="../reference/wire-format.html">wire format</a>
+and check <code>.required()</code>,</li>
+<li>lock the parent record (<a href="#parent-locks">parent locks</a>),</li>
+<li><code>mutate_before_create</code> / <code>mutate_before_update</code> hooks,</li>
+<li>check the final values, hooks’ changes included: <code>belongs_to</code> keys must be
+records the user can see, and media (rich text images included) files the
+user can see (422); limits (<code>max_length</code>, …) are re-checked as the values
+are written, so hooks cannot bypass them,</li>
+<li>write (database constraints are mapped to field errors with <code>ResourceMeta::unique</code>),</li>
+<li>write the links of <a href="relationships.html#choosing-links-in-the-records-form">belongs-to-many selects</a>,
+then <code>after_relation_change</code> for each relation whose links changed,</li>
+<li><code>after_save</code> hook — an error rolls everything back.</li>
+</ol>
+<p>Hooks see foreign keys <strong>before</strong> they are checked: do not trust a
+<code>belongs_to</code> value read in <code>mutate_before_*</code> (look the record up under your
+own rules, or wait for <code>after_save</code>).</p>
+<pre><code class="language-rust ignore">async fn mutate_before_create(ctx: &amp;Ctx, _txn: &amp;DatabaseTransaction, mut data: Data) -&gt; AppResult&lt;Data&gt; {
+    data.insert("author_id".into(), json!(ctx.principal.id));     // guarded fields may be set here
+    Ok(data)
+}
+
+async fn after_save(ctx: &amp;Ctx, txn: &amp;DatabaseTransaction, post: &amp;post::Model) -&gt; AppResult&lt;()&gt; {
+    // runs in the write's transaction: an error rolls everything back
+    Ok(())
+}</code></pre>
+<p><code>mutate_before_update</code> receives the current record too. The other hooks run
+in the transaction of their write, after it, with the record; an error rolls
+the write back:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Hook</th><th>Runs when</th><th>Record</th></tr>
+</thead>
+<tbody>
+<tr><td><code>after_save</code></td><td>a create, an update; a restore through the default <code>after_restore</code></td><td>as stored</td></tr>
+<tr><td><code>after_delete</code></td><td>a record of a resource without soft deletes is deleted</td><td>as it was</td></tr>
+<tr><td><code>after_trash</code></td><td>a record is moved to the <a href="#soft-deletes">trash</a></td><td>as stored (marker set)</td></tr>
+<tr><td><code>after_restore</code></td><td>a trashed record is restored (default: calls <code>after_save</code>)</td><td>as stored (marker cleared)</td></tr>
+<tr><td><code>after_force_delete</code></td><td>a trashed record is deleted for good</td><td>as it was</td></tr>
+<tr><td><code>after_relation_change</code></td><td>links of a <a href="relationships.html#reacting-to-link-changes">belongs-to-many</a> relation change</td><td>the parent, as stored</td></tr>
+</tbody>
+</table>
+</div>
+<p>Dispatch a job there (outbox) to undo what the record configured, or to
+publish and unpublish it. Trashing does not call <code>after_delete</code>. The default
+<code>after_restore</code> calls <code>after_save</code>, so applications written before it existed
+behave as before; overriding <code>after_restore</code> replaces that call (call
+<code>Self::after_save(ctx, txn, record).await</code> from it to keep both).
+<a href="actions.html">Actions</a> (row or bulk) write through their handler: they call
+none of these hooks. A message a hook returns is
+shown as written: translate it with <code>ctx.t("…")</code> (<a href="i18n.html">i18n</a>).</p>
+<h2 id="parent-locks"><a class="header" href="#parent-locks">Parent locks</a></h2>
+<p>A rule over a parent’s children (at most <code>capacity</code> active enrollments per
+course) or a permission read through the parent (the course’s instructor)
+holds only if writes under one parent do not interleave. Declare the parent:</p>
+<pre><code class="language-rust ignore">fn meta() -&gt; ResourceMeta {
+    ResourceMeta::new("Enrollment").lock_parent("course_id", "courses")
+}</code></pre>
+<p>Every write to an enrollment (create, update, delete, restore, force delete,
+actions, creates from a course’s page) then locks its course row before the
+enrollment, and both courses when it moves. Hooks run under that lock, so a
+count in <code>mutate_before_create</code> is exact, and an instructor removed from the
+course meanwhile no longer passes the scope, checked again under the lock.</p>
+<ul>
+<li>One order everywhere: parent, then child, the order a parent’s deletion
+cascades in, so writes and deletions never deadlock. A write takes at most
+one <code>xact_lock</code> and takes it first; parent locks come after it.</li>
+<li>The field must be a <code>belongs_to</code> the target; one parent per resource, and
+the parent may not lock a parent of its own (checked at boot).</li>
+<li>A hook, an action or a column default that puts a record under a parent
+that was not locked fails (500, nothing written): send the parent field
+(make it <code>.required()</code>), and change it through an update. A record moved
+by someone else between reading and locking answers 409 <code>write_conflict</code>;
+send the request again.</li>
+<li>Writes under one parent wait for each other; writes under different parents
+do not. SQLite runs one writer at a time anyway.</li>
+</ul>
+<h2 id="soft-deletes"><a class="header" href="#soft-deletes">Soft deletes</a></h2>
+<pre><code class="language-rust ignore">fn meta() -&gt; ResourceMeta {
+    ResourceMeta::new("Post").soft_deletes()   // or .soft_deletes_column("removed_at")
+}</code></pre>
+<p>The marker is a nullable timestamp column (<code>Option&lt;DateTimeUtc&gt;</code> or
+<code>Option&lt;DateTime&gt;</code>), declared as a field only if <code>.guarded()</code> (e.g.
+<code>.guarded().readable(|_| true)</code> to show it); hooks may not write it.</p>
+<ul>
+<li><strong>Delete</strong> sets the marker. Trashed records disappear everywhere: lists,
+reads, writes, actions, relationship options and labels (<code>#key</code>), and
+references from other records (422). No database cascade runs: related
+records are kept. <code>after_trash</code> runs.</li>
+<li><strong>Restore</strong> (<code>{slug}.restore</code>) clears the marker. The record’s relationships
+must still point to records the user can see (422 otherwise);
+<code>after_restore</code> runs (by default, it calls <code>after_save</code>).</li>
+<li><strong>Force delete</strong> (<code>{slug}.force_delete</code>) removes a trashed record for good;
+database foreign-key actions apply then; <code>after_force_delete</code> runs.</li>
+<li>The trash (<code>trashed=with|only</code>) needs <code>restore</code> or <code>force_delete</code>, and shows a
+record only if the policy allows <code>view</code> and one of them on it. With a custom
+policy, override <code>admits</code> for these abilities like the others.</li>
+<li>Unique values stay taken by trashed records (the database still holds them).</li>
+<li><code>make:resource --generate</code> adds <code>.soft_deletes()</code> for a nullable <code>deleted_at</code>
+timestamp.</li>
+</ul>
+<h2 id="primary-keys"><a class="header" href="#primary-keys">Primary keys</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Strategy</th><th>Behaviour</th></tr>
+</thead>
+<tbody>
+<tr><td><code>KeyStrategy::DbGenerated</code></td><td>default; auto-increment or column default, never written</td></tr>
+<tr><td><code>KeyStrategy::AppGenerated</code></td><td>generated by server code before insert (e.g. UUID v7)</td></tr>
+<tr><td><code>KeyStrategy::Natural</code></td><td>supplied on create if its field is creatable; never updated</td></tr>
+</tbody>
+</table>
+</div>
+<p>Composite primary keys are not supported yet.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../admin/dashboard.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../admin/forms.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../admin/dashboard.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../admin/forms.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

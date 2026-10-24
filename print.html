@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-62a9ded5.js";
+            window.path_to_searchindex_js = "searchindex-1982832c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -256,8 +256,14 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.10.2</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.10.3</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="0103"><a class="header" href="#0103">0.10.3</a></h2>
+<ul>
+<li>Record pages on a phone keep the primary action and ⋯ in the header (the
+other actions, Edit and Delete under ⋯); a viewed text input shows its
+prefix and suffix (<a href="#placement-in-lists">Actions</a>).</li>
+</ul>
 <h2 id="0102"><a class="header" href="#0102">0.10.2</a></h2>
 <ul>
 <li><strong>An editor layout</strong>: <code>Form::width(FormWidth::Full)</code>, a main column with a
@@ -646,6 +652,11 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-0102-to-0103"><a class="header" href="#from-0102-to-0103">From 0.10.2 to 0.10.3</a></h2>
+<ul>
+<li>Nothing to change. On phones a record page’s Edit and Delete are in its
+⋯ menu: end-to-end tests at phone widths open the menu first.</li>
+</ul>
 <h2 id="from-0101-to-0102"><a class="header" href="#from-0101-to-0102">From 0.10.1 to 0.10.2</a></h2>
 <ul>
 <li>Vocabulary 11: layouts <code>split</code> and <code>pane</code>, <code>collapsed</code> and <code>compact</code> on
@@ -1001,7 +1012,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.10.2 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.10.3 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -1012,7 +1023,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.2" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.3" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1373,7 +1384,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.2", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.3", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -3103,7 +3114,7 @@ opens by itself when one of them has an error. Nothing is remembered.</li>
 <li><code>TextInput::make(…).prefix(text)</code> and <code>.suffix(text)</code>: fixed text inside
 the input’s border (<code>/posts/</code> before a slug, <code>.html</code> after it), shown as
 written, never part of the value, and read by screen readers with the
-input. Text inputs only.</li>
+input; the record’s page shows the value with them. Text inputs only.</li>
 </ul>
 <p>Misusing them (a split inside a section, two splits, a grid that folds, a
 prefix on a number input) panics when the application starts.</p>
@@ -3351,7 +3362,8 @@ buttons.</p>
 the action goes last in the <strong>⋯</strong> menu and its bulk button is the
 destructive variant. <code>.icon(…)</code> is accepted but not shown yet.</p>
 <p>A record’s page shows its actions the same way (the first primary one it
-offers labelled, the others under ⋯), and so do the rows of relation tables
+offers labelled, the others under ⋯; on a phone Edit and Delete go under ⋯
+too, Delete last), and so do the rows of relation tables
 on a parent’s page, with the related resource’s actions: the server’s
 abilities for each record decide, and running one is authorized as from the
 list.</p>
