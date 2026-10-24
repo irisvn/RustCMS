@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -181,8 +181,21 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.9.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.10.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="0100"><a class="header" href="#0100">0.10.0</a></h2>
+<ul>
+<li><strong>Rich text version 2</strong>: tables, YouTube/Vimeo embeds, callouts, image
+captions and widths; version 1 documents are read as they are
+(<a href="admin/media.html#rich-text">Rich text</a>).</li>
+<li><strong>Editor</strong>: several images uploaded at once (choose, drop, paste) with
+per-file status and retry; a media library picker shared with
+<code>FileUpload</code> fields (<a href="admin/media.html#the-media-library-picker">The media library picker</a>).</li>
+<li><strong>Headless HTML</strong>: images as figures with their size
+(<code>rich_text::to_html_with</code>), stable heading ids with Vietnamese diacritics
+folded, and <code>rich_text::outline</code> for a table of contents
+(<a href="admin/media.html#headless-rendering">Headless rendering</a>).</li>
+</ul>
 <h2 id="090"><a class="header" href="#090">0.9.0</a></h2>
 <ul>
 <li><strong><code>Resource::after_trash</code> and <code>after_restore</code></strong> run in the transaction of a

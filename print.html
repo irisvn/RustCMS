@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -247,8 +247,21 @@ on all three databases.</li>
 <a href="#limitations">Limitations</a> for what is not supported yet.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="release-notes"><a class="header" href="#release-notes">Release notes</a></h1>
-<p>RustCMS is in pre-release. The current version is <strong>0.9.0</strong>; 0.1.0-alpha.0
+<p>RustCMS is in pre-release. The current version is <strong>0.10.0</strong>; 0.1.0-alpha.0
 was the first published one.</p>
+<h2 id="0100"><a class="header" href="#0100">0.10.0</a></h2>
+<ul>
+<li><strong>Rich text version 2</strong>: tables, YouTube/Vimeo embeds, callouts, image
+captions and widths; version 1 documents are read as they are
+(<a href="#rich-text">Rich text</a>).</li>
+<li><strong>Editor</strong>: several images uploaded at once (choose, drop, paste) with
+per-file status and retry; a media library picker shared with
+<code>FileUpload</code> fields (<a href="#the-media-library-picker">The media library picker</a>).</li>
+<li><strong>Headless HTML</strong>: images as figures with their size
+(<code>rich_text::to_html_with</code>), stable heading ids with Vietnamese diacritics
+folded, and <code>rich_text::outline</code> for a table of contents
+(<a href="#headless-rendering">Headless rendering</a>).</li>
+</ul>
 <h2 id="090"><a class="header" href="#090">0.9.0</a></h2>
 <ul>
 <li><strong><code>Resource::after_trash</code> and <code>after_restore</code></strong> run in the transaction of a
@@ -570,6 +583,31 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-090-to-0100"><a class="header" href="#from-090-to-0100">From 0.9.0 to 0.10.0</a></h2>
+<ul>
+<li>Rich text documents have a version 2 (tables, embeds, callouts, image
+captions and widths). Stored version 1 documents stay valid and are read
+as they are, and the panel keeps writing version 1 unless a document uses
+a version 2 part. Nothing to migrate. To rewrite stored documents anyway,
+map each value through <code>rustcms::admin::rich_text::upgrade_value</code> (only
+<code>version</code> changes).</li>
+<li><strong>Rolling back to 0.9, or a 0.9 reader of the same database</strong> (another
+service, a replica during a rolling deploy): documents saved with a
+version 2 part (table, embed, callout, image caption or width) are refused
+by 0.9’s <code>rich_text::parse</code>, and the 0.9 panel shows them read-only. Deploy
+every reader first; before rolling back, remove those parts or keep 0.10.
+A headless consumer that parses documents itself should accept
+<code>"version": 2</code> and the new nodes (see <a href="#rich-text">Rich text</a>).</li>
+<li><code>rich_text::Node</code> is <code>#[non_exhaustive]</code> and has new variants (<code>Table</code>,
+<code>Embed</code>, <code>Callout</code>); <code>Node::Image</code> now holds an <code>Image { media, alt, caption, width }</code>; <code>Document</code> has a <code>version</code> field. Exhaustive matches,
+patterns on <code>Node::Image { media, alt }</code> and struct literals need updating.</li>
+<li><code>rich_text::to_html</code> keeps its signature but writes images as
+<code>&lt;figure&gt;&lt;img …&gt;&lt;/figure&gt;</code> and headings with an <code>id</code>. Use
+<code>to_html_with(&amp;doc, &amp;HashMap&lt;Uuid, ImageInfo&gt;)</code> to write image sizes, and
+<code>outline</code> for a table of contents.</li>
+<li><code>PanelResponse</code> has an optional <code>uploads</code> field (the upload limits);
+admin clients that build <code>PanelResponse</code> values by hand need it.</li>
+</ul>
 <h2 id="from-082-to-090"><a class="header" href="#from-082-to-090">From 0.8.2 to 0.9.0</a></h2>
 <ul>
 <li>New permission <code>media.view_all</code> (run <code>permission:sync</code> to list it). Roles
@@ -856,7 +894,7 @@ The install script is not affected.</li>
 any distribution: the binary is static). On an Intel Mac, build it from
 source with Cargo (below).</li>
 <li>Without the script, Cargo can build it from source:
-<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.9.0 rustcms-cli</code>.</li>
+<code>cargo install --git https://github.com/irisvn/RustCMS-Core --tag v0.10.0 rustcms-cli</code>.</li>
 </ul>
 <h2 id="creating-an-application"><a class="header" href="#creating-an-application">Creating an application</a></h2>
 <pre><code class="language-sh">rustcms new blog
@@ -867,7 +905,7 @@ rustcms serve                      # http://localhost:8000/admin
 </code></pre>
 <p><code>rustcms new</code> writes a project whose <code>Cargo.toml</code> depends on the RustCMS-Core
 tag of the command’s version, then resolves the dependencies (<code>Cargo.lock</code>):</p>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.9.0" }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.0" }
 </code></pre>
 <p>Commit <code>Cargo.lock</code>: it pins the exact commit and every dependency, so your
 team and your CI build what you tested (the generated <code>.github/workflows/ci.yml</code>
@@ -1226,7 +1264,7 @@ strip target/release/blog      # optional: about 29 MB → 23 MB
 </tbody>
 </table>
 </div>
-<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.9.0", features = ["redis", "s3"] }
+<pre><code class="language-toml">rustcms = { git = "https://github.com/irisvn/RustCMS-Core", tag = "v0.10.0", features = ["redis", "s3"] }
 </code></pre>
 <p>Keep the tag your application already uses (<code>rustcms upgrade</code> sets it) when
 adding features.</p>
@@ -3546,18 +3584,158 @@ migration is stored without these checks: do not give these columns one.</p>
 <h2 id="rich-text"><a class="header" href="#rich-text">Rich text</a></h2>
 <pre><code class="language-rust ignore">Field::column(post::Column::Content).rich_text(),   // JSON column
 RichEditor::make("content"),</code></pre>
-<p>Rich text is stored as a <strong>document</strong> (JSON), not HTML: paragraphs, headings
-2–4, lists, quotes, code blocks, rules, line breaks, images (media ids) and the
-marks bold, italic, strike, code and link (<code>http</code>, <code>https</code>, <code>mailto</code>). Anything
-else is refused (422); documents are limited to 256 KiB, 10,000 elements,
-16 levels and 100 images. Images follow the media rules above (images only).</p>
-<p>The panel edits it with TipTap (no injected styles) and shows it with React
-elements. The toolbar’s <strong>Link</strong> button opens a dialog for the address of
-the selected text (or of the link at the cursor, which it can also remove;
-with nothing selected, the address is inserted as linked text); it accepts
-<code>http</code>, <code>https</code> and <code>mailto</code> addresses, as the server does. Headless apps render it with <code>rustcms::admin::rich_text::parse</code> and
-<code>to_html(&amp;doc, &amp;|id| Some(my_public_url(id)))</code>, which escapes all text and
-attributes.</p>
+<p>Rich text is stored as a <strong>document</strong> (JSON), not HTML. The panel’s editor
+saves version 2; version 1 documents (0.2–0.9) stay valid and are read as
+they are (version 1 is a subset of version 2: nothing to migrate).</p>
+<pre><code class="language-json">{"type": "doc", "version": 2, "content": [
+  {"type": "heading", "attrs": {"level": 2}, "content": [{"type": "text", "text": "Giới thiệu"}]},
+  {"type": "image", "attrs": {"media": "0199d3a4-…", "alt": "A cat", "caption": "Our cat", "width": "wide"}},
+  {"type": "table", "content": [
+    {"type": "tableRow", "content": [{"type": "tableHeader", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Plan"}]}]}]},
+    {"type": "tableRow", "content": [{"type": "tableCell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Pro"}]}]}]}
+  ]},
+  {"type": "embed", "attrs": {"provider": "youtube", "id": "dQw4w9WgXcQ"}},
+  {"type": "callout", "attrs": {"tone": "info"}, "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Note"}]}]}
+]}
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Node</th><th>Version</th><th>Content</th></tr>
+</thead>
+<tbody>
+<tr><td><code>paragraph</code>, <code>heading</code> (levels 2–4)</td><td>1</td><td>text and line breaks</td></tr>
+<tr><td><code>bulletList</code>, <code>orderedList</code>, <code>listItem</code>, <code>blockquote</code></td><td>1</td><td>blocks</td></tr>
+<tr><td><code>codeBlock</code></td><td>1</td><td>plain text</td></tr>
+<tr><td><code>horizontalRule</code></td><td>1</td><td></td></tr>
+<tr><td><code>image</code></td><td>1</td><td><code>media</code> (a media id), <code>alt</code>; version 2 adds <code>caption</code> (plain text) and <code>width</code> (<code>normal</code>, <code>wide</code> or <code>full</code>)</td></tr>
+<tr><td><code>table</code></td><td>2</td><td><code>tableRow</code>s of <code>tableHeader</code> or <code>tableCell</code>; every row as long as the first (rectangular); header cells make up the first row (the header row) or nothing; cells hold paragraphs of text with marks only; no <code>colspan</code>, <code>rowspan</code>, widths or styles; at most 50 rows × 20 columns (1,000 cells)</td></tr>
+<tr><td><code>embed</code></td><td>2</td><td><code>provider</code> (<code>youtube</code> or <code>vimeo</code>) and <code>id</code> matching that provider (YouTube <code>[A-Za-z0-9_-]{11}</code>, Vimeo <code>[1-9][0-9]{0,14}</code>); never a URL or HTML</td></tr>
+<tr><td><code>callout</code></td><td>2</td><td><code>tone</code> (<code>info</code> or <code>warn</code>), paragraphs and lists; never a table or a callout inside, at any depth</td></tr>
+</tbody>
+</table>
+</div>
+<p>Marks: bold, italic, strike, code and link (<code>http</code>, <code>https</code>, <code>mailto</code>).
+Anything else is refused (422), and so are version 2 nodes and attributes in
+a version 1 document. Limits (<code>rustcms::admin::rich_text::MAX_*</code>): 256 KiB,
+10,000 elements (table rows and cells count), 16 levels, 100 images, 50
+embeds, tables of at most 50 rows (the header row included) of 20 cells,
+500 characters of image description and 1,000 of caption (plain text,
+no marks). The server’s validator (<code>rich_text::parse</code>) owns every bound;
+the editor only follows them. Images follow
+the media rules above (images only).</p>
+<h3 id="in-the-panel"><a class="header" href="#in-the-panel">In the panel</a></h3>
+<p>The editor is TipTap (no injected styles; its nodes render no <code>style</code>
+attribute, so the CSP is unchanged). Its toolbar has headings 2–4, lists,
+quote, code block, horizontal rule, info and warning callouts, links, images,
+image details, tables and embeds.</p>
+<ul>
+<li><strong>Images</strong>: <em>Insert image</em> opens the media library picker (below) to
+choose images or upload several at once. Image files dropped on the
+editor or pasted into it are uploaded too; pasted HTML images that are not
+this panel’s media (another site’s, <code>data:</code> URLs) are dropped. Each file
+shows its status, its error and a retry (the same <code>Idempotency-Key</code>); each
+upload list sends at most 2 at a time (never more than
+<code>max_concurrent_uploads</code>, a limit shared by every user of the server), a
+file refused because the server is busy (429) is sent again by itself
+after <code>Retry-After</code>, up to 3 times, files over
+<code>max_upload_bytes</code> are refused before sending, and the record cannot be
+saved while an upload is pending. Images go after the block holding the
+cursor, in the order they were added. <em>Image details</em> (with an image
+selected) edits its alternative text, caption and width.</li>
+<li><strong>Tables</strong> start with 3 × 3 cells and a header row; when the cursor is in a
+table, a second toolbar adds and removes rows and columns (within 50 × 20)
+and toggles the header row.</li>
+<li><strong>Embeds</strong>: paste a YouTube (<code>watch?v=</code>, <code>youtu.be/</code>, <code>embed/</code>, <code>shorts/</code>,
+<code>live/</code>, <code>v/</code>; <code>www.</code>, <code>m.</code>, <code>mobile.</code> and <code>youtube-nocookie.com</code> hosts) or Vimeo (<code>vimeo.com/123</code>, <code>player.vimeo.com/video/123</code>)
+address; only the provider and the id are kept (an unlisted Vimeo video’s
+hash is not). The server parses addresses with the same allowlist
+(<code>rich_text::Embed::from_url</code>, e.g. for importers). The panel shows a text
+card (provider, id, page), never an iframe or a remote thumbnail.</li>
+<li><strong>Callouts</strong> wrap the selected paragraphs, or a list as a whole; the
+table button is off inside a callout.</li>
+</ul>
+<p>The read-only view renders the same nodes with React elements.</p>
+<h3 id="the-media-library-picker"><a class="header" href="#the-media-library-picker">The media library picker</a></h3>
+<p><em>Insert image</em> and the <strong>Media library</strong> button of <code>FileUpload</code> /
+<code>media_list</code> fields open the same dialog:</p>
+<ul>
+<li><strong>Library</strong> (with <code>media.view_any</code> and <code>media.view</code>): the files the user
+may reference (own uploads, or every file with <code>media.view_all</code>), newest
+first, 24 a page, searched by name. Thumbnails are the file’s own
+authorized URL, scaled by the browser (no resized copies). Only the
+field’s <code>accept</code> types are listed; files over its <code>max_size</code> and files
+already in the field are shown but cannot be chosen; a list field offers
+as many as it has room for.</li>
+<li><strong>Upload</strong> (with <code>media.create</code>): drop or choose files; they upload as
+above and are chosen once stored.</li>
+</ul>
+<p>The server checks every chosen reference again on save (scope, trash,
+<code>accept</code>, <code>max_size</code>), as it does for any write.</p>
+<h3 id="headless-rendering"><a class="header" href="#headless-rendering">Headless rendering</a></h3>
+<pre><code class="language-rust ignore">use std::collections::HashMap;
+use rustcms::admin::rich_text::{self, ImageInfo};
+use uuid::Uuid;
+
+let doc = rich_text::parse(&amp;post.content)?;                 // version 1 or 2
+// Sizes from the media rows (`rustcms::admin::media::entity`), so browsers reserve the space.
+// The media rows of rich_text::media_ids(&amp;doc), loaded by your app (its own scope).
+let images: HashMap&lt;Uuid, ImageInfo&gt; = rows
+    .iter()
+    .map(|row| {
+        let info = ImageInfo::new(my_public_url(row.id));
+        let info = match (row.width, row.height) {
+            (Some(w), Some(h)) =&gt; info.size(w as u32, h as u32),
+            _ =&gt; info,
+        };
+        (row.id, info)
+    })
+    .collect();
+let html = rich_text::to_html_with(&amp;doc, &amp;images);
+let toc = rich_text::outline(&amp;doc);                        // [Heading { level, text, id }]</code></pre>
+<p><code>to_html_with</code> escapes every text and attribute. Its output:</p>
+<ul>
+<li>
+<p>headings carry stable ids, <code>&lt;h2 id="gioi-thieu"&gt;</code>: the heading’s text
+with diacritics folded (Vietnamese included: <code>Đà Nẵng</code> → <code>da-nang</code>), lower
+case, ASCII letters and digits only (anything else is a <code>-</code>), at most 80
+characters; repeats get <code>-2</code>, <code>-3</code>, …; a heading without letters or digits
+is <code>section</code>. The fold uses Unicode decomposition (the
+<code>unicode-normalization</code> crate, 0.1.25) plus <code>đ</code>, <code>ø</code>, <code>ł</code>, <code>ß</code>, <code>æ</code>, <code>œ</code>. <code>outline</code>
+returns the same ids for a table of contents, and <code>rich_text::slug</code> the
+rule alone;</p>
+</li>
+<li>
+<p>images: <code>&lt;figure data-width="wide"&gt;&lt;img src="…" width="800" height="600" alt="…"&gt;&lt;figcaption&gt;…&lt;/figcaption&gt;&lt;/figure&gt;</code> (<code>data-width</code> only for <code>wide</code>
+and <code>full</code>, <code>width</code>/<code>height</code> only when the <code>ImageInfo</code> has both, no
+<code>figcaption</code> without a caption); images missing from the map (or whose
+<code>to_html</code> callback returns <code>None</code>) are left out;</p>
+</li>
+<li>
+<p>tables: <code>&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;…&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;…&lt;/tbody&gt;&lt;/table&gt;</code>;</p>
+</li>
+<li>
+<p>embeds, a plain link:</p>
+<pre><code class="language-html">&lt;figure data-embed="youtube" data-id="ID"&gt;&lt;a href="https://www.youtube.com/watch?v=ID" rel="noopener noreferrer"&gt;https://www.youtube.com/watch?v=ID&lt;/a&gt;&lt;/figure&gt;
+&lt;figure data-embed="vimeo" data-id="ID"&gt;&lt;a href="https://vimeo.com/ID" rel="noopener noreferrer"&gt;https://vimeo.com/ID&lt;/a&gt;&lt;/figure&gt;
+</code></pre>
+<p>A public frontend may replace it with the provider’s player (an iframe
+built from <code>data-embed</code> and <code>data-id</code>, which are checked formats, e.g.
+<code>https://www.youtube-nocookie.com/embed/ID</code> or
+<code>https://player.vimeo.com/video/ID</code>), with its own CSP for that provider;</p>
+</li>
+<li>
+<p>callouts: <code>&lt;aside class="callout" data-tone="info"&gt;</code>.</p>
+</li>
+</ul>
+<p>No attribute outside this closed set is written. <code>to_html(&amp;doc, &amp;|id| Some(url))</code> keeps its 0.9 signature (figures without sizes).
+<code>rich_text::upgrade_value(&amp;value)</code> rewrites a stored version 1 document as
+version 2 (only <code>version</code> changes: version 1 is a subset), for applications
+that want to rewrite stored documents. It is never needed to read them. The
+editor writes the lowest version a document needs: version 1 unless it holds
+a table, an embed, a callout, or an image with a caption or a width, so
+documents edited without those stay readable by 0.9 (a rollback, an older
+reader of the same database).</p>
 <h2 id="limits-and-operations"><a class="header" href="#limits-and-operations">Limits and operations</a></h2>
 <ul>
 <li>Referencing media needs <code>media.view_any</code> and <code>media.view</code> (the same check as
@@ -3572,7 +3750,8 @@ bucket (a cancelled request cannot always abort its upload). The bucket is not
 probed at boot; the first upload reports a misconfiguration.</li>
 <li>Local disk: files are synced before their row commits; staged and partial files
 of interrupted uploads are removed by <code>media:prune</code> after an hour.</li>
-<li>Downloads are rate limited per user (600 per minute).</li>
+<li>Downloads are rate limited per user (600 per minute). A library page in
+the picker loads up to 24 thumbnails.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="custom-fields"><a class="header" href="#custom-fields">Custom fields</a></h1>
@@ -5113,7 +5292,7 @@ keeps its files there.</p>
 <tr><td><code>root</code></td><td><code>storage/app</code></td><td>local disk root (outside the web root; symlinks inside it are refused)</td></tr>
 <tr><td><code>max_upload_bytes</code></td><td>10 MiB</td><td>per upload (the route’s body limit follows)</td></tr>
 <tr><td><code>max_pixels</code></td><td>40,000,000</td><td>images, width × height</td></tr>
-<tr><td><code>max_concurrent_uploads</code></td><td>4</td><td>more answer 429</td></tr>
+<tr><td><code>max_concurrent_uploads</code></td><td>4</td><td>uploads at once for the whole server (all users); more answer 429. Each upload list of the admin panel sends at most 2 at a time and retries a 429 after <code>Retry-After</code></td></tr>
 <tr><td><code>allowed_types</code></td><td><code>["image/png", "image/jpeg", "image/gif", "image/webp", "application/pdf"]</code></td><td>MIME types, a subset of these five</td></tr>
 <tr><td><code>s3.bucket</code>, <code>s3.region</code>, <code>s3.endpoint</code>, <code>s3.allow_http</code></td><td></td><td>private bucket; credentials from <code>AWS_*</code> variables</td></tr>
 <tr><td><code>s3.timeout_secs</code></td><td><code>30</code></td><td>longest wait for a control request (exists, delete, opening a download), retries included (1 to 600)</td></tr>
@@ -6979,7 +7158,7 @@ values follow the <a href="#wire-format">wire format</a>.</p>
 <tr><th>Method</th><th>Path</th><th>Response</th></tr>
 </thead>
 <tbody>
-<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings, pages, home?, permissions}</code>: resources with <code>view_any</code> (hidden ones too, <code>nav: false</code>; optional <code>sort</code>), settings pages with <code>view</code>, custom pages the user may open (optional <code>sort</code>), the home page’s slug when the user may open it, the declared admin permissions the user holds</td></tr>
+<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings, pages, home?, permissions, uploads?}</code>: resources with <code>view_any</code> (hidden ones too, <code>nav: false</code>; optional <code>sort</code>), settings pages with <code>view</code>, custom pages the user may open (optional <code>sort</code>), the home page’s slug when the user may open it, the declared admin permissions the user holds, and <code>uploads</code> (<code>{maxBytes, maxConcurrent}</code>) when the media library is enabled and the user has <code>media.create</code></td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/schema?operation=create|edit|view&amp;key=</code></td><td><code>ResourceSchema</code> for this user</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records?…</code></td><td><code>{data: [Envelope], meta}</code></td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records</code></td><td>201 <code>{data: Envelope}</code></td></tr>
@@ -7123,6 +7302,7 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>max_kib</code></td><td><code>may not be larger than {max} KiB</code></td></tr>
 <tr><td><code>max_elements</code></td><td><code>may not have more than {max} elements</code></td></tr>
 <tr><td><code>max_images</code></td><td><code>may not have more than {max} images</code></td></tr>
+<tr><td><code>max_embeds</code></td><td><code>may not have more than {max} embeds</code></td></tr>
 <tr><td><code>too_many_roles</code></td><td><code>has too many roles</code></td></tr>
 <tr><td><code>too_many_permissions</code></td><td><code>has too many permissions</code></td></tr>
 <tr><td><code>unknown_roles</code></td><td><code>has unknown roles</code></td></tr>
@@ -7186,12 +7366,17 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>too_many_pixels</code></td><td><code>has too many pixels</code></td></tr>
 <tr><td><code>document</code></td><td><code>is not a document</code></td></tr>
 <tr><td><code>document_invalid</code></td><td><code>is not a valid document</code></td></tr>
-<tr><td><code>document_version</code></td><td><code>is not a valid document (version 1)</code></td></tr>
+<tr><td><code>document_version</code></td><td><code>is not a valid document (version 1 or 2)</code></td></tr>
+<tr><td><code>document_needs_version</code></td><td><code>has a table, which needs document version 2</code> (also an embed, a callout, an image caption, an image width)</td></tr>
 <tr><td><code>document_depth</code></td><td><code>is nested too deeply</code></td></tr>
-<tr><td><code>document_structure</code></td><td><code>has a list item outside a list</code> / <code>has a list holding something else than list items</code> / <code>has a code block holding something else than plain text</code> / <code>has a heading without a level from 2 to 4</code> / has unexpected properties on <code>{node}</code> / has an unknown block <code>{node}</code> / has an unknown inline <code>{node}</code> / has an unknown mark <code>{node}</code> / <code>has a mark with attributes</code> / <code>has a text with the same mark twice</code> / <code>has a text with too many marks</code> / <code>has a text without text</code> / <code>has an empty text</code></td></tr>
+<tr><td><code>document_structure</code></td><td><code>has a list item outside a list</code> / <code>has a list holding something else than list items</code> / <code>has a code block holding something else than plain text</code> / <code>has a heading without a level from 2 to 4</code> / has unexpected properties on <code>{node}</code> / has an unknown block <code>{node}</code> / has an unknown inline <code>{node}</code> / has an unknown mark <code>{node}</code> / <code>has a mark with attributes</code> / <code>has a text with the same mark twice</code> / <code>has a text with too many marks</code> / <code>has a text without text</code> / <code>has an empty text</code> / <code>has a table holding something else than rows</code> / <code>has a table whose rows have different lengths</code> / <code>has a table cell out of place (header cells make up the first row only)</code> / <code>has a table cell holding something else than paragraphs</code> / <code>has a callout holding something else than paragraphs and lists</code> / <code>has a callout holding a table or a callout</code> / <code>has a callout with unexpected attributes</code> / has a callout whose tone is not <code>info</code> or <code>warn</code></td></tr>
 <tr><td><code>document_link</code></td><td><code>has a link that is not http, https or mailto</code> / <code>has a link with unexpected attributes</code></td></tr>
-<tr><td><code>document_image</code></td><td><code>has an image that is not a media item</code> / <code>has an image with unexpected attributes</code></td></tr>
+<tr><td><code>document_image</code></td><td><code>has an image that is not a media item</code> / <code>has an image with unexpected attributes</code> / has an image width other than <code>normal</code>, <code>wide</code> or <code>full</code></td></tr>
 <tr><td><code>document_alt</code></td><td><code>has an image description longer than {max} characters</code></td></tr>
+<tr><td><code>document_caption</code></td><td><code>has an image caption longer than {max} characters</code></td></tr>
+<tr><td><code>document_table_rows</code></td><td><code>has a table with no rows or more than {max} rows</code></td></tr>
+<tr><td><code>document_table_columns</code></td><td><code>has a table row with no cells or more than {max} cells</code></td></tr>
+<tr><td><code>document_embed</code></td><td><code>has an embed whose provider is not youtube or vimeo</code> / <code>has an embed with an invalid id</code> / <code>has an embed with unexpected attributes</code></td></tr>
 <tr><td><code>bad_credentials</code></td><td><code>These credentials do not match our records.</code></td></tr>
 <tr><td><code>wrong_password</code></td><td><code>The password is incorrect.</code></td></tr>
 <tr><td><code>password_for_email</code></td><td><code>is required to change your email</code></td></tr>

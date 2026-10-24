@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3a27c04e.js"></script>
@@ -210,6 +210,31 @@ commit <code>Cargo.toml</code> and <code>Cargo.lock</code> together.</p>
 first (<code>rustcms self-update --version vX.Y.Z</code>).</p>
 </li>
 </ol>
+<h2 id="from-090-to-0100"><a class="header" href="#from-090-to-0100">From 0.9.0 to 0.10.0</a></h2>
+<ul>
+<li>Rich text documents have a version 2 (tables, embeds, callouts, image
+captions and widths). Stored version 1 documents stay valid and are read
+as they are, and the panel keeps writing version 1 unless a document uses
+a version 2 part. Nothing to migrate. To rewrite stored documents anyway,
+map each value through <code>rustcms::admin::rich_text::upgrade_value</code> (only
+<code>version</code> changes).</li>
+<li><strong>Rolling back to 0.9, or a 0.9 reader of the same database</strong> (another
+service, a replica during a rolling deploy): documents saved with a
+version 2 part (table, embed, callout, image caption or width) are refused
+by 0.9’s <code>rich_text::parse</code>, and the 0.9 panel shows them read-only. Deploy
+every reader first; before rolling back, remove those parts or keep 0.10.
+A headless consumer that parses documents itself should accept
+<code>"version": 2</code> and the new nodes (see <a href="admin/media.html#rich-text">Rich text</a>).</li>
+<li><code>rich_text::Node</code> is <code>#[non_exhaustive]</code> and has new variants (<code>Table</code>,
+<code>Embed</code>, <code>Callout</code>); <code>Node::Image</code> now holds an <code>Image { media, alt, caption, width }</code>; <code>Document</code> has a <code>version</code> field. Exhaustive matches,
+patterns on <code>Node::Image { media, alt }</code> and struct literals need updating.</li>
+<li><code>rich_text::to_html</code> keeps its signature but writes images as
+<code>&lt;figure&gt;&lt;img …&gt;&lt;/figure&gt;</code> and headings with an <code>id</code>. Use
+<code>to_html_with(&amp;doc, &amp;HashMap&lt;Uuid, ImageInfo&gt;)</code> to write image sizes, and
+<code>outline</code> for a table of contents.</li>
+<li><code>PanelResponse</code> has an optional <code>uploads</code> field (the upload limits);
+admin clients that build <code>PanelResponse</code> values by hand need it.</li>
+</ul>
 <h2 id="from-082-to-090"><a class="header" href="#from-082-to-090">From 0.8.2 to 0.9.0</a></h2>
 <ul>
 <li>New permission <code>media.view_all</code> (run <code>permission:sync</code> to list it). Roles

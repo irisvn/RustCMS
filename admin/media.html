@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "../searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -249,18 +249,158 @@ migration is stored without these checks: do not give these columns one.</p>
 <h2 id="rich-text"><a class="header" href="#rich-text">Rich text</a></h2>
 <pre><code class="language-rust ignore">Field::column(post::Column::Content).rich_text(),   // JSON column
 RichEditor::make("content"),</code></pre>
-<p>Rich text is stored as a <strong>document</strong> (JSON), not HTML: paragraphs, headings
-2–4, lists, quotes, code blocks, rules, line breaks, images (media ids) and the
-marks bold, italic, strike, code and link (<code>http</code>, <code>https</code>, <code>mailto</code>). Anything
-else is refused (422); documents are limited to 256 KiB, 10,000 elements,
-16 levels and 100 images. Images follow the media rules above (images only).</p>
-<p>The panel edits it with TipTap (no injected styles) and shows it with React
-elements. The toolbar’s <strong>Link</strong> button opens a dialog for the address of
-the selected text (or of the link at the cursor, which it can also remove;
-with nothing selected, the address is inserted as linked text); it accepts
-<code>http</code>, <code>https</code> and <code>mailto</code> addresses, as the server does. Headless apps render it with <code>rustcms::admin::rich_text::parse</code> and
-<code>to_html(&amp;doc, &amp;|id| Some(my_public_url(id)))</code>, which escapes all text and
-attributes.</p>
+<p>Rich text is stored as a <strong>document</strong> (JSON), not HTML. The panel’s editor
+saves version 2; version 1 documents (0.2–0.9) stay valid and are read as
+they are (version 1 is a subset of version 2: nothing to migrate).</p>
+<pre><code class="language-json">{"type": "doc", "version": 2, "content": [
+  {"type": "heading", "attrs": {"level": 2}, "content": [{"type": "text", "text": "Giới thiệu"}]},
+  {"type": "image", "attrs": {"media": "0199d3a4-…", "alt": "A cat", "caption": "Our cat", "width": "wide"}},
+  {"type": "table", "content": [
+    {"type": "tableRow", "content": [{"type": "tableHeader", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Plan"}]}]}]},
+    {"type": "tableRow", "content": [{"type": "tableCell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Pro"}]}]}]}
+  ]},
+  {"type": "embed", "attrs": {"provider": "youtube", "id": "dQw4w9WgXcQ"}},
+  {"type": "callout", "attrs": {"tone": "info"}, "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Note"}]}]}
+]}
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Node</th><th>Version</th><th>Content</th></tr>
+</thead>
+<tbody>
+<tr><td><code>paragraph</code>, <code>heading</code> (levels 2–4)</td><td>1</td><td>text and line breaks</td></tr>
+<tr><td><code>bulletList</code>, <code>orderedList</code>, <code>listItem</code>, <code>blockquote</code></td><td>1</td><td>blocks</td></tr>
+<tr><td><code>codeBlock</code></td><td>1</td><td>plain text</td></tr>
+<tr><td><code>horizontalRule</code></td><td>1</td><td></td></tr>
+<tr><td><code>image</code></td><td>1</td><td><code>media</code> (a media id), <code>alt</code>; version 2 adds <code>caption</code> (plain text) and <code>width</code> (<code>normal</code>, <code>wide</code> or <code>full</code>)</td></tr>
+<tr><td><code>table</code></td><td>2</td><td><code>tableRow</code>s of <code>tableHeader</code> or <code>tableCell</code>; every row as long as the first (rectangular); header cells make up the first row (the header row) or nothing; cells hold paragraphs of text with marks only; no <code>colspan</code>, <code>rowspan</code>, widths or styles; at most 50 rows × 20 columns (1,000 cells)</td></tr>
+<tr><td><code>embed</code></td><td>2</td><td><code>provider</code> (<code>youtube</code> or <code>vimeo</code>) and <code>id</code> matching that provider (YouTube <code>[A-Za-z0-9_-]{11}</code>, Vimeo <code>[1-9][0-9]{0,14}</code>); never a URL or HTML</td></tr>
+<tr><td><code>callout</code></td><td>2</td><td><code>tone</code> (<code>info</code> or <code>warn</code>), paragraphs and lists; never a table or a callout inside, at any depth</td></tr>
+</tbody>
+</table>
+</div>
+<p>Marks: bold, italic, strike, code and link (<code>http</code>, <code>https</code>, <code>mailto</code>).
+Anything else is refused (422), and so are version 2 nodes and attributes in
+a version 1 document. Limits (<code>rustcms::admin::rich_text::MAX_*</code>): 256 KiB,
+10,000 elements (table rows and cells count), 16 levels, 100 images, 50
+embeds, tables of at most 50 rows (the header row included) of 20 cells,
+500 characters of image description and 1,000 of caption (plain text,
+no marks). The server’s validator (<code>rich_text::parse</code>) owns every bound;
+the editor only follows them. Images follow
+the media rules above (images only).</p>
+<h3 id="in-the-panel"><a class="header" href="#in-the-panel">In the panel</a></h3>
+<p>The editor is TipTap (no injected styles; its nodes render no <code>style</code>
+attribute, so the CSP is unchanged). Its toolbar has headings 2–4, lists,
+quote, code block, horizontal rule, info and warning callouts, links, images,
+image details, tables and embeds.</p>
+<ul>
+<li><strong>Images</strong>: <em>Insert image</em> opens the media library picker (below) to
+choose images or upload several at once. Image files dropped on the
+editor or pasted into it are uploaded too; pasted HTML images that are not
+this panel’s media (another site’s, <code>data:</code> URLs) are dropped. Each file
+shows its status, its error and a retry (the same <code>Idempotency-Key</code>); each
+upload list sends at most 2 at a time (never more than
+<code>max_concurrent_uploads</code>, a limit shared by every user of the server), a
+file refused because the server is busy (429) is sent again by itself
+after <code>Retry-After</code>, up to 3 times, files over
+<code>max_upload_bytes</code> are refused before sending, and the record cannot be
+saved while an upload is pending. Images go after the block holding the
+cursor, in the order they were added. <em>Image details</em> (with an image
+selected) edits its alternative text, caption and width.</li>
+<li><strong>Tables</strong> start with 3 × 3 cells and a header row; when the cursor is in a
+table, a second toolbar adds and removes rows and columns (within 50 × 20)
+and toggles the header row.</li>
+<li><strong>Embeds</strong>: paste a YouTube (<code>watch?v=</code>, <code>youtu.be/</code>, <code>embed/</code>, <code>shorts/</code>,
+<code>live/</code>, <code>v/</code>; <code>www.</code>, <code>m.</code>, <code>mobile.</code> and <code>youtube-nocookie.com</code> hosts) or Vimeo (<code>vimeo.com/123</code>, <code>player.vimeo.com/video/123</code>)
+address; only the provider and the id are kept (an unlisted Vimeo video’s
+hash is not). The server parses addresses with the same allowlist
+(<code>rich_text::Embed::from_url</code>, e.g. for importers). The panel shows a text
+card (provider, id, page), never an iframe or a remote thumbnail.</li>
+<li><strong>Callouts</strong> wrap the selected paragraphs, or a list as a whole; the
+table button is off inside a callout.</li>
+</ul>
+<p>The read-only view renders the same nodes with React elements.</p>
+<h3 id="the-media-library-picker"><a class="header" href="#the-media-library-picker">The media library picker</a></h3>
+<p><em>Insert image</em> and the <strong>Media library</strong> button of <code>FileUpload</code> /
+<code>media_list</code> fields open the same dialog:</p>
+<ul>
+<li><strong>Library</strong> (with <code>media.view_any</code> and <code>media.view</code>): the files the user
+may reference (own uploads, or every file with <code>media.view_all</code>), newest
+first, 24 a page, searched by name. Thumbnails are the file’s own
+authorized URL, scaled by the browser (no resized copies). Only the
+field’s <code>accept</code> types are listed; files over its <code>max_size</code> and files
+already in the field are shown but cannot be chosen; a list field offers
+as many as it has room for.</li>
+<li><strong>Upload</strong> (with <code>media.create</code>): drop or choose files; they upload as
+above and are chosen once stored.</li>
+</ul>
+<p>The server checks every chosen reference again on save (scope, trash,
+<code>accept</code>, <code>max_size</code>), as it does for any write.</p>
+<h3 id="headless-rendering"><a class="header" href="#headless-rendering">Headless rendering</a></h3>
+<pre><code class="language-rust ignore">use std::collections::HashMap;
+use rustcms::admin::rich_text::{self, ImageInfo};
+use uuid::Uuid;
+
+let doc = rich_text::parse(&amp;post.content)?;                 // version 1 or 2
+// Sizes from the media rows (`rustcms::admin::media::entity`), so browsers reserve the space.
+// The media rows of rich_text::media_ids(&amp;doc), loaded by your app (its own scope).
+let images: HashMap&lt;Uuid, ImageInfo&gt; = rows
+    .iter()
+    .map(|row| {
+        let info = ImageInfo::new(my_public_url(row.id));
+        let info = match (row.width, row.height) {
+            (Some(w), Some(h)) =&gt; info.size(w as u32, h as u32),
+            _ =&gt; info,
+        };
+        (row.id, info)
+    })
+    .collect();
+let html = rich_text::to_html_with(&amp;doc, &amp;images);
+let toc = rich_text::outline(&amp;doc);                        // [Heading { level, text, id }]</code></pre>
+<p><code>to_html_with</code> escapes every text and attribute. Its output:</p>
+<ul>
+<li>
+<p>headings carry stable ids, <code>&lt;h2 id="gioi-thieu"&gt;</code>: the heading’s text
+with diacritics folded (Vietnamese included: <code>Đà Nẵng</code> → <code>da-nang</code>), lower
+case, ASCII letters and digits only (anything else is a <code>-</code>), at most 80
+characters; repeats get <code>-2</code>, <code>-3</code>, …; a heading without letters or digits
+is <code>section</code>. The fold uses Unicode decomposition (the
+<code>unicode-normalization</code> crate, 0.1.25) plus <code>đ</code>, <code>ø</code>, <code>ł</code>, <code>ß</code>, <code>æ</code>, <code>œ</code>. <code>outline</code>
+returns the same ids for a table of contents, and <code>rich_text::slug</code> the
+rule alone;</p>
+</li>
+<li>
+<p>images: <code>&lt;figure data-width="wide"&gt;&lt;img src="…" width="800" height="600" alt="…"&gt;&lt;figcaption&gt;…&lt;/figcaption&gt;&lt;/figure&gt;</code> (<code>data-width</code> only for <code>wide</code>
+and <code>full</code>, <code>width</code>/<code>height</code> only when the <code>ImageInfo</code> has both, no
+<code>figcaption</code> without a caption); images missing from the map (or whose
+<code>to_html</code> callback returns <code>None</code>) are left out;</p>
+</li>
+<li>
+<p>tables: <code>&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;…&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;…&lt;/tbody&gt;&lt;/table&gt;</code>;</p>
+</li>
+<li>
+<p>embeds, a plain link:</p>
+<pre><code class="language-html">&lt;figure data-embed="youtube" data-id="ID"&gt;&lt;a href="https://www.youtube.com/watch?v=ID" rel="noopener noreferrer"&gt;https://www.youtube.com/watch?v=ID&lt;/a&gt;&lt;/figure&gt;
+&lt;figure data-embed="vimeo" data-id="ID"&gt;&lt;a href="https://vimeo.com/ID" rel="noopener noreferrer"&gt;https://vimeo.com/ID&lt;/a&gt;&lt;/figure&gt;
+</code></pre>
+<p>A public frontend may replace it with the provider’s player (an iframe
+built from <code>data-embed</code> and <code>data-id</code>, which are checked formats, e.g.
+<code>https://www.youtube-nocookie.com/embed/ID</code> or
+<code>https://player.vimeo.com/video/ID</code>), with its own CSP for that provider;</p>
+</li>
+<li>
+<p>callouts: <code>&lt;aside class="callout" data-tone="info"&gt;</code>.</p>
+</li>
+</ul>
+<p>No attribute outside this closed set is written. <code>to_html(&amp;doc, &amp;|id| Some(url))</code> keeps its 0.9 signature (figures without sizes).
+<code>rich_text::upgrade_value(&amp;value)</code> rewrites a stored version 1 document as
+version 2 (only <code>version</code> changes: version 1 is a subset), for applications
+that want to rewrite stored documents. It is never needed to read them. The
+editor writes the lowest version a document needs: version 1 unless it holds
+a table, an embed, a callout, or an image with a caption or a width, so
+documents edited without those stay readable by 0.9 (a rollback, an older
+reader of the same database).</p>
 <h2 id="limits-and-operations"><a class="header" href="#limits-and-operations">Limits and operations</a></h2>
 <ul>
 <li>Referencing media needs <code>media.view_any</code> and <code>media.view</code> (the same check as
@@ -275,7 +415,8 @@ bucket (a cancelled request cannot always abort its upload). The bucket is not
 probed at boot; the first upload reports a misconfiguration.</li>
 <li>Local disk: files are synced before their row commits; staged and partial files
 of interrupted uploads are removed by <code>media:prune</code> after an hour.</li>
-<li>Downloads are rate limited per user (600 per minute).</li>
+<li>Downloads are rate limited per user (600 per minute). A library page in
+the picker loads up to 24 thumbnails.</li>
 </ul>
 
                     </main>

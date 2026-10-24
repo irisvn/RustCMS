@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "../searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -216,6 +216,7 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>max_kib</code></td><td><code>may not be larger than {max} KiB</code></td></tr>
 <tr><td><code>max_elements</code></td><td><code>may not have more than {max} elements</code></td></tr>
 <tr><td><code>max_images</code></td><td><code>may not have more than {max} images</code></td></tr>
+<tr><td><code>max_embeds</code></td><td><code>may not have more than {max} embeds</code></td></tr>
 <tr><td><code>too_many_roles</code></td><td><code>has too many roles</code></td></tr>
 <tr><td><code>too_many_permissions</code></td><td><code>has too many permissions</code></td></tr>
 <tr><td><code>unknown_roles</code></td><td><code>has unknown roles</code></td></tr>
@@ -279,12 +280,17 @@ A message that follows none of these templates has the code <code>custom</code> 
 <tr><td><code>too_many_pixels</code></td><td><code>has too many pixels</code></td></tr>
 <tr><td><code>document</code></td><td><code>is not a document</code></td></tr>
 <tr><td><code>document_invalid</code></td><td><code>is not a valid document</code></td></tr>
-<tr><td><code>document_version</code></td><td><code>is not a valid document (version 1)</code></td></tr>
+<tr><td><code>document_version</code></td><td><code>is not a valid document (version 1 or 2)</code></td></tr>
+<tr><td><code>document_needs_version</code></td><td><code>has a table, which needs document version 2</code> (also an embed, a callout, an image caption, an image width)</td></tr>
 <tr><td><code>document_depth</code></td><td><code>is nested too deeply</code></td></tr>
-<tr><td><code>document_structure</code></td><td><code>has a list item outside a list</code> / <code>has a list holding something else than list items</code> / <code>has a code block holding something else than plain text</code> / <code>has a heading without a level from 2 to 4</code> / has unexpected properties on <code>{node}</code> / has an unknown block <code>{node}</code> / has an unknown inline <code>{node}</code> / has an unknown mark <code>{node}</code> / <code>has a mark with attributes</code> / <code>has a text with the same mark twice</code> / <code>has a text with too many marks</code> / <code>has a text without text</code> / <code>has an empty text</code></td></tr>
+<tr><td><code>document_structure</code></td><td><code>has a list item outside a list</code> / <code>has a list holding something else than list items</code> / <code>has a code block holding something else than plain text</code> / <code>has a heading without a level from 2 to 4</code> / has unexpected properties on <code>{node}</code> / has an unknown block <code>{node}</code> / has an unknown inline <code>{node}</code> / has an unknown mark <code>{node}</code> / <code>has a mark with attributes</code> / <code>has a text with the same mark twice</code> / <code>has a text with too many marks</code> / <code>has a text without text</code> / <code>has an empty text</code> / <code>has a table holding something else than rows</code> / <code>has a table whose rows have different lengths</code> / <code>has a table cell out of place (header cells make up the first row only)</code> / <code>has a table cell holding something else than paragraphs</code> / <code>has a callout holding something else than paragraphs and lists</code> / <code>has a callout holding a table or a callout</code> / <code>has a callout with unexpected attributes</code> / has a callout whose tone is not <code>info</code> or <code>warn</code></td></tr>
 <tr><td><code>document_link</code></td><td><code>has a link that is not http, https or mailto</code> / <code>has a link with unexpected attributes</code></td></tr>
-<tr><td><code>document_image</code></td><td><code>has an image that is not a media item</code> / <code>has an image with unexpected attributes</code></td></tr>
+<tr><td><code>document_image</code></td><td><code>has an image that is not a media item</code> / <code>has an image with unexpected attributes</code> / has an image width other than <code>normal</code>, <code>wide</code> or <code>full</code></td></tr>
 <tr><td><code>document_alt</code></td><td><code>has an image description longer than {max} characters</code></td></tr>
+<tr><td><code>document_caption</code></td><td><code>has an image caption longer than {max} characters</code></td></tr>
+<tr><td><code>document_table_rows</code></td><td><code>has a table with no rows or more than {max} rows</code></td></tr>
+<tr><td><code>document_table_columns</code></td><td><code>has a table row with no cells or more than {max} cells</code></td></tr>
+<tr><td><code>document_embed</code></td><td><code>has an embed whose provider is not youtube or vimeo</code> / <code>has an embed with an invalid id</code> / <code>has an embed with unexpected attributes</code></td></tr>
 <tr><td><code>bad_credentials</code></td><td><code>These credentials do not match our records.</code></td></tr>
 <tr><td><code>wrong_password</code></td><td><code>The password is incorrect.</code></td></tr>
 <tr><td><code>password_for_email</code></td><td><code>is required to change your email</code></td></tr>

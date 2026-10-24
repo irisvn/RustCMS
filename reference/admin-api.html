@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "../searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -197,7 +197,7 @@ values follow the <a href="wire-format.html">wire format</a>.</p>
 <tr><th>Method</th><th>Path</th><th>Response</th></tr>
 </thead>
 <tbody>
-<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings, pages, home?, permissions}</code>: resources with <code>view_any</code> (hidden ones too, <code>nav: false</code>; optional <code>sort</code>), settings pages with <code>view</code>, custom pages the user may open (optional <code>sort</code>), the home page’s slug when the user may open it, the declared admin permissions the user holds</td></tr>
+<tr><td>GET</td><td><code>/panel</code></td><td><code>PanelResponse</code> <code>{brand, user, navigation: [ResourceInfo], system, settings, pages, home?, permissions, uploads?}</code>: resources with <code>view_any</code> (hidden ones too, <code>nav: false</code>; optional <code>sort</code>), settings pages with <code>view</code>, custom pages the user may open (optional <code>sort</code>), the home page’s slug when the user may open it, the declared admin permissions the user holds, and <code>uploads</code> (<code>{maxBytes, maxConcurrent}</code>) when the media library is enabled and the user has <code>media.create</code></td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/schema?operation=create|edit|view&amp;key=</code></td><td><code>ResourceSchema</code> for this user</td></tr>
 <tr><td>GET</td><td><code>/resources/{slug}/records?…</code></td><td><code>{data: [Envelope], meta}</code></td></tr>
 <tr><td>POST</td><td><code>/resources/{slug}/records</code></td><td>201 <code>{data: Envelope}</code></td></tr>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f4a40384.js";
+            window.path_to_searchindex_js = "../searchindex-25502553.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-3a27c04e.js"></script>
@@ -196,7 +196,7 @@ keeps its files there.</p>
 <tr><td><code>root</code></td><td><code>storage/app</code></td><td>local disk root (outside the web root; symlinks inside it are refused)</td></tr>
 <tr><td><code>max_upload_bytes</code></td><td>10 MiB</td><td>per upload (the route’s body limit follows)</td></tr>
 <tr><td><code>max_pixels</code></td><td>40,000,000</td><td>images, width × height</td></tr>
-<tr><td><code>max_concurrent_uploads</code></td><td>4</td><td>more answer 429</td></tr>
+<tr><td><code>max_concurrent_uploads</code></td><td>4</td><td>uploads at once for the whole server (all users); more answer 429. Each upload list of the admin panel sends at most 2 at a time and retries a 429 after <code>Retry-After</code></td></tr>
 <tr><td><code>allowed_types</code></td><td><code>["image/png", "image/jpeg", "image/gif", "image/webp", "application/pdf"]</code></td><td>MIME types, a subset of these five</td></tr>
 <tr><td><code>s3.bucket</code>, <code>s3.region</code>, <code>s3.endpoint</code>, <code>s3.allow_http</code></td><td></td><td>private bucket; credentials from <code>AWS_*</code> variables</td></tr>
 <tr><td><code>s3.timeout_secs</code></td><td><code>30</code></td><td>longest wait for a control request (exists, delete, opening a download), retries included (1 to 600)</td></tr>
