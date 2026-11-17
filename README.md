@@ -28,6 +28,7 @@ cd blog
 rustcms migrate
 rustcms make:user --email you@example.com --name You --super-admin
 rustcms serve           # http://localhost:8000/admin
+rustcms serve --watch   # or: rebuild and restart on changes
 ```
 
 `rustcms new` makes a Rust project whose `Cargo.toml` depends on the matching
